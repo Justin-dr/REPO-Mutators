@@ -30,8 +30,10 @@ namespace Mutators.Managers
 
             IList<IMutator> mutators = [
                 CurrentMutator,
-                new Mutator(Mutators.Mutators.OutWithABang, typeof(OutWithABangPatch), 100),
-                new Mutator(Mutators.Mutators.ApolloEleven, typeof(ApolloElevenPatch), 50000)
+                new Mutator(Mutators.Mutators.OutWithABang, typeof(OutWithABangPatch), 50),
+                new Mutator(Mutators.Mutators.ApolloEleven, typeof(ApolloElevenPatch), 50),
+                new Mutator(Mutators.Mutators.UltraViolence, typeof(UltraViolencePatch), 50),
+                new Mutator(Mutators.Mutators.DuckThis, typeof(DuckThisPatch), 50000)
             ];
 
             mutators.ForEach(mutator => _mutators[mutator.Name] = mutator);

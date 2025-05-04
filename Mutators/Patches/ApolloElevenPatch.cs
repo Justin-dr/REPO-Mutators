@@ -8,7 +8,7 @@ namespace Mutators.Mutators.Patches
         [HarmonyPostfix]
         [HarmonyPatch(typeof(LevelGenerator))]
         [HarmonyPatch(nameof(LevelGenerator.GenerateDone))]
-        static void PlayerControllerAwakePostfix()
+        static void LevelGeneratorGenerateDonePostfix()
         {
             if (SemiFunc.RunIsLevel())
             {

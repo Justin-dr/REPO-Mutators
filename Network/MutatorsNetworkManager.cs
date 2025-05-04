@@ -9,7 +9,7 @@ namespace Mutators.Network
 {
     internal class MutatorsNetworkManager : MonoBehaviour
     {
-        internal static MutatorsNetworkManager? Instance { get; private set; }
+        internal static MutatorsNetworkManager Instance { get; private set; } = null!;
 
         private PhotonView _photonView = null!;
 
@@ -54,7 +54,7 @@ namespace Mutators.Network
         [PunRPC]
         public void SetActiveMutator(string name)
         {
-            MutatorManager.Instance.SetActiveMutator(name);
+            MutatorManager.Instance.SetActiveMutator(name, SemiFunc.RunIsLevel());
         }
 
         private void Send<T>(T data, Action<T> rpcMethod, RpcTarget rpcTarget)

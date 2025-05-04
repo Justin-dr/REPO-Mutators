@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
 using Mutators.Managers;
 using Mutators.Mutators;
+using Mutators.Network;
 using static RunManager;
 
 namespace Mutators.Patches
@@ -18,6 +19,7 @@ namespace Mutators.Patches
                 IMutator mutator = mutatorManager.GetWeightedMutator();
                 RepoMutators.Logger.LogDebug($"Set mutator to {mutator.Name}, applying patch later");
                 mutatorManager.SetActiveMutator(mutator.Name, false);
+                MutatorsNetworkManager.Instance.SendActiveMutator(mutator.Name);
             }
             else if (SemiFunc.RunIsLevel())
             {
