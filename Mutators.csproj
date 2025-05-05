@@ -30,8 +30,5 @@
 
     <PackageReference Include="Zehs.REPOLib" Version="2.*" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Mutators\Behaviours\" />
-  </ItemGroup>
 
 </Project>

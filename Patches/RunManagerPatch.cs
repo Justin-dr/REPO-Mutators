@@ -2,7 +2,6 @@
 using Mutators.Managers;
 using Mutators.Mutators;
 using Mutators.Network;
-using static RunManager;
 
 namespace Mutators.Patches
 {
@@ -12,6 +11,26 @@ namespace Mutators.Patches
         [HarmonyPostfix]
         [HarmonyPatch(nameof(RunManager.ChangeLevel))]
         static void RunManagerChangeLevelPostfix()
+        {
+            if (SemiFunc.IsMultiplayer() && SemiFunc.IsNotMasterClient()) return;
+
+            RepoMutators.Logger.LogDebug("RunManagerPatch Host only");
+
+            ApplyPatch();
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(nameof(RunManager.UpdateLevel))]
+        static void RunManagerUpdateLevelPostfix()
+        {
+            if (SemiFunc.IsMasterClientOrSingleplayer()) return;
+
+            RepoMutators.Logger.LogDebug("RunManagerPatch Client only");
+
+            ApplyPatch();
+        }
+
+        private static void ApplyPatch()
         {
             MutatorManager mutatorManager = MutatorManager.Instance;
             if (SemiFunc.RunIsShop())

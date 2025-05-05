@@ -1,4 +1,6 @@
 ﻿using HarmonyLib;
+using Mutators.Mutators.Behaviours;
+using Unity.VisualScripting;
 
 namespace Mutators.Mutators.Patches
 {
@@ -6,30 +8,26 @@ namespace Mutators.Mutators.Patches
     {
         [HarmonyPrefix]
         [HarmonyPatch(typeof(EnemyDuck))]
-        [HarmonyPatch(nameof(EnemyDuck.UpdateState))]
-        static void EnemyDuckUpdateStatePrefix(ref EnemyDuck.State __state)
-        {
-            //RepoMutators.Logger.LogInfo($"Duck This - State: {__state}");
-            if (__state == EnemyDuck.State.GoToPlayer || __state == EnemyDuck.State.GoToPlayerOver || __state == EnemyDuck.State.GoToPlayerUnder)
-            {
-                RepoMutators.Logger.LogInfo($"Duck This - Setting state to transform");
-                //__state = EnemyDuck.State.Transform;
-            }
-        }
-
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(EnemyDuck))]
         [HarmonyPatch(nameof(EnemyDuck.Update))]
-        static void EnemyDuckUpdateStateTransformPrefix(EnemyDuck __instance)
+        static void EnemyDuckUpdatePrefix(EnemyDuck __instance)
         {
-            RepoMutators.Logger.LogInfo($"Duck This - State: {__instance.currentState} - Impulse: {__instance.stateImpulse}");
-            if (__instance.currentState == EnemyDuck.State.GoToPlayer || __instance.currentState == EnemyDuck.State.GoToPlayerOver || __instance.currentState == EnemyDuck.State.GoToPlayerUnder)
+            if (SemiFunc.IsMasterClientOrSingleplayer())
             {
-                __instance.UpdateState(EnemyDuck.State.AttackStart);
-            }
-            if (__instance.currentState == EnemyDuck.State.DeTransform)
-            {
-                __instance.UpdateState(EnemyDuck.State.Leave);
+                DuckThisBehaviour noticeBehaviour = __instance.GetOrAddComponent<DuckThisBehaviour>();
+
+                if (__instance.currentState == EnemyDuck.State.GoToPlayer || __instance.currentState == EnemyDuck.State.GoToPlayerOver || __instance.currentState == EnemyDuck.State.GoToPlayerUnder)
+                {
+                    if (noticeBehaviour.CanNotice())
+                    {
+                        __instance.UpdateState(EnemyDuck.State.AttackStart);
+                    }
+                }
+                if (__instance.currentState == EnemyDuck.State.DeTransform)
+                {
+                    __instance.playerTarget = null;
+                    __instance.UpdateState(EnemyDuck.State.Idle);
+                    noticeBehaviour._noticeCooldown = 120f;
+                }
             }
         }
     }

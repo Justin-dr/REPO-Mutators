@@ -55,12 +55,7 @@ public class RepoMutators : BaseUnityPlugin
 
         Logger.LogInfo($"{Info.Metadata.GUID} v{Info.Metadata.Version} has loaded!");
 
-        BundleLoader.OnAllBundlesLoaded += BundleLoader_OnAllBundlesLoaded;
-    }
-
-    private void BundleLoader_OnAllBundlesLoaded()
-    {
-        _logger.LogDebug("Initializing default mutators.");
+        Logger.LogDebug("Initializing default mutators.");
         MutatorManager.Instance.InitializeDefaultMutators();
     }
 

@@ -13,8 +13,6 @@ namespace Mutators.Mutators.Patches
         [HarmonyPatch(nameof(EnemyHealth.Awake))]
         static void EnemeyHealthAwakePostfix(EnemyHealth __instance)
         {
-            if (!SemiFunc.IsMasterClientOrSingleplayer()) return;
-
             if (explosionPreset == null)
             {
                 explosionPreset = UnityEngine.Object.Instantiate(AssetStore.Preset);
@@ -29,7 +27,6 @@ namespace Mutators.Mutators.Patches
 
         private static void Explode(Enemy enemy, ParticleScriptExplosion particleScriptExplosion)
         {
-            RepoMutators.Logger.LogInfo($"Exploding at position {enemy.CenterTransform.position.ToString() ?? "null"}");
             particleScriptExplosion.Spawn(enemy.CenterTransform.position, 0.5f, 100, 100);
         }
     }

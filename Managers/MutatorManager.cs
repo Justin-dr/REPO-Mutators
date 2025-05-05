@@ -33,7 +33,7 @@ namespace Mutators.Managers
                 new Mutator(Mutators.Mutators.OutWithABang, typeof(OutWithABangPatch), 50),
                 new Mutator(Mutators.Mutators.ApolloEleven, typeof(ApolloElevenPatch), 50),
                 new Mutator(Mutators.Mutators.UltraViolence, typeof(UltraViolencePatch), 50),
-                new Mutator(Mutators.Mutators.DuckThis, typeof(DuckThisPatch), 50000)
+                new Mutator(Mutators.Mutators.DuckThis, typeof(DuckThisPatch), 50)
             ];
 
             mutators.ForEach(mutator => _mutators[mutator.Name] = mutator);

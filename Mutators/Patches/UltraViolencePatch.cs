@@ -2,6 +2,7 @@
 using Photon.Pun;
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 
@@ -9,8 +10,9 @@ namespace Mutators.Mutators.Patches
 {
     internal class UltraViolencePatch
     {
-        private static readonly FieldInfo _extractionPointsField = AccessTools.Field(typeof(RoundDirector), "extractionPoints");
-        private static readonly FieldInfo _extractionPointsCompletedField = AccessTools.Field(typeof(RoundDirector), "extractionPointsCompleted");
+        private static readonly Func<RoundDirector, int> _getExtractionPoints = CreateFieldGetter<RoundDirector, int>("extractionPoints");
+        private static readonly Func<RoundDirector, int> _getExtractionPointsCompleted = CreateFieldGetter<RoundDirector, int>("extractionPointsCompleted");
+        private static readonly Action<RoundDirector, int> _setExtractionPointsCompleted = CreateFieldSetter<RoundDirector, int>("extractionPointsCompleted");
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(ExtractionPoint))]
@@ -19,15 +21,12 @@ namespace Mutators.Mutators.Patches
         {
             RepoMutators.Logger.LogInfo("Trigger UltraViolence");
 
-            if (SemiFunc.IsMasterClientOrSingleplayer())
-            {
-                int extractionPoints = (int) _extractionPointsField.GetValue(RoundDirector.instance);
-                _extractionPointsCompletedField.SetValue(RoundDirector.instance, extractionPoints);
+            int extractionPoints = _getExtractionPoints(RoundDirector.instance);
+            _setExtractionPointsCompleted(RoundDirector.instance, extractionPoints);
 
-                RoundDirector.instance.ExtractionCompletedAllCheck();
+            RoundDirector.instance.ExtractionCompletedAllCheck();
 
-                _extractionPointsCompletedField.SetValue(RoundDirector.instance, 0);
-            }
+            _setExtractionPointsCompleted(RoundDirector.instance, 0);
         }
 
         [HarmonyPrefix]
@@ -35,10 +34,45 @@ namespace Mutators.Mutators.Patches
         [HarmonyPatch(nameof(PlayerAvatar.FinalHeal))]
         static bool PlayerAvatarFinalHealPrefix() // Disabled truck heal until all extraction points have been completed
         {
-            //TODO: Maybe find a way to disable the healing light too, but can't be too bothered right now
-            int extractionPoints = (int)_extractionPointsField.GetValue(RoundDirector.instance);
-            int extractionPointsCompleted = (int) _extractionPointsCompletedField.GetValue(RoundDirector.instance);
+            int extractionPoints = _getExtractionPoints(RoundDirector.instance);
+            int extractionPointsCompleted = _getExtractionPointsCompleted(RoundDirector.instance);
             return extractionPointsCompleted >= extractionPoints;
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(TruckHealer))]
+        [HarmonyPatch(nameof(TruckHealer.StateUpdate))]
+        static bool TruckHealerStateUpdatePrefixPrefix() // Disable truck healing light
+        {
+            int extractionPoints = _getExtractionPoints(RoundDirector.instance);
+            int extractionPointsCompleted = _getExtractionPointsCompleted(RoundDirector.instance);
+            return extractionPointsCompleted >= extractionPoints;
+        }
+
+        private static Func<T, R> CreateFieldGetter<T, R>(string fieldName)
+        {
+            var field = AccessTools.Field(typeof(T), fieldName);
+            if (field == null) throw new Exception($"Field {fieldName} not found on {typeof(T)}");
+
+            var param = Expression.Parameter(typeof(T), "instance");
+            var fieldAccess = Expression.Field(param, field);
+            var lambda = Expression.Lambda<Func<T, R>>(fieldAccess, param);
+            return lambda.Compile();
+        }
+
+        private static Action<T, V> CreateFieldSetter<T, V>(string fieldName)
+        {
+            var field = AccessTools.Field(typeof(T), fieldName);
+            if (field == null) throw new Exception($"Field {fieldName} not found on {typeof(T)}");
+
+            var targetExp = Expression.Parameter(typeof(T), "instance");
+            var valueExp = Expression.Parameter(typeof(V), "value");
+
+            var fieldExp = Expression.Field(targetExp, field);
+            var assignExp = Expression.Assign(fieldExp, valueExp);
+
+            var lambda = Expression.Lambda<Action<T, V>>(assignExp, targetExp, valueExp);
+            return lambda.Compile();
         }
     }
 }
