@@ -68,7 +68,7 @@ namespace Mutators.Mutators.Patches
 
         private static void MakeAllPhysGrabObjectsZeroGravity()
         {
-            Collider[] array = Physics.OverlapSphere(new Vector3(0, 10, 0), 200f, LayerMask.GetMask("PhysGrabObject"));
+            Collider[] array = Physics.OverlapSphere(new Vector3(0, 10, 0), 300f, LayerMask.GetMask("PhysGrabObject"));
             for (int i = 0; i < array.Length; i++)
             {
                 PhysGrabObject physGrabObject = array[i].GetComponentInParent<PhysGrabObject>();

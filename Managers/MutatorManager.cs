@@ -1,7 +1,6 @@
 ﻿using Mutators.Mutators;
 using Mutators.Mutators.Patches;
 using Sirenix.Utilities;
-using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -10,15 +9,20 @@ namespace Mutators.Managers
 {
     public class MutatorManager
     {
+        private static readonly NopMutator _nopMutator = new NopMutator(Settings.NopMutatorWeight.Value);
         public static MutatorManager Instance { get; private set; } = new MutatorManager();
-
-        private bool _initialized = false;
 
         private readonly IDictionary<string, IMutator> _mutators  = new Dictionary<string, IMutator>();
 
+        internal IDictionary<string, string> metadata = new Dictionary<string, string>();
+
         public IReadOnlyDictionary<string, IMutator> RegisteredMutators => new ReadOnlyDictionary<string, IMutator>(_mutators);
 
-        public IMutator CurrentMutator { get; internal set; } = new NopMutator(50);
+        public IMutator CurrentMutator { get; internal set; } = _nopMutator;
+
+        public IReadOnlyDictionary<string, string> Metadata => new ReadOnlyDictionary<string, string>(metadata);
+
+        private bool _initialized = false;
 
         internal void InitializeDefaultMutators()
         {
@@ -29,23 +33,28 @@ namespace Mutators.Managers
             }
 
             IList<IMutator> mutators = [
-                CurrentMutator,
-                new Mutator(Mutators.Mutators.OutWithABang, typeof(OutWithABangPatch), 50),
-                new Mutator(Mutators.Mutators.ApolloEleven, typeof(ApolloElevenPatch), 50),
-                new Mutator(Mutators.Mutators.UltraViolence, typeof(UltraViolencePatch), 50),
-                new Mutator(Mutators.Mutators.DuckThis, typeof(DuckThisPatch), 50)
+                _nopMutator,
+                new Mutator(Mutators.Mutators.OutWithABang, typeof(OutWithABangPatch), Settings.OutWithABangWeight.Value),
+                new Mutator(Mutators.Mutators.ApolloEleven, typeof(ApolloElevenPatch), Settings.AppoloElevenWeight.Value),
+                new Mutator(Mutators.Mutators.UltraViolence, typeof(UltraViolencePatch), Settings.UltraViolenceWeight.Value),
+                new Mutator(Mutators.Mutators.DuckThis, typeof(DuckThisPatch), Settings.DuckThisWeight.Value),
+                new Mutator(Mutators.Mutators.OneShotOneKill, typeof(OneShotOneKillPatch), Settings.OneShotOneKillWeight.Value),
+                new Mutator(Mutators.Mutators.ProtectThePresident, typeof(ProtectThePresidentPatch), Settings.ProtectThePresidentWeight.Value, [SemiFunc.IsMultiplayer]),
+                new Mutator(Mutators.Mutators.RustyServos, typeof(RustyServosPatch), Settings.RustyServosWeight.Value),
+                new Mutator(Mutators.Mutators.HandleWithCare, typeof(HandleWithCarePatch), Settings.HandleWithCareWeight.Value),
+                new Mutator(Mutators.Mutators.HuntingSeason, typeof(HuntingSeasonPatch), Settings.HuntingSeasonWeight.Value),
             ];
 
             mutators.ForEach(mutator => _mutators[mutator.Name] = mutator);
             _initialized = true;
         }
 
-        public void RegisterMutator(Mutator mutator)
+        public void RegisterMutator(IMutator mutator)
         {
             _mutators.Add(mutator.Name, mutator);
         }
 
-        public void UnregisterMutator(Mutator mutator)
+        public void UnregisterMutator(IMutator mutator)
         {
             if (!_mutators.Remove(mutator.Name)) return;
 
@@ -57,14 +66,9 @@ namespace Mutators.Managers
 
         public void UnregisterMutator(string name)
         {
-            if (!_mutators.TryGetValue(name, out var mutator)) return;
+            if (!_mutators.TryGetValue(name, out IMutator mutator)) return;
 
-            _mutators.Remove(name);
-
-            if (mutator.Active)
-            {
-                mutator.Unpatch();
-            }
+            UnregisterMutator(mutator);
         }
 
         internal void SetActiveMutator(string name, bool applyPatchNow = true)
@@ -91,7 +95,13 @@ namespace Mutators.Managers
         internal IMutator GetWeightedMutator()
         {
             ICollection<IMutator> mutators = _mutators.Values;
-            float totalWeight = mutators.Sum(item => item.Weight);
+            float totalWeight = mutators.Where(mutator => mutator.Conditions.All(condition => condition())).Sum(item => item.Weight);
+
+            if (totalWeight <= 0)
+            {
+                return _nopMutator;
+            }
+
             float randomValue = UnityEngine.Random.Range(0f, totalWeight);
 
             float currentSum = 0f;
@@ -102,7 +112,7 @@ namespace Mutators.Managers
                     return mutator;
             }
 
-            return mutators.Last();
+            return _nopMutator;
         }
     }
 }

@@ -17,5 +17,7 @@ namespace Mutators.Mutators
         uint Weight { get; }
 
         IReadOnlyList<Type> Patches { get; }
+
+        IReadOnlyList<Func<bool>> Conditions { get; }
     }
 }

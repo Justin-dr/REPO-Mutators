@@ -9,20 +9,23 @@ namespace Mutators.Mutators
     {
         private readonly Harmony _harmony;
         private readonly IList<Type> _patches;
+        private readonly IList<Func<bool>> _conditions;
         public string Name { get; private set; }
         public bool Active { get; private set; }
         public uint Weight { get; private set; }
+        public IReadOnlyList<Func<bool>> Conditions => new ReadOnlyCollection<Func<bool>>(_conditions);
         public IReadOnlyList<Type> Patches => new ReadOnlyCollection<Type>(_patches);
 
-        public Mutator(string name, IList<Type> patches, uint weight)
+        public Mutator(string name, IList<Type> patches, uint weight, IList<Func<bool>> conditions = null!)
         {
             Name = name;
             Weight = weight;
             _harmony = new Harmony($"{MyPluginInfo.PLUGIN_GUID}-{name}");
             _patches = patches ?? [];
+            _conditions = conditions ?? [];
         }
 
-        public Mutator(string name, Type patch, uint weight) : this(name, [patch], weight)
+        public Mutator(string name, Type patch, uint weight, IList<Func<bool>> conditions = null!) : this(name, [patch], weight, conditions)
         {
             
         }

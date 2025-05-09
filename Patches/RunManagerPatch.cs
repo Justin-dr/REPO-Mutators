@@ -33,12 +33,13 @@ namespace Mutators.Patches
         private static void ApplyPatch()
         {
             MutatorManager mutatorManager = MutatorManager.Instance;
-            if (SemiFunc.RunIsShop())
+            if (SemiFunc.RunIsShop() && SemiFunc.IsMasterClientOrSingleplayer())
             {
+                MutatorsNetworkManager mutatorsNetworkManager = MutatorsNetworkManager.Instance;
+                mutatorsNetworkManager.ClearBufferedRPCs();
+
                 IMutator mutator = mutatorManager.GetWeightedMutator();
-                RepoMutators.Logger.LogDebug($"Set mutator to {mutator.Name}, applying patch later");
-                mutatorManager.SetActiveMutator(mutator.Name, false);
-                MutatorsNetworkManager.Instance.SendActiveMutator(mutator.Name);
+                mutatorsNetworkManager.SendActiveMutator(mutator.Name);
             }
             else if (SemiFunc.RunIsLevel())
             {

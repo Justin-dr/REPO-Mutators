@@ -40,6 +40,8 @@ public class RepoMutators : BaseUnityPlugin
             _logger.LogInfo($"Loaded {MyPluginInfo.NAME} asset bundle");
         });
 
+        Settings.Initialize(Config);
+
         GameObject myPrefab = new GameObject("RepoMutatorsPrefab")
         {
             hideFlags = HideFlags.HideAndDontSave,
@@ -64,6 +66,7 @@ public class RepoMutators : BaseUnityPlugin
         Harmony ??= new Harmony(Info.Metadata.GUID);
         Harmony.PatchAll(typeof(NetworkConnectPatch));
         Harmony.PatchAll(typeof(RunManagerPatch));
+        Harmony.PatchAll(typeof(ExtractionPointPatch));
     }
 
     internal void Unpatch()

@@ -7,6 +7,7 @@ namespace Mutators.Mutators
     public class NopMutator : IMutator
     {
         private static readonly IReadOnlyList<Type> _patches = [];
+        private static readonly IReadOnlyList<Func<bool>> _conditions = [];
 
         public string Name => Mutators.NopMutator;
 
@@ -15,6 +16,8 @@ namespace Mutators.Mutators
         public uint Weight { get; private set; }
 
         public IReadOnlyList<Type> Patches => _patches;
+
+        public IReadOnlyList<Func<bool>> Conditions => _conditions;
 
         internal NopMutator(uint weight)
         {
