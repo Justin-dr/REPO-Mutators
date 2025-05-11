@@ -5,6 +5,7 @@ using Mutators.Managers;
 using Mutators.Mutators;
 using Mutators.Network;
 using Mutators.Patches;
+using Mutators.Settings;
 using Photon.Pun;
 using REPOLib;
 using System.IO;
@@ -39,7 +40,7 @@ public class RepoMutators : BaseUnityPlugin
             _logger.LogInfo($"Loaded {MyPluginInfo.NAME} asset bundle");
         });
 
-        Settings.Initialize(Config);
+        MutatorSettings.Initialize(Config);
 
         GameObject myPrefab = new GameObject("RepoMutatorsPrefab")
         {
@@ -72,7 +73,7 @@ public class RepoMutators : BaseUnityPlugin
     internal void Unpatch()
     {
         Harmony?.UnpatchSelf();
-        foreach (Mutator mutator in MutatorManager.Instance.RegisteredMutators.Values)
+        foreach (IMutator mutator in MutatorManager.Instance.RegisteredMutators.Values)
         {
             mutator.Unpatch();
         }

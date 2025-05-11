@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Mutators.Settings;
+using System;
 using System.Collections.Generic;
 
 namespace Mutators.Mutators
@@ -12,15 +13,15 @@ namespace Mutators.Mutators
 
         public bool Active { get; private set; }
 
-        public uint Weight { get; private set; }
+        public AbstractMutatorSettings Settings { get; private set; }
 
         public IReadOnlyList<Type> Patches => _patches;
 
         public IReadOnlyList<Func<bool>> Conditions => _conditions;
 
-        internal NopMutator(uint weight)
+        internal NopMutator(AbstractMutatorSettings settings)
         {
-            Weight = weight;
+            Settings = settings;
         }
 
         public void Patch()

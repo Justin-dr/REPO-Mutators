@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Mutators.Settings;
+using System;
 using System.Collections.Generic;
 
 namespace Mutators.Mutators
@@ -13,7 +14,7 @@ namespace Mutators.Mutators
 
         bool Active { get; }
 
-        uint Weight { get; }
+        AbstractMutatorSettings Settings { get; }
 
         IReadOnlyList<Type> Patches { get; }
 

@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using Mutators.Mutators.Behaviours;
+using Mutators.Settings;
 using Unity.VisualScripting;
 
 namespace Mutators.Mutators.Patches
@@ -26,7 +27,7 @@ namespace Mutators.Mutators.Patches
                 {
                     __instance.playerTarget = null;
                     __instance.UpdateState(EnemyDuck.State.Idle);
-                    noticeBehaviour.NoticeCooldown = Settings.DuckThisAggroCooldown.Value;
+                    noticeBehaviour.NoticeCooldown = MutatorSettings.DuckThis.AggroCooldown;
                 }
             }
         }
