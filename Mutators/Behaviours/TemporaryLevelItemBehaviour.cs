@@ -2,7 +2,7 @@
 
 namespace Mutators.Mutators.Behaviours
 {
-    internal class TemporaryLevelItemBehavior : MonoBehaviour
+    internal class TemporaryLevelItemBehaviour : MonoBehaviour
     {
         internal PhysGrabObject _physGrabObject = null!;
         internal string levelName = null!;

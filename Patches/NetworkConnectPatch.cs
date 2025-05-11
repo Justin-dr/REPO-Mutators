@@ -23,10 +23,11 @@ namespace Mutators.Patches
         [HarmonyPatch("OnDestroy")]
         static void OnDestroy()
         {
-            MutatorManager mutatorManager = MutatorManager.Instance;
+            if (!SemiFunc.IsMultiplayer()) return;
 
-            if (SemiFunc.IsMultiplayer() && SemiFunc.IsMasterClient())
+            if (SemiFunc.IsMasterClient())
             {
+                MutatorManager mutatorManager = MutatorManager.Instance;
                 IMutator mutator = mutatorManager.GetWeightedMutator();
                 RepoMutators.Logger.LogDebug($"Picked weighted mutator: {mutator.Name}");
 

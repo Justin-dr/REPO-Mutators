@@ -66,7 +66,8 @@ public class RepoMutators : BaseUnityPlugin
         Harmony ??= new Harmony(Info.Metadata.GUID);
         Harmony.PatchAll(typeof(NetworkConnectPatch));
         Harmony.PatchAll(typeof(RunManagerPatch));
-        Harmony.PatchAll(typeof(ExtractionPointPatch));
+        Harmony.PatchAll(typeof(LoadingUIPatch));
+        Harmony.PatchAll(typeof(SemiFuncPatch));
     }
 
     internal void Unpatch()

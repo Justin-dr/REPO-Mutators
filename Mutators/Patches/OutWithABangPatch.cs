@@ -18,16 +18,18 @@ namespace Mutators.Mutators.Patches
                 explosionPreset = UnityEngine.Object.Instantiate(AssetStore.Preset);
             }
 
-            RepoMutators.Logger.LogInfo($"Adding explosion to {__instance.enemy.name}");
-            ParticleScriptExplosion particleScriptExplosion = __instance.AddComponent<ParticleScriptExplosion>();
-            particleScriptExplosion.explosionPreset = explosionPreset;
+            if (__instance.enemy.EnemyParent.enemyName != "Banger")
+            {
+                ParticleScriptExplosion particleScriptExplosion = __instance.AddComponent<ParticleScriptExplosion>();
+                particleScriptExplosion.explosionPreset = explosionPreset;
 
-            __instance.onDeath.AddListener(new UnityAction(() => Explode(__instance.enemy, particleScriptExplosion)));
+                __instance.onDeath.AddListener(new UnityAction(() => Explode(__instance.enemy, particleScriptExplosion)));
+            }
         }
 
         private static void Explode(Enemy enemy, ParticleScriptExplosion particleScriptExplosion)
         {
-            particleScriptExplosion.Spawn(enemy.CenterTransform.position, 0.5f, 100, 100);
+            particleScriptExplosion.Spawn(enemy.CenterTransform.position, 0.5f, 25, 25);
         }
     }
 }

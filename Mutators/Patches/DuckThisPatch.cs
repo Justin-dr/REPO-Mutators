@@ -26,7 +26,7 @@ namespace Mutators.Mutators.Patches
                 {
                     __instance.playerTarget = null;
                     __instance.UpdateState(EnemyDuck.State.Idle);
-                    noticeBehaviour._noticeCooldown = 120f;
+                    noticeBehaviour.NoticeCooldown = Settings.DuckThisAggroCooldown.Value;
                 }
             }
         }

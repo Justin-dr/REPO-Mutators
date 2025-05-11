@@ -32,16 +32,16 @@ namespace Mutators.Mutators
 
         public void Patch()
         {
-            RepoMutators.Logger.LogInfo($"{Name} active: {Active}");
+            RepoMutators.Logger.LogDebug($"{Name} active: {Active}");
             if (Active) return;
 
-            RepoMutators.Logger.LogInfo($"About to apply {_patches.Count} patches for {Name}");
+            RepoMutators.Logger.LogDebug($"About to apply {_patches.Count} patches for {Name}");
 
             Active = true;
             foreach (Type patch in _patches)
             {
                 _harmony.PatchAll(patch);
-                RepoMutators.Logger.LogInfo($"Applied patch");
+                RepoMutators.Logger.LogDebug($"Applied patch: {patch.Name}");
             }
         }
 

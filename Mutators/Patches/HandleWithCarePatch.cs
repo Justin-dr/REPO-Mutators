@@ -31,11 +31,9 @@ namespace Mutators.Mutators.Patches
         {
             if (!_haulGoalReset && SemiFunc.IsMasterClientOrSingleplayer())
             {
-                RepoMutators.Logger.LogInfo($"Max haul goal original: {value}");
                 float newValue = value / Settings.HandleWithCareValueMultiplier.Value;
                 value = (int)newValue;
                 _haulGoalReset = true;
-                RepoMutators.Logger.LogInfo($"Max haul goal new: {value}");
             }
             
         }

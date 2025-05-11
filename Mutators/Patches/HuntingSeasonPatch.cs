@@ -42,7 +42,7 @@ namespace Mutators.Mutators.Patches
                     GameObject? itemObject = Items.SpawnItem(item, position, Quaternion.identityQuaternion);
                     if (itemObject == null) continue;
 
-                    itemObject.AddComponent<TemporaryLevelItemBehavior>();
+                    itemObject.AddComponent<TemporaryLevelItemBehaviour>();
                     PhotonView view = itemObject.GetComponent<PhotonView>();
 
                     if (view)
@@ -53,7 +53,7 @@ namespace Mutators.Mutators.Patches
 
                 MutatorsNetworkManager.Instance.SendComponentForViews(
                     views.Select(x => x.ViewID).ToArray(),
-                    typeof(TemporaryLevelItemBehavior)
+                    typeof(TemporaryLevelItemBehaviour)
                 );
             }
         }
@@ -63,7 +63,7 @@ namespace Mutators.Mutators.Patches
         [HarmonyPatch(nameof(ItemAttributes.Start))]
         static void ItemAttributesStartPostfix(ItemAttributes __instance)
         {
-            TemporaryLevelItemBehavior levelChangeBehaviour = __instance.gameObject.GetComponent<TemporaryLevelItemBehavior>();
+            TemporaryLevelItemBehaviour levelChangeBehaviour = __instance.gameObject.GetComponent<TemporaryLevelItemBehaviour>();
             if (levelChangeBehaviour)
             {
                 __instance.itemName += " (Temporary)";
@@ -105,28 +105,6 @@ namespace Mutators.Mutators.Patches
             DropItems();
         }
 
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(TruckScreenText))]
-        [HarmonyPatch(nameof(TruckScreenText.GotoNextLevel))]
-        static void TruckScreenOpenTruckScreenCloseStart()
-        {
-            // Only works on host
-            RepoMutators.Logger.LogInfo("Going to next level");
-        }
-
-
-        
-
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(PhysGrabObject))]
-        [HarmonyPatch(nameof(PhysGrabObject.DestroyPhysGrabObjectRPC))]
-        static void PhysGrabObjectDestroyPhysGrabObjectRPC(PhysGrabObject __instance)
-        {
-            //Destroy RPC happens too soon because this check happens every frame
-            RepoMutators.Logger.LogInfo("Received destroy RPC for weapon");
-        }
-
-
         private static Item[] GetPossibleItems()
         {
             return Items.AllItems.Where(i => i.itemType == SemiFunc.itemType.melee || i.itemType == SemiFunc.itemType.gun).ToArray();
@@ -138,10 +116,9 @@ namespace Mutators.Mutators.Patches
             foreach (InventorySpot inventorySpot in inventory.inventorySpots)
             {
                 ItemEquippable currentItem = inventorySpot.CurrentItem;
-                RepoMutators.Logger.LogInfo($"Looping inventory");
-                if (currentItem && currentItem.gameObject.GetComponent<TemporaryLevelItemBehavior>())
+                if (currentItem && currentItem.gameObject.GetComponent<TemporaryLevelItemBehaviour>())
                 {
-                    RepoMutators.Logger.LogInfo($"Dropping item: {currentItem}");
+                    RepoMutators.Logger.LogDebug($"Dropping item: {currentItem}");
                     if (SemiFunc.IsMultiplayer())
                     {
                         currentItem.GetComponent<ItemEquippable>().ForceUnequip(inventory.playerAvatar.PlayerVisionTarget.VisionTransform.position, inventory.physGrabber.photonView.ViewID);

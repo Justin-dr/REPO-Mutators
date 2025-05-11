@@ -1,6 +1,7 @@
 ﻿using Mutators.Mutators;
 using Mutators.Mutators.Patches;
 using Sirenix.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -24,6 +25,8 @@ namespace Mutators.Managers
 
         private bool _initialized = false;
 
+        public Action<IDictionary<string, string>> OnMetadataChanged { get; set; } = null!;
+
         internal void InitializeDefaultMutators()
         {
             if (_initialized)
@@ -39,7 +42,7 @@ namespace Mutators.Managers
                 new Mutator(Mutators.Mutators.UltraViolence, typeof(UltraViolencePatch), Settings.UltraViolenceWeight.Value),
                 new Mutator(Mutators.Mutators.DuckThis, typeof(DuckThisPatch), Settings.DuckThisWeight.Value),
                 new Mutator(Mutators.Mutators.OneShotOneKill, typeof(OneShotOneKillPatch), Settings.OneShotOneKillWeight.Value),
-                new Mutator(Mutators.Mutators.ProtectThePresident, typeof(ProtectThePresidentPatch), Settings.ProtectThePresidentWeight.Value, [SemiFunc.IsMultiplayer]),
+                new Mutator(Mutators.Mutators.ProtectThePresident, typeof(ProtectThePresidentPatch), Settings.ProtectThePresidentWeight.Value, [SemiFunc.IsMultiplayer, ProtectThePresidentPatch.CanBePicked]),
                 new Mutator(Mutators.Mutators.RustyServos, typeof(RustyServosPatch), Settings.RustyServosWeight.Value),
                 new Mutator(Mutators.Mutators.HandleWithCare, typeof(HandleWithCarePatch), Settings.HandleWithCareWeight.Value),
                 new Mutator(Mutators.Mutators.HuntingSeason, typeof(HuntingSeasonPatch), Settings.HuntingSeasonWeight.Value),

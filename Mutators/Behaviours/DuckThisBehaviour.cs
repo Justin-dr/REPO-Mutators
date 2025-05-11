@@ -1,30 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Mutators.Mutators.Behaviours
 {
     internal class DuckThisBehaviour : MonoBehaviour
     {
-        internal float _noticeCooldown = 0f;
+        public float NoticeCooldown { get; internal set; } = 0;
 
         private void Update()
         {
-            if (_noticeCooldown > 0f && SemiFunc.IsMasterClientOrSingleplayer())
+            if (NoticeCooldown > 0f && SemiFunc.IsMasterClientOrSingleplayer())
             {
-                _noticeCooldown -= Time.deltaTime;
+                NoticeCooldown -= Time.deltaTime;
             }
-        }
-
-        internal void OnNotice()
-        {
-            _noticeCooldown = 120f;
         }
 
         internal bool CanNotice()
         {
-            return _noticeCooldown <= 0f;
+            return NoticeCooldown <= 0f;
         }
     }
 }

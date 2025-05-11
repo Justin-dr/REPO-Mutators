@@ -12,8 +12,10 @@ namespace Mutators
         public static ConfigEntry<uint> AppoloElevenWeight { get; private set; } = null!;
         public static ConfigEntry<uint> OutWithABangWeight { get; private set; } = null!;
         public static ConfigEntry<uint> DuckThisWeight { get; private set; } = null!;
+        public static ConfigEntry<float> DuckThisAggroCooldown { get; private set; } = null!;
         public static ConfigEntry<uint> UltraViolenceWeight { get; private set; } = null!;
         public static ConfigEntry<uint> ProtectThePresidentWeight { get; private set; } = null!;
+        public static ConfigEntry<byte> ProtectThePresidentMinimumPlayerCount { get; private set; } = null!;
         public static ConfigEntry<uint> OneShotOneKillWeight { get; private set; } = null!;
         public static ConfigEntry<uint> RustyServosWeight { get; private set; } = null!;
         public static ConfigEntry<uint> HandleWithCareWeight { get; private set; } = null!;
@@ -47,6 +49,13 @@ namespace Mutators
             "Weight",
             100,
             $"Weighted chance for the {Mutators.Mutators.DuckThis} Mutator to be active."
+            );
+
+            DuckThisAggroCooldown = config.Bind<float>(
+            $"{Mutators.Mutators.DuckThis} Mutator",
+            "Duck aggro cooldown",
+            120,
+            $"The cooldown between duck aggro while the {Mutators.Mutators.DuckThis} Mutator is active."
             );
 
             UltraViolenceWeight = config.Bind<uint>(
@@ -106,6 +115,13 @@ namespace Mutators
             "Weight",
             100,
             $"Weighted chance for the {Mutators.Mutators.HuntingSeason} Mutator to be active."
+            );
+
+            ProtectThePresidentMinimumPlayerCount = config.Bind<byte>(
+            $"{Mutators.Mutators.ProtectThePresident} Mutator",
+            "Minimum player amount requirement",
+            3,
+            $"The minimum amount of players required for the {Mutators.Mutators.ProtectThePresident} Mutator to be available for selection."
             );
         }
     }

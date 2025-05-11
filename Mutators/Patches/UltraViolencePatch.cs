@@ -19,8 +19,6 @@ namespace Mutators.Mutators.Patches
         [HarmonyPatch(nameof(ExtractionPoint.ActivateTheFirstExtractionPointAutomaticallyWhenAPlayerLeaveTruck))]
         static void LevelGeneratorGenerateDonePostfix()
         {
-            RepoMutators.Logger.LogInfo("Trigger UltraViolence");
-
             int extractionPoints = _getExtractionPoints(RoundDirector.instance);
             _setExtractionPointsCompleted(RoundDirector.instance, extractionPoints);
 
