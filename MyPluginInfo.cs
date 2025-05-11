@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Mutators
+﻿namespace Mutators
 {
     public static class MyPluginInfo
     {

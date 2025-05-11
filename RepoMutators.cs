@@ -3,7 +3,6 @@ using BepInEx.Logging;
 using HarmonyLib;
 using Mutators.Managers;
 using Mutators.Mutators;
-using Mutators.Mutators.Patches;
 using Mutators.Network;
 using Mutators.Patches;
 using Photon.Pun;
