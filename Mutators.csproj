@@ -17,6 +17,9 @@
       https://nuget.windows10ce.com/nuget/v3/index.json
     </RestoreAdditionalProjectSources>
   </PropertyGroup>
+  <ItemGroup>
+    <Content Include=".github\CODEOWNERS" />
+  </ItemGroup>
 
   <!-- Package References -->
   <ItemGroup>
