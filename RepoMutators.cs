@@ -20,6 +20,7 @@ public class RepoMutators : BaseUnityPlugin
 {
     internal const string NETWORKMANAGER_NAME = "MutatorsNetworkManager";
     internal static RepoMutators Instance { get; private set; } = null!;
+    internal static ModSettings Settings { get; private set; } = null!;
     internal new static ManualLogSource Logger => Instance._logger;
     private ManualLogSource _logger => base.Logger;
     internal Harmony? Harmony { get; set; }
@@ -40,6 +41,7 @@ public class RepoMutators : BaseUnityPlugin
             _logger.LogInfo($"Loaded {MyPluginInfo.NAME} asset bundle");
         });
 
+        Settings = new ModSettings(Config);
         MutatorSettings.Initialize(Config);
 
         GameObject myPrefab = new GameObject("RepoMutatorsPrefab")

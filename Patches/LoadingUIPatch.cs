@@ -1,7 +1,6 @@
 ﻿using HarmonyLib;
 using Mutators.Managers;
 using Mutators.Mutators.Behaviours;
-using Mutators.Network;
 using TMPro;
 using UnityEngine;
 
@@ -42,7 +41,7 @@ namespace Mutators.Patches
             rectTransform.anchorMax = new Vector2(1, 1);
             rectTransform.pivot = new Vector2(1, 1);
 
-            rectTransform.anchoredPosition = new Vector2(0, -75);
+            rectTransform.anchoredPosition = new Vector2(0, RepoMutators.Settings.MutatorDisplayY);
             textMeshPro.alignment = TextAlignmentOptions.Right;
 
             mutatorObject.AddComponent<MutatorAnnouncingBehaviour>();
