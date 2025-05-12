@@ -1,5 +1,7 @@
-﻿using Mutators.Mutators;
+﻿using HarmonyLib;
+using Mutators.Mutators;
 using Mutators.Mutators.Patches;
+using Mutators.Settings;
 using Sirenix.Utilities;
 using System;
 using System.Collections.Generic;
@@ -10,7 +12,7 @@ namespace Mutators.Managers
 {
     public class MutatorManager
     {
-        private static readonly NopMutator _nopMutator = new NopMutator(Settings.NopMutatorWeight.Value);
+        private static readonly NopMutator _nopMutator = new NopMutator(MutatorSettings.NopMutator);
         public static MutatorManager Instance { get; private set; } = new MutatorManager();
 
         private readonly IDictionary<string, IMutator> _mutators  = new Dictionary<string, IMutator>();
@@ -37,15 +39,15 @@ namespace Mutators.Managers
 
             IList<IMutator> mutators = [
                 _nopMutator,
-                new Mutator(Mutators.Mutators.OutWithABang, typeof(OutWithABangPatch), Settings.OutWithABangWeight.Value),
-                new Mutator(Mutators.Mutators.ApolloEleven, typeof(ApolloElevenPatch), Settings.AppoloElevenWeight.Value),
-                new Mutator(Mutators.Mutators.UltraViolence, typeof(UltraViolencePatch), Settings.UltraViolenceWeight.Value),
-                new Mutator(Mutators.Mutators.DuckThis, typeof(DuckThisPatch), Settings.DuckThisWeight.Value),
-                new Mutator(Mutators.Mutators.OneShotOneKill, typeof(OneShotOneKillPatch), Settings.OneShotOneKillWeight.Value),
-                new Mutator(Mutators.Mutators.ProtectThePresident, typeof(ProtectThePresidentPatch), Settings.ProtectThePresidentWeight.Value, [SemiFunc.IsMultiplayer, ProtectThePresidentPatch.CanBePicked]),
-                new Mutator(Mutators.Mutators.RustyServos, typeof(RustyServosPatch), Settings.RustyServosWeight.Value),
-                new Mutator(Mutators.Mutators.HandleWithCare, typeof(HandleWithCarePatch), Settings.HandleWithCareWeight.Value),
-                new Mutator(Mutators.Mutators.HuntingSeason, typeof(HuntingSeasonPatch), Settings.HuntingSeasonWeight.Value),
+                new Mutator(Mutators.Mutators.OutWithABang, typeof(OutWithABangPatch), MutatorSettings.OutWithABang),
+                new Mutator(Mutators.Mutators.ApolloEleven, typeof(ApolloElevenPatch), MutatorSettings.ApolloEleven),
+                new Mutator(Mutators.Mutators.UltraViolence, typeof(UltraViolencePatch), MutatorSettings.UltraViolence),
+                new Mutator(Mutators.Mutators.DuckThis, typeof(DuckThisPatch), MutatorSettings.DuckThis),
+                new Mutator(Mutators.Mutators.OneShotOneKill, typeof(OneShotOneKillPatch), MutatorSettings.OneShotOneKill),
+                new Mutator(Mutators.Mutators.ProtectThePresident, typeof(ProtectThePresidentPatch), MutatorSettings.ProtectThePresident, [SemiFunc.IsMultiplayer]),
+                new Mutator(Mutators.Mutators.RustyServos, typeof(RustyServosPatch), MutatorSettings.RustyServos),
+                new Mutator(Mutators.Mutators.HandleWithCare, typeof(HandleWithCarePatch), MutatorSettings.HandleWithCare),
+                new Mutator(Mutators.Mutators.HuntingSeason, typeof(HuntingSeasonPatch), MutatorSettings.HuntingSeason),
             ];
 
             mutators.ForEach(mutator => _mutators[mutator.Name] = mutator);
@@ -97,8 +99,12 @@ namespace Mutators.Managers
 
         internal IMutator GetWeightedMutator()
         {
-            ICollection<IMutator> mutators = _mutators.Values;
-            float totalWeight = mutators.Where(mutator => mutator.Conditions.All(condition => condition())).Sum(item => item.Weight);
+            IList<IMutator> eligibleMutators = _mutators.Values
+                .Where(mutator => mutator.Settings.IsEligibleForSelection())
+                .Where(mutator => mutator.Conditions.All(condition => condition()))
+                .ToList();
+
+            float totalWeight = eligibleMutators.Sum(item => item.Settings.Weight);
 
             if (totalWeight <= 0)
             {
@@ -108,9 +114,9 @@ namespace Mutators.Managers
             float randomValue = UnityEngine.Random.Range(0f, totalWeight);
 
             float currentSum = 0f;
-            foreach (IMutator mutator in mutators)
+            foreach (IMutator mutator in eligibleMutators)
             {
-                currentSum += mutator.Weight;
+                currentSum += mutator.Settings.Weight;
                 if (randomValue < currentSum)
                     return mutator;
             }

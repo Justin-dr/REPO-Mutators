@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using Mutators.Settings;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -12,20 +13,20 @@ namespace Mutators.Mutators
         private readonly IList<Func<bool>> _conditions;
         public string Name { get; private set; }
         public bool Active { get; private set; }
-        public uint Weight { get; private set; }
+        public AbstractMutatorSettings Settings { get; private set; }
         public IReadOnlyList<Func<bool>> Conditions => new ReadOnlyCollection<Func<bool>>(_conditions);
         public IReadOnlyList<Type> Patches => new ReadOnlyCollection<Type>(_patches);
 
-        public Mutator(string name, IList<Type> patches, uint weight, IList<Func<bool>> conditions = null!)
+        public Mutator(string name, IList<Type> patches, AbstractMutatorSettings settings, IList<Func<bool>> conditions = null!)
         {
             Name = name;
-            Weight = weight;
+            Settings = settings;
             _harmony = new Harmony($"{MyPluginInfo.PLUGIN_GUID}-{name}");
             _patches = patches ?? [];
             _conditions = conditions ?? [];
         }
 
-        public Mutator(string name, Type patch, uint weight, IList<Func<bool>> conditions = null!) : this(name, [patch], weight, conditions)
+        public Mutator(string name, Type patch, AbstractMutatorSettings settings, IList<Func<bool>> conditions = null!) : this(name, [patch], settings, conditions)
         {
             
         }

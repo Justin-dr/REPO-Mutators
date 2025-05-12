@@ -2,6 +2,7 @@
 using Mutators.Managers;
 using Mutators.Mutators.Behaviours;
 using Mutators.Network;
+using Mutators.Settings;
 using Photon.Pun;
 using Photon.Realtime;
 using System.Collections.Generic;
@@ -120,12 +121,6 @@ namespace Mutators.Mutators.Patches
 
             RepoMutators.Logger.LogDebug("Updating President Health");
             targetPlayerAnnouncingBehaviour.Text.text = BuildPresidentText(presidentId);
-        }
-
-        internal static bool CanBePicked()
-        {
-            Room room = PhotonNetwork.CurrentRoom;
-            return room != null && room.PlayerCount >= Settings.ProtectThePresidentMinimumPlayerCount.Value;
         }
 
         internal static string BuildPresidentText(string presidentId)
