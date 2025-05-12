@@ -1,12 +1,12 @@
 ﻿using HarmonyLib;
 using Mutators.Settings;
-using System.Threading;
 using UnityEngine;
 
 namespace Mutators.Mutators.Patches
 {
     internal class ApolloElevenPatch
     {
+
         [HarmonyPostfix]
         [HarmonyPatch(typeof(LevelGenerator))]
         [HarmonyPatch(nameof(LevelGenerator.GenerateDone))]
@@ -15,7 +15,7 @@ namespace Mutators.Mutators.Patches
             if (SemiFunc.RunIsLevel())
             {
                 PlayerController.instance.AntiGravity(float.MaxValue);
-
+                   
                 if (SemiFunc.IsMasterClientOrSingleplayer())
                 {
                     MakeAllPhysGrabObjectsZeroGravity();
@@ -57,6 +57,17 @@ namespace Mutators.Mutators.Patches
         static bool PhysGrabObjectOverrideZeroGravityPrefix(float time)
         {
             return time == float.MaxValue;
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(PlayerController))]
+        [HarmonyPatch(nameof(PlayerController.FixedUpdate))]
+        static void PlayerControllerFixedUpdatePrefix(PlayerController __instance)
+        {
+            if (Input.GetKey(MutatorSettings.ApolloEleven.DownwardsKey))
+            {
+                __instance.rb.AddForce(Vector3.down * 50f, ForceMode.Force);
+            }
         }
 
         [HarmonyPostfix]
