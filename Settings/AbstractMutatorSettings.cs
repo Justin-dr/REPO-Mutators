@@ -14,8 +14,6 @@
         {
             int levelsCompleted = RunManager.instance.levelsCompleted;
 
-            RepoMutators.Logger.LogInfo($"Levels completed: {levelsCompleted} - {MutatorName}: {MinimumLevel} to {MaximumLevel}");
-
             if (MaximumLevel > 0 && MinimumLevel > MaximumLevel)
             {
                 RepoMutators.Logger.LogWarning($"{MutatorName} was configured with a minimum level larger than the maximum level!");

@@ -20,7 +20,6 @@ namespace Mutators.Mutators.Patches
                 {
                     return;
                 }
-                RepoMutators.Logger.LogInfo($"Multiplying value of: {__instance.gameObject.name}");
                 __instance.dollarValueCurrent *= MutatorSettings.HandleWithCare.ValueMultiplier;
                 __instance.dollarValueOriginal *= MutatorSettings.HandleWithCare.ValueMultiplier;
             }

@@ -13,7 +13,6 @@ namespace Mutators.Patches
         {
             if (_leaveGame)
             {
-                RepoMutators.Logger.LogInfo("Leaving game");
                 MutatorManager mutatorManager = MutatorManager.Instance;
                 mutatorManager.SetActiveMutator(Mutators.Mutators.NopMutator);
             }
