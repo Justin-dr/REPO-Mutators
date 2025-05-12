@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using Mutators.Settings;
 using System.Threading;
 using UnityEngine;
 
@@ -68,19 +69,16 @@ namespace Mutators.Mutators.Patches
 
         private static void MakeAllPhysGrabObjectsZeroGravity()
         {
-            Collider[] array = Physics.OverlapSphere(new Vector3(0, 10, 0), 300f, LayerMask.GetMask("PhysGrabObject"));
-            for (int i = 0; i < array.Length; i++)
+            foreach (PhysGrabObject physGrabObject in RoundDirector.instance.physGrabObjects)
             {
-                PhysGrabObject physGrabObject = array[i].GetComponentInParent<PhysGrabObject>();
-
-                if (physGrabObject == null) continue;
-
                 MakeObjectZeroGravity(physGrabObject);
             }
         }
 
         private static void MakeObjectZeroGravity(PhysGrabObject physGrabObject)
         {
+            if (!MutatorSettings.ApolloEleven.ApplyToEnemies && physGrabObject.GetComponent<EnemyRigidbody>()) return;
+
             physGrabObject.OverrideDrag(0.5f, float.MaxValue);
             physGrabObject.OverrideAngularDrag(0.5f, float.MaxValue);
             physGrabObject.OverrideZeroGravity(float.MaxValue);

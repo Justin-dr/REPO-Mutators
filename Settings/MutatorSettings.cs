@@ -6,7 +6,7 @@ namespace Mutators.Settings
     public static class MutatorSettings
     {
         public static NopMutatorSettings NopMutator { get; private set; } = null!;
-        public static GenericMutatorSettings ApolloEleven { get; private set; } = null!;
+        public static ApolloElevenMutatorSettings ApolloEleven { get; private set; } = null!;
         public static GenericMutatorSettings OutWithABang { get; private set; } = null!;
         public static DuckThisMutatorSettings DuckThis { get; private set; } = null!;
         public static GenericMutatorSettings UltraViolence { get; private set; } = null!;
@@ -18,7 +18,7 @@ namespace Mutators.Settings
         public static void Initialize(ConfigFile config)
         {
             NopMutator = new NopMutatorSettings(config);
-            ApolloEleven = new GenericMutatorSettings(Mutators.Mutators.ApolloEleven, config);
+            ApolloEleven = new ApolloElevenMutatorSettings(Mutators.Mutators.ApolloEleven, config);
             OutWithABang = new GenericMutatorSettings(Mutators.Mutators.OutWithABang, config);
             DuckThis = new DuckThisMutatorSettings(Mutators.Mutators.DuckThis, config);
             UltraViolence = new GenericMutatorSettings(Mutators.Mutators.UltraViolence, config);
