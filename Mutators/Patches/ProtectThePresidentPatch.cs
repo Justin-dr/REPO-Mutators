@@ -126,7 +126,7 @@ namespace Mutators.Mutators.Patches
         internal static string BuildPresidentText(string presidentId)
         {
             PlayerAvatar playerAvatar = SemiFunc.PlayerAvatarGetFromSteamID(presidentId);
-            return $"{playerAvatar.playerName ?? "President"}: {playerAvatar.playerHealth.health} / {playerAvatar.playerHealth.maxHealth}";
+            return $"{playerAvatar.playerName ?? "President"}: {playerAvatar.playerHealth.health}/{playerAvatar.playerHealth.maxHealth}";
         }
 
         private static System.Collections.IEnumerator InitializePresidentHealthEnumerator(string presidentId)

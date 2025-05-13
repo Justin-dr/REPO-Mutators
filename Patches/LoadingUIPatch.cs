@@ -46,7 +46,7 @@ namespace Mutators.Patches
 
             mutatorObject.AddComponent<MutatorAnnouncingBehaviour>();
             textMeshPro.text = MutatorManager.Instance.CurrentMutator.Name;
-            textMeshPro.fontSize = 30;
+            textMeshPro.fontSize = RepoMutators.Settings.MutatorDisplaySize;
             textMeshPro.enabled = true;
         }
 
@@ -74,7 +74,7 @@ namespace Mutators.Patches
 
             mutatorObject.AddComponent<TargetPlayerAnnouncingBehaviour>();
             textMeshPro.text = string.Empty;
-            textMeshPro.fontSize = 40;
+            textMeshPro.fontSize = RepoMutators.Settings.TargetDisplaySize;
             textMeshPro.enabled = true;
         }
     }
