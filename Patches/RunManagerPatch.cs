@@ -2,6 +2,8 @@
 using Mutators.Managers;
 using Mutators.Mutators;
 using Mutators.Network;
+using Photon.Pun;
+using UnityEngine;
 
 namespace Mutators.Patches
 {
