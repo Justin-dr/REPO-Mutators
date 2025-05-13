@@ -1,12 +1,55 @@
 ﻿using HarmonyLib;
 using Mutators.Mutators.Behaviours;
 using Mutators.Settings;
+using System.Collections.Generic;
+using System.Linq;
 using Unity.VisualScripting;
+using UnityEngine;
 
 namespace Mutators.Mutators.Patches
 {
     internal class DuckThisPatch
     {
+        private const string Ducky = "Apex Predator";
+
+        [HarmonyPostfix]
+        [HarmonyPriority(Priority.VeryLow)]
+        [HarmonyPatch(typeof(EnemyDirector))]
+        [HarmonyPatch(nameof(EnemyDirector.AmountSetup))]
+        static void EnemyDirectorAmountSetupPostfix(EnemyDirector __instance)
+        {
+            if (!SemiFunc.IsMasterClientOrSingleplayer()) return;
+
+            IList<EnemySetup> enemyList = __instance.enemyList;
+            bool hasApexPredator = enemyList.Any(setup => setup.spawnObjects.Select(so => so.GetComponent<EnemyParent>()).Any(ep => ep != null && ep.enemyName == Ducky));
+
+            if (hasApexPredator) return;
+
+            if (REPOLib.Modules.Enemies.TryGetEnemyByName(Ducky, out EnemySetup? duck))
+            {
+                IList<EnemySetup> setups = enemyList.Where(setup =>
+                {
+                    IEnumerable<EnemyParent> enemyParents = setup.spawnObjects
+                        .Select(so => so.GetComponent<EnemyParent>())
+                        .Where(ep => ep != null);
+
+                    return enemyParents.All(ep => ep.difficulty == EnemyParent.Difficulty.Difficulty1) && enemyParents.All(ep => ep.enemyName != Ducky);
+                }).ToList();
+
+                if (setups.Count == 0)
+                {
+                    RepoMutators.Logger.LogDebug($"No suitable enemies found to replace with {Ducky}");
+                    return;
+                };
+
+                EnemySetup setupToRemove = setups[Random.RandomRangeInt(0, setups.Count)];
+                if (!enemyList.Remove(setupToRemove)) return;
+
+                RepoMutators.Logger.LogDebug($"[{MutatorSettings.DuckThis.MutatorName}] {setupToRemove.name} was removed in favor of {Ducky}");
+                enemyList.Add(duck);
+            }
+        }
+
         [HarmonyPrefix]
         [HarmonyPatch(typeof(EnemyDuck))]
         [HarmonyPatch(nameof(EnemyDuck.Update))]
