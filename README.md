@@ -27,6 +27,7 @@ Here’s a basic example of how to define and register a new mutator:
 ```csharp
 using Mutators.Managers;
 using Mutators.Mutators;
+using Mutators.Settings;
 using YourMod.Patches; // Your custom Harmony patch
 using UnityEngine;
 
@@ -36,9 +37,9 @@ public class MyMod : BaseUnityPlugin
     private void Start()
     {
         IMutator myMutator = new Mutator(
-            "Explosive Ducks",                    // Unique name
-            typeof(ExplosiveDucksPatch),          // Patch type implementing the mutator logic
-            100                                   // Weight for random selection
+            "Explosive Ducks",                                      // Unique name
+            typeof(ExplosiveDucksPatch),                            // Patch type implementing the mutator logic
+            new GenericMutatorSettings("Explosive Ducks", config),  // Settings, including weight for random selection
         );
 
         MutatorManager.Instance.RegisterMutator(myMutator);
@@ -58,7 +59,7 @@ You can control whether a mutator can be selected using conditions. Each one mus
 var myConditionalMutator = new Mutator(
     "Explosive Ducks",
     typeof(ExplosiveDucksPatch),
-    100,
+    new GenericMutatorSettings("Explosive Ducks", config),
     [
         SemiFunc.IsMultiplayer,                   // Example: only allow in multiplayer
         () => SomePlayerCount > 3                 // Custom condition
