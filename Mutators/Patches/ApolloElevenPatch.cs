@@ -15,7 +15,7 @@ namespace Mutators.Mutators.Patches
             if (SemiFunc.RunIsLevel())
             {
                 PlayerController.instance.AntiGravity(float.MaxValue);
-                   
+
                 if (SemiFunc.IsMasterClientOrSingleplayer())
                 {
                     MakeAllPhysGrabObjectsZeroGravity();
@@ -24,6 +24,25 @@ namespace Mutators.Mutators.Patches
             else
             {
                 PlayerController.instance.AntiGravity(0);
+            }
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(PhysGrabObjectImpactDetector))]
+        [HarmonyPatch(nameof(PhysGrabObjectImpactDetector.Update))]
+        static void LevelGeneratorGenerateDonePostfix(PhysGrabObjectImpactDetector __instance)
+        {
+            if (__instance.isNotValuable) return;
+
+            if (__instance.inCart && !__instance.inCartPrevious)
+            {
+                __instance.physGrabObject.OverrideDrag(0.5f, 0.1f);
+                __instance.physGrabObject.OverrideAngularDrag(0.5f, 0.1f);
+                __instance.physGrabObject.OverrideZeroGravity(0.1f);
+            }
+            else if (!__instance.inCart && __instance.inCartPrevious)
+            {
+                MakeObjectZeroGravity(__instance.physGrabObject);
             }
         }
 
@@ -38,24 +57,39 @@ namespace Mutators.Mutators.Patches
         [HarmonyPrefix]
         [HarmonyPatch(typeof(PhysGrabObject))]
         [HarmonyPatch(nameof(PhysGrabObject.OverrideDrag))]
-        static bool PhysGrabObjectOverrideDragPrefix(float value, float time)
+        static bool PhysGrabObjectOverrideDragPrefix(PhysGrabObject __instance, float value, float time)
         {
+            if (__instance.impactDetector.inCart)
+            {
+                return true;
+            }
+
             return time == float.MaxValue;
         }
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(PhysGrabObject))]
         [HarmonyPatch(nameof(PhysGrabObject.OverrideAngularDrag))]
-        static bool PhysGrabObjectOverrideAngularDragPrefix(float value, float time)
+        static bool PhysGrabObjectOverrideAngularDragPrefix(PhysGrabObject __instance, float value, float time)
         {
+            if (__instance.impactDetector.inCart)
+            {
+                return true;
+            }
+
             return time == float.MaxValue;
         }
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(PhysGrabObject))]
         [HarmonyPatch(nameof(PhysGrabObject.OverrideZeroGravity))]
-        static bool PhysGrabObjectOverrideZeroGravityPrefix(float time)
+        static bool PhysGrabObjectOverrideZeroGravityPrefix(PhysGrabObject __instance, float time)
         {
+            if (__instance.impactDetector.inCart)
+            {
+                return true;
+            }
+
             return time == float.MaxValue;
         }
 
