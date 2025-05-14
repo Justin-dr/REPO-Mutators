@@ -11,6 +11,7 @@ using REPOLib;
 using System.IO;
 using System.Reflection;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Mutators;
 
@@ -18,6 +19,7 @@ namespace Mutators;
 [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.NAME, MyPluginInfo.PLUGIN_VERSION)]
 public class RepoMutators : BaseUnityPlugin
 {
+    internal const string MainScenePath = "Assets/Scenes/Main/Main.unity";
     internal const string NETWORKMANAGER_NAME = "MutatorsNetworkManager";
     internal static RepoMutators Instance { get; private set; } = null!;
     internal static ModSettings Settings { get; private set; } = null!;
@@ -55,6 +57,26 @@ public class RepoMutators : BaseUnityPlugin
         string myPrefabId = $"{MyPluginInfo.PLUGIN_GUID}/{NETWORKMANAGER_NAME}";
         REPOLib.Modules.NetworkPrefabs.RegisterNetworkPrefab(myPrefabId, myPrefab);
 
+        SceneManager.sceneLoaded += (scene, loadSceneMode) => {
+            if (scene.path != MainScenePath) return;
+            if (!SemiFunc.IsMultiplayer()) return;
+            if (!SemiFunc.IsMasterClient()) return;
+            if (MutatorsNetworkManager.Instance != null) return;
+            if (!SemiFunc.RunIsLobbyMenu()) return;
+
+            Logger.LogDebug("Reviving network manager");
+            PhotonNetwork.InstantiateRoomObject(myPrefabId, Vector3.zero, Quaternion.identity);
+
+            MutatorManager mutatorManager = MutatorManager.Instance;
+            IMutator mutator = mutatorManager.GetWeightedMutator();
+            Logger.LogDebug($"Picked weighted mutator: {mutator.Name}");
+
+            mutatorManager.CurrentMutator = mutator;
+            MutatorsNetworkManager.Instance!.SendActiveMutator(mutator.Name);
+
+            Logger.LogDebug($"Mutator set: {mutator.Name}");
+        };
+
         Patch();
 
         Logger.LogInfo($"{Info.Metadata.GUID} v{Info.Metadata.Version} has loaded!");
@@ -66,7 +88,6 @@ public class RepoMutators : BaseUnityPlugin
     internal void Patch()
     {
         Harmony ??= new Harmony(Info.Metadata.GUID);
-        Harmony.PatchAll(typeof(NetworkConnectPatch));
         Harmony.PatchAll(typeof(RunManagerPatch));
         Harmony.PatchAll(typeof(LoadingUIPatch));
         Harmony.PatchAll(typeof(SemiFuncPatch));

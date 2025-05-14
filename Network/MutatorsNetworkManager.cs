@@ -15,10 +15,9 @@ namespace Mutators.Network
 
         private PhotonView _photonView = null!;
 
-        void Start()
+        void Awake()
         {
             Instance = this;
-
             transform.parent = StatsManager.instance.transform;
             gameObject.name = "MutatorsNetworkManager";
             gameObject.hideFlags &= ~HideFlags.HideAndDontSave;
