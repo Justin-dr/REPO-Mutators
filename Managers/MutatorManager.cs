@@ -48,6 +48,7 @@ namespace Mutators.Managers
                 new Mutator(Mutators.Mutators.RustyServos, typeof(RustyServosPatch), MutatorSettings.RustyServos),
                 new Mutator(Mutators.Mutators.HandleWithCare, typeof(HandleWithCarePatch), MutatorSettings.HandleWithCare),
                 new Mutator(Mutators.Mutators.HuntingSeason, typeof(HuntingSeasonPatch), MutatorSettings.HuntingSeason),
+                new Mutator(Mutators.Mutators.ThereCanOnlyBeOne, typeof(ThereCanOnlyBeOnePatch), MutatorSettings.ThereCanOnlyBeOne)
             ];
 
             mutators.ForEach(mutator => _mutators[mutator.Name] = mutator);

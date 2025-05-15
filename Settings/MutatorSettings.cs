@@ -15,6 +15,7 @@ namespace Mutators.Settings
         public static GenericMutatorSettings RustyServos { get; private set; } = null!;
         public static HandleWithCareMutatorSettings HandleWithCare { get; private set; } = null!;
         public static GenericMutatorSettings HuntingSeason { get; private set; } = null!;
+        public static ThereCanOnlyBeOneMutatorSettings ThereCanOnlyBeOne { get; private set; } = null!;
         public static void Initialize(ConfigFile config)
         {
             NopMutator = new NopMutatorSettings(config);
@@ -27,6 +28,7 @@ namespace Mutators.Settings
             RustyServos = new GenericMutatorSettings(Mutators.Mutators.RustyServos, config);
             HandleWithCare = new HandleWithCareMutatorSettings(Mutators.Mutators.HandleWithCare, config);
             HuntingSeason = new GenericMutatorSettings(Mutators.Mutators.HuntingSeason, config);
+            ThereCanOnlyBeOne = new ThereCanOnlyBeOneMutatorSettings(Mutators.Mutators.ThereCanOnlyBeOne, config);
         }
     }
 }
