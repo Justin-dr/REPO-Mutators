@@ -39,7 +39,6 @@ namespace Mutators.Mutators.Patches
 
                     physGrabObject.DestroyPhysGrabObject();
                 }
-
                 RepoMutators.Logger.LogDebug($"[{MutatorSettings.HuntingSeason.MutatorName}] Spawning {weaponsToSpawn} weapons");
                 Item[] possibleItems = GetPossibleItems();
 
