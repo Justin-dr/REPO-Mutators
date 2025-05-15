@@ -1,12 +1,11 @@
 ﻿using HarmonyLib;
 using Mutators.Mutators.Behaviours;
 using Mutators.Network;
+using Mutators.Settings;
 using Photon.Pun;
 using REPOLib.Modules;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using UnityEngine;
 
 namespace Mutators.Mutators.Patches
@@ -18,21 +17,24 @@ namespace Mutators.Mutators.Patches
         [HarmonyPatch(nameof(LevelGenerator.GenerateDone))]
         static void LevelGeneratorGenerateDonePostfix()
         {
-            int counter = RoundDirector.instance.physGrabObjects.Count;
-            foreach (PhysGrabObject physGrabObject in RoundDirector.instance.physGrabObjects)
-            {
-                if (physGrabObject.isNonValuable) continue;
-
-                physGrabObject.impactDetector.DestroyObject();
-            }
-
             if (SemiFunc.IsMasterClientOrSingleplayer() && SemiFunc.RunIsLevel())
             {
+                int weaponsToSpawn = RoundDirector.instance.physGrabObjects.Count / 2;
+                // Getting a shallow copy of this list since it seems to be possible for this to be
+                // modified by other mods while we are looping this.
+                foreach (PhysGrabObject physGrabObject in RoundDirector.instance.physGrabObjects.ToList())
+                {
+                    if (physGrabObject.isNonValuable) continue;
+
+                    physGrabObject.DestroyPhysGrabObject();
+                }
+
+                RepoMutators.Logger.LogInfo($"[{MutatorSettings.HuntingSeason.MutatorName}] Spawning {weaponsToSpawn} weapons");
                 Item[] possibleItems = GetPossibleItems();
 
                 IList<LevelPoint> levelPoints = SemiFunc.LevelPointsGetAll();
                 IList<PhotonView> views = [];
-                for (int i = 0; i < counter / 2; i++)
+                for (int i = 0; i < weaponsToSpawn; i++)
                 {
                     LevelPoint levelPoint = levelPoints[UnityEngine.Random.Range(0, levelPoints.Count)];
                     Item item = possibleItems[UnityEngine.Random.Range(0, possibleItems.Length)];
