@@ -12,6 +12,17 @@ namespace Mutators.Mutators.Patches
 {
     internal class HuntingSeasonPatch
     {
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(StatsManager))]
+        [HarmonyPatch(nameof(StatsManager.ItemFetchName))]
+        static void StatsManagerItemFetchNamePrefix(ref string itemName, ItemAttributes itemAttributes)
+        {
+            if (itemAttributes.GetComponent<TemporaryLevelItemBehaviour>())
+            {
+                itemName += $"({Mutators.HuntingSeason})";
+            }
+        }
+
         [HarmonyPostfix]
         [HarmonyPatch(typeof(LevelGenerator))]
         [HarmonyPatch(nameof(LevelGenerator.GenerateDone))]
@@ -29,7 +40,7 @@ namespace Mutators.Mutators.Patches
                     physGrabObject.DestroyPhysGrabObject();
                 }
 
-                RepoMutators.Logger.LogInfo($"[{MutatorSettings.HuntingSeason.MutatorName}] Spawning {weaponsToSpawn} weapons");
+                RepoMutators.Logger.LogDebug($"[{MutatorSettings.HuntingSeason.MutatorName}] Spawning {weaponsToSpawn} weapons");
                 Item[] possibleItems = GetPossibleItems();
 
                 IList<LevelPoint> levelPoints = SemiFunc.LevelPointsGetAll();
@@ -107,6 +118,20 @@ namespace Mutators.Mutators.Patches
             DropItems();
         }
 
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(PunManager))]
+        [HarmonyPatch(nameof(PunManager.SyncAllDictionaries))]
+        static void PunManagerSyncAllDictionariesPrefix()
+        {
+            // It seems the game syncs all its internal dictionaries (including items) on every scene switch.
+            // Patching this method with a prefix will remove all our hunting season items from the dictionary before syncing
+            // This means we are sending less data to be synced (Amazing), and our clients won't get warnings in console (wow!)
+            if (SemiFunc.IsMasterClientOrSingleplayer() && SemiFunc.RunIsShop())
+            {
+                RemoveAllHuntingSeasonItems();
+            }
+        }
+
         private static Item[] GetPossibleItems()
         {
             return Items.AllItems.Where(i => i.itemType == SemiFunc.itemType.melee || i.itemType == SemiFunc.itemType.gun).ToArray();
@@ -120,16 +145,20 @@ namespace Mutators.Mutators.Patches
                 ItemEquippable currentItem = inventorySpot.CurrentItem;
                 if (currentItem && currentItem.gameObject.GetComponent<TemporaryLevelItemBehaviour>())
                 {
-                    RepoMutators.Logger.LogDebug($"Dropping item: {currentItem}");
-                    if (SemiFunc.IsMultiplayer())
-                    {
-                        currentItem.GetComponent<ItemEquippable>().ForceUnequip(inventory.playerAvatar.PlayerVisionTarget.VisionTransform.position, inventory.physGrabber.photonView.ViewID);
-                    }
-                    else
-                    {
-                        currentItem.GetComponent<ItemEquippable>().ForceUnequip(inventory.playerAvatar.PlayerVisionTarget.VisionTransform.position, -1);
-                    }
+                    currentItem.GetComponent<ItemEquippable>().ForceUnequip(inventory.playerAvatar.PlayerVisionTarget.VisionTransform.position, SemiFunc.IsMultiplayer() ? inventory.physGrabber.photonView.ViewID : -1);
                 }
+            }
+
+            RemoveAllHuntingSeasonItems();
+        }
+
+        private static void RemoveAllHuntingSeasonItems()
+        {
+            StatsManager statsManager = StatsManager.instance;
+            foreach (string item in statsManager.item.Where(item => item.Key.Contains($"({Mutators.HuntingSeason})")).Select(x => x.Key).ToList())
+            {
+                statsManager.item.Remove(item);
+                statsManager.itemStatBattery.Remove(item);
             }
         }
     }
