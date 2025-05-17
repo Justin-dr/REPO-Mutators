@@ -16,6 +16,7 @@ namespace Mutators.Settings
         public static HandleWithCareMutatorSettings HandleWithCare { get; private set; } = null!;
         public static GenericMutatorSettings HuntingSeason { get; private set; } = null!;
         public static ThereCanOnlyBeOneMutatorSettings ThereCanOnlyBeOne { get; private set; } = null!;
+        public static GenericMutatorSettings VolatileCargo { get; private set; } = null!;
         public static void Initialize(ConfigFile config)
         {
             NopMutator = new NopMutatorSettings(config);
@@ -29,6 +30,7 @@ namespace Mutators.Settings
             HandleWithCare = new HandleWithCareMutatorSettings(Mutators.Mutators.HandleWithCare, config);
             HuntingSeason = new GenericMutatorSettings(Mutators.Mutators.HuntingSeason, config);
             ThereCanOnlyBeOne = new ThereCanOnlyBeOneMutatorSettings(Mutators.Mutators.ThereCanOnlyBeOne, config);
+            VolatileCargo = new GenericMutatorSettings(Mutators.Mutators.VolatileCargo, config);
         }
     }
 }

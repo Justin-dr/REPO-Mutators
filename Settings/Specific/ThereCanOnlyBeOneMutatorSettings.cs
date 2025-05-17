@@ -15,7 +15,7 @@ namespace Mutators.Settings.Specific
             _groupSpawnsThreshold = config.Bind<uint>(
             GetSection(name),
             "Group spawn minimum level",
-            3,
+            8,
             $"The minimum level from which enemy groups (e.g. 3 mentalists or 10 gnomes) can be spawned by the {name} Mutator."
             );
 

@@ -1,7 +1,6 @@
 ﻿using HarmonyLib;
 using Mutators.Mutators.Behaviours;
 using Mutators.Network;
-using Mutators.Settings;
 using Photon.Pun;
 using REPOLib.Modules;
 using System.Collections.Generic;
@@ -39,15 +38,16 @@ namespace Mutators.Mutators.Patches
 
                     physGrabObject.DestroyPhysGrabObject();
                 }
-                RepoMutators.Logger.LogDebug($"[{MutatorSettings.HuntingSeason.MutatorName}] Spawning {weaponsToSpawn} weapons");
+
+                RepoMutators.Logger.LogDebug($"[{Mutators.HuntingSeason}] Spawning {weaponsToSpawn} weapons");
                 Item[] possibleItems = GetPossibleItems();
 
                 IList<LevelPoint> levelPoints = SemiFunc.LevelPointsGetAll();
                 IList<PhotonView> views = [];
                 for (int i = 0; i < weaponsToSpawn; i++)
                 {
-                    LevelPoint levelPoint = levelPoints[UnityEngine.Random.Range(0, levelPoints.Count)];
-                    Item item = possibleItems[UnityEngine.Random.Range(0, possibleItems.Length)];
+                    LevelPoint levelPoint = levelPoints[Random.Range(0, levelPoints.Count)];
+                    Item item = possibleItems[Random.Range(0, possibleItems.Length)];
 
                     Vector3 position = levelPoint.transform.position;
                     position.y += 2;

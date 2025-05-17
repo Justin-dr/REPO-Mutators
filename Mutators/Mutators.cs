@@ -13,6 +13,7 @@
         public const string HandleWithCare = "Handle With Care";
         public const string HuntingSeason = "Hunting Season";
         public const string ThereCanOnlyBeOne = "There Can Only Be One";
+        public const string VolatileCargo  = "Volatile Cargo";
 
         internal static string[] All() => [
             NopMutator,
@@ -24,7 +25,8 @@
             RustyServos,
             HandleWithCare,
             HuntingSeason,
-            ThereCanOnlyBeOne
+            ThereCanOnlyBeOne,
+            VolatileCargo
         ];
     }
 }
