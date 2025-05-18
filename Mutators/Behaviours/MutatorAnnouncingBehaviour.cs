@@ -24,7 +24,7 @@ namespace Mutators.Mutators.Behaviours
         public override void Update()
         {
             base.Update();
-            if (Input.GetKeyDown(RepoMutators.Settings.MutatorDisplayToggleKey))
+            if (!ChatManager.instance.StateIsActive() && Input.GetKeyDown(RepoMutators.Settings.MutatorDisplayToggleKey))
             {
                 _isVisible = !_isVisible;
             }

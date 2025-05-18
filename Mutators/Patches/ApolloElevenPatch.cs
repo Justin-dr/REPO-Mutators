@@ -64,7 +64,7 @@ namespace Mutators.Mutators.Patches
         [HarmonyPatch(nameof(PlayerController.FixedUpdate))]
         static void PlayerControllerFixedUpdatePrefix(PlayerController __instance)
         {
-            if (Input.GetKey(MutatorSettings.ApolloEleven.DownwardsKey))
+            if (!ChatManager.instance.StateIsActive() && Input.GetKey(MutatorSettings.ApolloEleven.DownwardsKey))
             {
                 __instance.rb.AddForce(Vector3.down * 50f, ForceMode.Force);
             }
