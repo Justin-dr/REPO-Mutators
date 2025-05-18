@@ -1,5 +1,4 @@
-﻿using HarmonyLib;
-using Mutators.Mutators;
+﻿using Mutators.Mutators;
 using Mutators.Mutators.Patches;
 using Mutators.Settings;
 using Sirenix.Utilities;

@@ -11,6 +11,40 @@ namespace Mutators.Mutators.Patches
 {
     internal class HuntingSeasonPatch
     {
+        [HarmonyPostfix]
+        [HarmonyPriority(Priority.VeryLow)]
+        [HarmonyPatch(typeof(EnemyDirector))]
+        [HarmonyPatch(nameof(EnemyDirector.AmountSetup))]
+        static void EnemyDirectorAmountSetupPostfix(EnemyDirector __instance)
+        {
+            if (!SemiFunc.IsMasterClientOrSingleplayer()) return;
+
+            IList<EnemySetup> setupsToRemove = __instance.enemiesDifficulty1
+                    .Concat(__instance.enemiesDifficulty2)
+                    .Concat(__instance.enemiesDifficulty3)
+                    .Where(setup => setup.spawnObjects.All(so => {
+                        EnemyParent? enemyParent = so.GetComponent<EnemyParent>();
+
+                        if (enemyParent == null)
+                        {
+                            return true;
+                        }
+
+                        bool isPeeper = enemyParent.enemyName == "Peeper";
+
+                        return isPeeper || (!so.GetComponentInChildren<EnemyHealth>()?.spawnValuable ?? false);
+                    }))
+                    .ToList();
+
+            for (var i = setupsToRemove.Count - 1; i >= 0; i--)
+            {
+                EnemySetup setup = setupsToRemove[i];
+                __instance.enemiesDifficulty1.Remove(setup);
+                __instance.enemiesDifficulty2.Remove(setup);
+                __instance.enemiesDifficulty3.Remove(setup);
+            }
+        }
+
         [HarmonyPrefix]
         [HarmonyPatch(typeof(StatsManager))]
         [HarmonyPatch(nameof(StatsManager.ItemFetchName))]
