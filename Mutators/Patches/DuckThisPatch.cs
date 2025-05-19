@@ -38,7 +38,7 @@ namespace Mutators.Mutators.Patches
 
                 if (setups.Count == 0)
                 {
-                    RepoMutators.Logger.LogDebug($"No suitable enemies found to replace with {Ducky}");
+                    RepoMutators.Logger.LogWarning($"No suitable enemies found to replace with {Ducky}");
                     return;
                 };
 

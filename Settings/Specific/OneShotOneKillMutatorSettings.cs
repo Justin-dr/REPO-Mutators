@@ -14,7 +14,7 @@ namespace Mutators.Settings.Specific
             _instaReviveInTruckOrExtraction = config.Bind(
             GetSection(name),
             "Instant revive in truck or extraction",
-            true,
+            false,
             $"If true, while the {name} Mutator is active, players are instantly revived with full head if their head is brought to the truck or an active extraction point."
             );
 
