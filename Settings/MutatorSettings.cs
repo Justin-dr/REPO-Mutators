@@ -23,7 +23,7 @@ namespace Mutators.Settings
             ApolloEleven = new ApolloElevenMutatorSettings(Mutators.Mutators.ApolloEleven, config);
             OutWithABang = new GenericMutatorSettings(Mutators.Mutators.OutWithABang, config);
             DuckThis = new DuckThisMutatorSettings(Mutators.Mutators.DuckThis, config);
-            UltraViolence = new GenericMutatorSettings(Mutators.Mutators.UltraViolence, config);
+            UltraViolence = new EnemyDisablingMutatorSettings(Mutators.Mutators.UltraViolence, config);
             ProtectThePresident = new ProtectThePresidentMutatorSettings(Mutators.Mutators.ProtectThePresident, config);
             OneShotOneKill = new OneShotOneKillMutatorSettings(Mutators.Mutators.OneShotOneKill, config);
             RustyServos = new GenericMutatorSettings(Mutators.Mutators.RustyServos, config);

@@ -1,10 +1,7 @@
 ﻿using HarmonyLib;
-using Photon.Pun;
+using Mutators.Extensions;
 using System;
-using System.Collections.Generic;
 using System.Linq.Expressions;
-using System.Reflection;
-using System.Text;
 
 namespace Mutators.Mutators.Patches
 {
@@ -13,6 +10,18 @@ namespace Mutators.Mutators.Patches
         private static readonly Func<RoundDirector, int> _getExtractionPoints = CreateFieldGetter<RoundDirector, int>("extractionPoints");
         private static readonly Func<RoundDirector, int> _getExtractionPointsCompleted = CreateFieldGetter<RoundDirector, int>("extractionPointsCompleted");
         private static readonly Action<RoundDirector, int> _setExtractionPointsCompleted = CreateFieldSetter<RoundDirector, int>("extractionPointsCompleted");
+
+
+        [HarmonyPostfix]
+        [HarmonyPriority(Priority.VeryLow)]
+        [HarmonyPatch(typeof(EnemyDirector))]
+        [HarmonyPatch(nameof(EnemyDirector.AmountSetup))]
+        static void EnemyDirectorAmountSetupPostfix(EnemyDirector __instance)
+        {
+            if (!SemiFunc.IsMasterClientOrSingleplayer()) return;
+
+            __instance.DisableEnemies();
+        }
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(ExtractionPoint))]

@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using Mutators.Extensions;
 using Mutators.Mutators.Behaviours;
 using Mutators.Network;
 using Photon.Pun;
@@ -19,30 +20,18 @@ namespace Mutators.Mutators.Patches
         {
             if (!SemiFunc.IsMasterClientOrSingleplayer()) return;
 
-            IList<EnemySetup> setupsToRemove = __instance.enemiesDifficulty1
-                    .Concat(__instance.enemiesDifficulty2)
-                    .Concat(__instance.enemiesDifficulty3)
-                    .Where(setup => setup.spawnObjects.All(so => {
-                        EnemyParent? enemyParent = so.GetComponent<EnemyParent>();
+            __instance.DisableEnemies(setup => setup.spawnObjects.All(so => {
+                EnemyParent? enemyParent = so.GetComponent<EnemyParent>();
 
-                        if (enemyParent == null)
-                        {
-                            return true;
-                        }
+                if (enemyParent == null)
+                {
+                    return true;
+                }
 
-                        bool isPeeper = enemyParent.enemyName == "Peeper";
+                bool isPeeper = enemyParent.enemyName == "Peeper";
 
-                        return isPeeper || (!so.GetComponentInChildren<EnemyHealth>()?.spawnValuable ?? false);
-                    }))
-                    .ToList();
-
-            for (var i = setupsToRemove.Count - 1; i >= 0; i--)
-            {
-                EnemySetup setup = setupsToRemove[i];
-                __instance.enemiesDifficulty1.Remove(setup);
-                __instance.enemiesDifficulty2.Remove(setup);
-                __instance.enemiesDifficulty3.Remove(setup);
-            }
+                return isPeeper || (!so.GetComponentInChildren<EnemyHealth>()?.spawnValuable ?? false);
+            }));
         }
 
         [HarmonyPrefix]
