@@ -13,9 +13,9 @@ namespace Mutators.Mutators.Patches
     internal class HuntingSeasonPatch
     {
         [HarmonyPostfix]
-        [HarmonyPriority(Priority.VeryLow)]
+        [HarmonyPriority(Priority.LowerThanNormal)]
         [HarmonyPatch(typeof(EnemyDirector))]
-        [HarmonyPatch(nameof(EnemyDirector.AmountSetup))]
+        [HarmonyPatch(nameof(EnemyDirector.Start))]
         static void EnemyDirectorAmountSetupPostfix(EnemyDirector __instance)
         {
             if (!SemiFunc.IsMasterClientOrSingleplayer()) return;
