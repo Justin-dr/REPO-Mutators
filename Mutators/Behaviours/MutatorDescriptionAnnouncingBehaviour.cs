@@ -9,7 +9,7 @@ namespace Mutators.Mutators.Behaviours
     {
         private TextMeshProUGUI Text;
         internal static MutatorDescriptionAnnouncingBehaviour instance;
-        private bool _isVisible = true;
+        private float _showTimer;
 
         public override void Start()
         {
@@ -24,14 +24,18 @@ namespace Mutators.Mutators.Behaviours
         public override void Update()
         {
             base.Update();
-            if (!ChatManager.instance.StateIsActive() && Input.GetKeyDown(RepoMutators.Settings.MutatorDisplayToggleKey))
+            Hide();
+            if (_showTimer > 0f)
             {
-                _isVisible = !_isVisible;
+                _showTimer -= Time.deltaTime;
+                Show();
             }
-            if (!_isVisible)
-            {
-                base.Hide();
-            }
+        }
+        public void ShowDescription()
+        {
+            SemiUISpringShakeY(20f, 10f, 0.3f);
+            SemiUISpringScale(0.4f, 5f, 0.2f);
+            _showTimer = 5f;
         }
 
     }
