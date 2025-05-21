@@ -41,7 +41,7 @@ namespace Mutators.Mutators.Patches
         {
             if (itemAttributes.GetComponent<TemporaryLevelItemBehaviour>())
             {
-                itemName += $"({Mutators.HuntingSeason})";
+                itemName += $"({Mutators.HuntingSeasonName})";
             }
         }
 
@@ -62,7 +62,7 @@ namespace Mutators.Mutators.Patches
                     physGrabObject.DestroyPhysGrabObject();
                 }
 
-                RepoMutators.Logger.LogDebug($"[{Mutators.HuntingSeason}] Spawning {weaponsToSpawn} weapons");
+                RepoMutators.Logger.LogDebug($"[{Mutators.HuntingSeasonName}] Spawning {weaponsToSpawn} weapons");
                 Item[] possibleItems = GetPossibleItems();
 
                 IList<LevelPoint> levelPoints = SemiFunc.LevelPointsGetAll();
@@ -177,7 +177,7 @@ namespace Mutators.Mutators.Patches
         private static void RemoveAllHuntingSeasonItems()
         {
             StatsManager statsManager = StatsManager.instance;
-            foreach (string item in statsManager.item.Where(item => item.Key.Contains($"({Mutators.HuntingSeason})")).Select(x => x.Key).ToList())
+            foreach (string item in statsManager.item.Where(item => item.Key.Contains($"({Mutators.HuntingSeasonName})")).Select(x => x.Key).ToList())
             {
                 statsManager.item.Remove(item);
                 statsManager.itemStatBattery.Remove(item);

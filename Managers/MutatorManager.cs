@@ -38,17 +38,17 @@ namespace Mutators.Managers
 
             IList<IMutator> mutators = [
                 _nopMutator,
-                new Mutator(Mutators.Mutators.OutWithABang, typeof(OutWithABangPatch), MutatorSettings.OutWithABang),
-                new Mutator(Mutators.Mutators.ApolloEleven, typeof(ApolloElevenPatch), MutatorSettings.ApolloEleven),
-                new Mutator(Mutators.Mutators.UltraViolence, typeof(UltraViolencePatch), MutatorSettings.UltraViolence),
-                new Mutator(Mutators.Mutators.DuckThis, typeof(DuckThisPatch), MutatorSettings.DuckThis),
-                new Mutator(Mutators.Mutators.OneShotOneKill, typeof(OneShotOneKillPatch), MutatorSettings.OneShotOneKill),
-                new Mutator(Mutators.Mutators.ProtectThePresident, typeof(ProtectThePresidentPatch), MutatorSettings.ProtectThePresident, [SemiFunc.IsMultiplayer]),
-                new Mutator(Mutators.Mutators.RustyServos, typeof(RustyServosPatch), MutatorSettings.RustyServos),
-                new Mutator(Mutators.Mutators.HandleWithCare, typeof(HandleWithCarePatch), MutatorSettings.HandleWithCare),
-                new Mutator(Mutators.Mutators.HuntingSeason, typeof(HuntingSeasonPatch), MutatorSettings.HuntingSeason),
-                new Mutator(Mutators.Mutators.ThereCanOnlyBeOne, typeof(ThereCanOnlyBeOnePatch), MutatorSettings.ThereCanOnlyBeOne),
-                new Mutator(Mutators.Mutators.VolatileCargo, typeof(VolatileCargoPatch), MutatorSettings.VolatileCargo)
+                new Mutator(MutatorSettings.OutWithABang, typeof(OutWithABangPatch)),
+                new Mutator(MutatorSettings.ApolloEleven, typeof(ApolloElevenPatch)),
+                new Mutator(MutatorSettings.UltraViolence, typeof(UltraViolencePatch)),
+                new Mutator(MutatorSettings.DuckThis, typeof(DuckThisPatch)),
+                new Mutator(MutatorSettings.OneShotOneKill, typeof(OneShotOneKillPatch)),
+                new Mutator(MutatorSettings.ProtectThePresident, typeof(ProtectThePresidentPatch), [SemiFunc.IsMultiplayer]),
+                new Mutator(MutatorSettings.RustyServos, typeof(RustyServosPatch)),
+                new Mutator(MutatorSettings.HandleWithCare, typeof(HandleWithCarePatch)),
+                new Mutator(MutatorSettings.HuntingSeason, typeof(HuntingSeasonPatch)),
+                new Mutator(MutatorSettings.ThereCanOnlyBeOne, typeof(ThereCanOnlyBeOnePatch)),
+                new Mutator(MutatorSettings.VolatileCargo, typeof(VolatileCargoPatch))
             ];
 
             mutators.ForEach(mutator => _mutators[mutator.Name] = mutator);

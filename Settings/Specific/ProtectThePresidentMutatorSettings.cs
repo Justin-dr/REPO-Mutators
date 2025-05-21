@@ -8,7 +8,7 @@ namespace Mutators.Settings.Specific
     {
         private readonly ConfigEntry<byte> _minimumPlayerCount;
         public byte MinimumPlayerCount => _minimumPlayerCount.Value;
-        internal ProtectThePresidentMutatorSettings(string name, ConfigFile config) : base(name, config)
+        internal ProtectThePresidentMutatorSettings(string name, string description, ConfigFile config) : base(name, description, config)
         {
             _minimumPlayerCount = config.Bind<byte>(
             GetSection(name),

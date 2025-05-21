@@ -19,6 +19,7 @@ namespace Mutators.Patches
             GameObject hud = GameObject.Find("Game Hud");
             GameObject health = GameObject.Find("Health");
             CreateMutatorText(hud, health);
+            CreateMutatorDescriptionText(hud, health);
             CreateTargetPlayerText(hud, health);
         }
 
@@ -47,6 +48,33 @@ namespace Mutators.Patches
             mutatorObject.AddComponent<MutatorAnnouncingBehaviour>();
             textMeshPro.text = MutatorManager.Instance.CurrentMutator.Name;
             textMeshPro.fontSize = RepoMutators.Settings.MutatorDisplaySize;
+            textMeshPro.enabled = true;
+        }
+
+        private static void CreateMutatorDescriptionText(GameObject hud, GameObject health)
+        {
+            GameObject mutatorObject = new GameObject("Mutator Description");
+
+            mutatorObject.transform.SetParent(hud.transform, false);
+            TextMeshProUGUI textMeshPro = mutatorObject.AddComponent<TextMeshProUGUI>();
+
+            TextMeshProUGUI healthTextMesh = health.GetComponent<TextMeshProUGUI>();
+
+            textMeshPro.font = healthTextMesh.font;
+            textMeshPro.fontMaterial = healthTextMesh.fontMaterial;
+
+            RectTransform rectTransform = mutatorObject.GetComponent<RectTransform>();
+            rectTransform.sizeDelta = new Vector2(300, 100);
+            rectTransform.anchorMin = new Vector2(1, 1);
+            rectTransform.anchorMax = new Vector2(1, 1);
+            rectTransform.pivot = new Vector2(1, 1);
+
+            rectTransform.anchoredPosition = new Vector2(0, -95);
+            textMeshPro.alignment = TextAlignmentOptions.Right;
+
+            mutatorObject.AddComponent<MutatorDescriptionAnnouncingBehaviour>();
+            textMeshPro.text = "No valuables spawn; weapons spawn instead. Enemy respawn time is reduced to 10 seconds, and the orb drop cap is removed.";
+            textMeshPro.fontSize = 20;
             textMeshPro.enabled = true;
         }
 

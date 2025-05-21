@@ -11,7 +11,7 @@ namespace Mutators.Settings.Specific
         public bool InstantlyDestroySurplus => _instaDestroySurplus.Value;
         public bool MultiplySurplusValue => _multiplySurplus.Value;
 
-        internal HandleWithCareMutatorSettings(string name, ConfigFile config) : base(name, config)
+        internal HandleWithCareMutatorSettings(string name, string description, ConfigFile config) : base(name, description, config)
         {
             _valueMultiplier = config.Bind<float>(
             GetSection(name),

@@ -6,13 +6,13 @@ namespace Mutators.Settings.Specific
     {
         private readonly ConfigEntry<float> _duckAggroCooldown;
         public float AggroCooldown => _duckAggroCooldown.Value;
-        internal DuckThisMutatorSettings(string name, ConfigFile config) : base(name, config)
+        internal DuckThisMutatorSettings(string name, string description, ConfigFile config) : base(name, description, config)
         {
             _duckAggroCooldown = config.Bind(
                 GetSection(name),
                 "Duck aggro cooldown",
                 120f,
-                $"The cooldown between duck aggro while the {Mutators.Mutators.DuckThis} Mutator is active."
+                $"The cooldown between duck aggro while the {Mutators.Mutators.DuckThisName} Mutator is active."
             );
         }
     }

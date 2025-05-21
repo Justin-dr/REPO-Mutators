@@ -50,7 +50,7 @@ namespace Mutators.Patches
             }
             else if (SemiFunc.RunIsArena())
             {
-                mutatorManager.SetActiveMutator(Mutators.Mutators.NopMutator);
+                mutatorManager.SetActiveMutator(Mutators.Mutators.NopMutatorName);
             }
         }
     }

@@ -2,31 +2,46 @@
 {
     public static class Mutators
     {
-        public const string NopMutator = "None";
-        public const string OutWithABang = "Out With a Bang!";
-        public const string ApolloEleven = "Apollo 11";
-        public const string UltraViolence = "Ultra-Violence";
-        public const string DuckThis = "Duck This";
-        public const string ProtectThePresident = "Protect the President";
-        public const string OneShotOneKill = "One Shot, One Kill";
-        public const string RustyServos = "Rusty Servos";
-        public const string HandleWithCare = "Handle With Care";
-        public const string HuntingSeason = "Hunting Season";
-        public const string ThereCanOnlyBeOne = "There Can Only Be One";
-        public const string VolatileCargo  = "Volatile Cargo";
+        // Names
+        public const string NopMutatorName = "None";
+        public const string OutWithABangName = "Out With a Bang!";
+        public const string ApolloElevenName = "Apollo 11";
+        public const string UltraViolenceName = "Ultra-Violence";
+        public const string DuckThisName = "Duck This";
+        public const string ProtectThePresidentName = "Protect the President";
+        public const string OneShotOneKillName = "One Shot, One Kill";
+        public const string RustyServosName = "Rusty Servos";
+        public const string HandleWithCareName = "Handle With Care";
+        public const string HuntingSeasonName = "Hunting Season";
+        public const string ThereCanOnlyBeOneName = "There Can Only Be One";
+        public const string VolatileCargoName = "Volatile Cargo";
+
+        // Descriptions
+        public const string NopMutatorDescription = "A normal run, no special effects";
+        public const string OutWithABangDescription = "Monsters explode on death";
+        public const string ApolloElevenDescription = "Level-wide Zero-Gravity";
+        public const string UltraViolenceDescription = "Immediately activates the final extraction phase";
+        public const string DuckThisDescription = "Ducks aggro on sight instead of on interaction\nAlways spawn at least 1 duck";
+        public const string ProtectThePresidentDescription = "A random player becomes the \"President\"\nIf they die, everyone else self-destructs";
+        public const string OneShotOneKillDescription = "Any damage taken by a player is lethal";
+        public const string RustyServosDescription = "Players cannot jump\n+3 Grab Range";
+        public const string HandleWithCareDescription = "Valuables are worth more but break on any impact";
+        public const string HuntingSeasonDescription = "No valuables spawn, weapons spawn instead\nEnemy respawn time reduced to 10 seconds\nOrb drop cap is removed";
+        public const string ThereCanOnlyBeOneDescription = "All monster spawns are of the same type";
+        public const string VolatileCargoDescription = "Valuables explode on destruction\nExplosion radius and strength based on value";
 
         internal static string[] All() => [
-            NopMutator,
-            OutWithABang,
-            ApolloEleven,
-            UltraViolence,
-            DuckThis,
-            ProtectThePresident,
-            RustyServos,
-            HandleWithCare,
-            HuntingSeason,
-            ThereCanOnlyBeOne,
-            VolatileCargo
+            NopMutatorName,
+            OutWithABangName,
+            ApolloElevenName,
+            UltraViolenceName,
+            DuckThisName,
+            ProtectThePresidentName,
+            RustyServosName,
+            HandleWithCareName,
+            HuntingSeasonName,
+            ThereCanOnlyBeOneName,
+            VolatileCargoName
         ];
     }
 }

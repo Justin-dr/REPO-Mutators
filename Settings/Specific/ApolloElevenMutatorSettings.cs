@@ -10,7 +10,7 @@ namespace Mutators.Settings.Specific
         private readonly ConfigEntry<string> _downwardsKey;
         public bool ApplyToEnemies => _applyToEnemies.Value;
         public KeyCode DownwardsKey { get; private set; }
-        internal ApolloElevenMutatorSettings(string name, ConfigFile config) : base(name, config)
+        internal ApolloElevenMutatorSettings(string name, string description, ConfigFile config) : base(name, description, config)
         {
             _applyToEnemies = config.Bind(
                 GetSection(name),

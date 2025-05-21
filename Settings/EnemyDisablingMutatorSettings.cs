@@ -8,7 +8,7 @@ namespace Mutators.Settings
     {
         private readonly ConfigEntry<string> _excludedEnemies;
         public IList<string> ExcludedEnemies { get; private set; } = [];
-        public EnemyDisablingMutatorSettings(string name, ConfigFile config, params string[] defaultDisabledEnemies) : base(name, config)
+        public EnemyDisablingMutatorSettings(string name, string description, ConfigFile config, params string[] defaultDisabledEnemies) : base(name, description, config)
         {
             _excludedEnemies = config.Bind(
             GetSection(name),

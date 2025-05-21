@@ -15,7 +15,7 @@ namespace Mutators.Patches
             if (_leaveGame)
             {
                 MutatorManager mutatorManager = MutatorManager.Instance;
-                mutatorManager.SetActiveMutator(Mutators.Mutators.NopMutator);
+                mutatorManager.SetActiveMutator(Mutators.Mutators.NopMutatorName);
             }
         }
     }
