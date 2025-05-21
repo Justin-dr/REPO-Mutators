@@ -39,6 +39,10 @@ namespace Mutators.Mutators.Patches
             __instance.enemyList.Clear();
             EnemySetup theChosenOne = availableEnemies[UnityEngine.Random.RandomRangeInt(0, availableEnemies.Count)];
             __instance.enemyList.Add(theChosenOne);
+            for (int i = 0; i < __instance.totalAmount; i++) // Prevent index out of bound
+            {
+                __instance.enemyList.Add(theChosenOne);
+            }
         }
     }
 }
