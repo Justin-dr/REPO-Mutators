@@ -1,4 +1,5 @@
-﻿using Mutators.Managers;
+﻿using Mutators.Extensions;
+using Mutators.Managers;
 using Photon.Pun;
 using Photon.Realtime;
 using System;
@@ -32,29 +33,22 @@ namespace Mutators.Network
             }
         }
 
-        public void SendMetadata(IDictionary<string, string> metadata)
+        public void SendMetadata(IDictionary<string, object> metadata)
         {
-            string[] keys = new string[metadata.Count];
-            string[] values = new string[metadata.Count];
-
-            int currentIndex = 0;
-            foreach (KeyValuePair<string, string> pairs in metadata)
-            {
-                keys[currentIndex] = pairs.Key;
-                values[currentIndex] = pairs.Value;
-                currentIndex++;
-            }
-
-            Send(keys, values, SetMetadata, RpcTarget.OthersBuffered);
+            if (!_photonView.IsMine) return;
+            Send(metadata.ToPhotonHashtable(), SetMetadata, RpcTarget.OthersBuffered);
         }
 
-        public void SendActiveMutator(string name)
+        public void SendActiveMutator(string name, IDictionary<string, object>? metadata = null)
         {
-            Send(name, SetActiveMutator, RpcTarget.OthersBuffered);
+            if (!_photonView.IsMine) return;
+            ExitGames.Client.Photon.Hashtable? hashtable = metadata?.ToPhotonHashtable();
+            Send(name, hashtable, SetActiveMutator, RpcTarget.OthersBuffered);
         }
 
         public void SendComponentForViews(int[] views, Type componentType)
         {
+            if (!_photonView.IsMine) return;
             Send(views, componentType.FullName, AddComponentToViewGameObject, RpcTarget.OthersBuffered);
         }
 
@@ -79,27 +73,37 @@ namespace Mutators.Network
         }
 
         [PunRPC]
-        public void SetActiveMutator(string name)
+        public void SetActiveMutator(string name, ExitGames.Client.Photon.Hashtable? hashtable)
         {
             bool runIsLevel = SemiFunc.RunIsLevel();
 
             RepoMutators.Logger.LogDebug($"Set mutator to {name}, applying patch {(runIsLevel ? "now" : "later")}");
             MutatorManager.Instance.SetActiveMutator(name, runIsLevel);
+
+            IDictionary<string, object> metadata = hashtable == null ? new Dictionary<string, object>() : hashtable.FromPhotonHashtable();
+
+            MutatorManager mutatorManager = MutatorManager.Instance;
+
+            mutatorManager.metadata = metadata;
+            mutatorManager.OnMetadataChanged?.Invoke(metadata);
         }
 
         [PunRPC]
-        public void SetMetadata(string[] keys, string[] values)
+        public void SetMetadata(ExitGames.Client.Photon.Hashtable hashtable)
         {
-            IDictionary<string, string> metadata = new Dictionary<string, string>();
-            for (int i = 0; i < keys.Length; i++)
-            {
-                metadata.Add(keys[i], values[i]);
-            }
+            MutatorManager mutatorManager = MutatorManager.Instance;
+            IDictionary<string, object> metadata = hashtable.FromPhotonHashtable();
 
             RepoMutators.Logger.LogDebug($"[RPC] Received metadata: {string.Join(", ", metadata.Select(kvp => $"{kvp.Key}: {kvp.Value}"))}");
 
-            MutatorManager.Instance.metadata = metadata;
-            MutatorManager.Instance.OnMetadataChanged?.Invoke(metadata);
+            metadata = mutatorManager.metadata
+                .Concat(metadata)
+                .GroupBy(kv => kv.Key)
+                .ToDictionary(g => g.Key, g => g.Last().Value);
+
+
+            mutatorManager.metadata = metadata;
+            mutatorManager.OnMetadataChanged?.Invoke(metadata);
         }
 
         [PunRPC]

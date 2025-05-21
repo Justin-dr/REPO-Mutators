@@ -16,17 +16,17 @@ namespace Mutators.Managers
 
         private readonly IDictionary<string, IMutator> _mutators  = new Dictionary<string, IMutator>();
 
-        internal IDictionary<string, string> metadata = new Dictionary<string, string>();
+        internal IDictionary<string, object> metadata = new Dictionary<string, object>();
 
         public IReadOnlyDictionary<string, IMutator> RegisteredMutators => new ReadOnlyDictionary<string, IMutator>(_mutators);
 
         public IMutator CurrentMutator { get; internal set; } = _nopMutator;
 
-        public IReadOnlyDictionary<string, string> Metadata => new ReadOnlyDictionary<string, string>(metadata);
+        public IReadOnlyDictionary<string, object> Metadata => new ReadOnlyDictionary<string, object>(metadata);
 
         private bool _initialized = false;
 
-        public Action<IDictionary<string, string>> OnMetadataChanged { get; set; } = null!;
+        public Action<IDictionary<string, object>> OnMetadataChanged { get; set; } = null!;
 
         internal void InitializeDefaultMutators()
         {
