@@ -1,17 +1,18 @@
 ﻿using HarmonyLib;
 using Mutators.Mutators.Behaviours;
+using System.Reflection;
 
 namespace Mutators.Patches
 {
-    [HarmonyPatch(typeof(StatsUI))]
-    internal class StatsUIPatch
+    [HarmonyPatch(typeof(MapToolController))]
+    internal class MapToolControllerPatch
     {
         [HarmonyPostfix]
-        [HarmonyPatch(nameof(StatsUI.Show))]
-        static void Postfix()
+        [HarmonyPatch(nameof(MapToolController.Update))]
+        static void Postfix(MapToolController __instance)
         {
             MutatorDescriptionAnnouncingBehaviour mutatorDescriptionAnnouncingBehaviour = MutatorDescriptionAnnouncingBehaviour.instance;
-            if (mutatorDescriptionAnnouncingBehaviour)
+            if (mutatorDescriptionAnnouncingBehaviour && __instance.Active)
             {
                 mutatorDescriptionAnnouncingBehaviour.Show();
             }

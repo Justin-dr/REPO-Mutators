@@ -1,11 +1,14 @@
 ﻿using Mutators.Mutators;
 using Mutators.Mutators.Patches;
 using Mutators.Settings;
+using REPOLib.Modules;
 using Sirenix.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using Unity.VisualScripting;
+using UnityEngine;
 
 namespace Mutators.Managers
 {
@@ -20,6 +23,8 @@ namespace Mutators.Managers
 
         public IReadOnlyDictionary<string, IMutator> RegisteredMutators => new ReadOnlyDictionary<string, IMutator>(_mutators);
 
+        private IMutator? _previousMutator = null;
+        private int _repeatCount = 0;
         public IMutator CurrentMutator { get; internal set; } = _nopMutator;
 
         public IReadOnlyDictionary<string, object> Metadata => new ReadOnlyDictionary<string, object>(metadata);
@@ -105,7 +110,19 @@ namespace Mutators.Managers
                 .Where(mutator => mutator.Conditions.All(condition => condition()))
                 .ToList();
 
+            float lastWeight = _previousMutator?.Settings.Weight ?? 0;
             float totalWeight = eligibleMutators.Sum(item => item.Settings.Weight);
+
+            if (lastWeight > 0 && totalWeight > 0)
+            {
+                float outlierThreshold = 0.1f;
+                float probability = Mathf.Pow(lastWeight / totalWeight, _repeatCount + 1);
+                if (probability < outlierThreshold)
+                {
+                    RepoMutators.Logger.LogDebug($"Cannot pick {_previousMutator?.Name ?? "None"}, threshold reached");
+                    eligibleMutators = eligibleMutators.Where(m => m != _previousMutator).ToList();
+                }
+            }
 
             if (totalWeight <= 0)
             {
@@ -119,7 +136,19 @@ namespace Mutators.Managers
             {
                 currentSum += mutator.Settings.Weight;
                 if (randomValue < currentSum)
+                {
+                    if (mutator == _previousMutator)
+                    {
+                        _repeatCount++;
+                    }
+                    else
+                    {
+                        _previousMutator = mutator;
+                        _repeatCount = 1;
+                    }
                     return mutator;
+                }
+                    
             }
 
             return _nopMutator;

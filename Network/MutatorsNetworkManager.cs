@@ -96,11 +96,7 @@ namespace Mutators.Network
 
             RepoMutators.Logger.LogDebug($"[RPC] Received metadata: {string.Join(", ", metadata.Select(kvp => $"{kvp.Key}: {kvp.Value}"))}");
 
-            metadata = mutatorManager.metadata
-                .Concat(metadata)
-                .GroupBy(kv => kv.Key)
-                .ToDictionary(g => g.Key, g => g.Last().Value);
-
+            metadata = mutatorManager.metadata.DeepMergedWith(metadata);
 
             mutatorManager.metadata = metadata;
             mutatorManager.OnMetadataChanged?.Invoke(metadata);

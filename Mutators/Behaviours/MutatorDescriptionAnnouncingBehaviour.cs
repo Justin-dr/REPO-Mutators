@@ -9,16 +9,16 @@ namespace Mutators.Mutators.Behaviours
     {
         private TextMeshProUGUI Text;
         internal static MutatorDescriptionAnnouncingBehaviour instance;
-        private float _showTimer;
+        private float _showTimer = 5.5f;
 
         public override void Start()
         {
             animateTheEntireObject = true;
-            hidePosition = new Vector2(300, 0);
+            hidePosition = new Vector2(400, 0);
             base.Start();
             Text = GetComponent<TextMeshProUGUI>();
             instance = this;
-            Text.text = "No valuables spawn; weapons spawn instead. Enemy respawn time is reduced to 10 seconds, and the orb drop cap is removed.";
+            Text.text = MutatorManager.Instance.CurrentMutator.Description;
         }
 
         public override void Update()

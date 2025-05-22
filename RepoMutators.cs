@@ -90,6 +90,7 @@ public class RepoMutators : BaseUnityPlugin
         Harmony ??= new Harmony(Info.Metadata.GUID);
         Harmony.PatchAll(typeof(RunManagerPatch));
         Harmony.PatchAll(typeof(LoadingUIPatch));
+        Harmony.PatchAll(typeof(MapToolControllerPatch));
         Harmony.PatchAll(typeof(SemiFuncPatch));
     }
 
