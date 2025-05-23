@@ -59,13 +59,20 @@ public class RepoMutators : BaseUnityPlugin
 
         SceneManager.sceneLoaded += (scene, loadSceneMode) => {
             if (scene.path != MainScenePath) return;
-            if (!SemiFunc.IsMultiplayer()) return;
-            if (!SemiFunc.IsMasterClient()) return;
+            if (!SemiFunc.IsMasterClientOrSingleplayer()) return;
+            if (RunManager.instance.levelCurrent == RunManager.instance.levelMainMenu)
+            {
+                if (MutatorsNetworkManager.Instance != null && MutatorsNetworkManager.Instance.gameObject != null)
+                {
+                    Object.Destroy(MutatorsNetworkManager.Instance.gameObject);
+                }
+                return;
+            }
             if (MutatorsNetworkManager.Instance != null) return;
             if (!SemiFunc.RunIsLobbyMenu()) return;
 
             Logger.LogDebug("Reviving network manager");
-            PhotonNetwork.InstantiateRoomObject(myPrefabId, Vector3.zero, Quaternion.identity);
+            REPOLib.Modules.NetworkPrefabs.SpawnNetworkPrefab(myPrefabId, Vector3.zero, Quaternion.identity);
 
             MutatorManager mutatorManager = MutatorManager.Instance;
             IMutator mutator = mutatorManager.GetWeightedMutator();

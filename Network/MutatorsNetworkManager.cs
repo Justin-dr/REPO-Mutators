@@ -16,6 +16,8 @@ namespace Mutators.Network
 
         private PhotonView _photonView = null!;
 
+        private readonly bool _debug = false;
+
         void Awake()
         {
             Instance = this;
@@ -23,6 +25,21 @@ namespace Mutators.Network
             gameObject.name = "MutatorsNetworkManager";
             gameObject.hideFlags &= ~HideFlags.HideAndDontSave;
             _photonView = GetComponent<PhotonView>();
+
+            if (_debug)
+            {
+                Run(PrintViewId());
+            }
+            
+        }
+
+        private IEnumerator PrintViewId()
+        {
+            while (true)
+            {
+                yield return new WaitForSeconds(3);
+                RepoMutators.Logger.LogInfo($"ViewID - {_photonView.ViewID}");
+            }
         }
 
         internal void ClearBufferedRPCs()
@@ -35,20 +52,18 @@ namespace Mutators.Network
 
         public void SendMetadata(IDictionary<string, object> metadata)
         {
-            if (!_photonView.IsMine) return;
             Send(metadata.ToPhotonHashtable(), SetMetadata, RpcTarget.OthersBuffered);
         }
 
         public void SendActiveMutator(string name, IDictionary<string, object>? metadata = null)
         {
-            if (!_photonView.IsMine) return;
+            if (!SemiFunc.IsMasterClientOrSingleplayer()) return;
             ExitGames.Client.Photon.Hashtable? hashtable = metadata?.ToPhotonHashtable();
             Send(name, hashtable, SetActiveMutator, RpcTarget.OthersBuffered);
         }
 
         public void SendComponentForViews(int[] views, Type componentType)
         {
-            if (!_photonView.IsMine) return;
             Send(views, componentType.FullName, AddComponentToViewGameObject, RpcTarget.OthersBuffered);
         }
 
