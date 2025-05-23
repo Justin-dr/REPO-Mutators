@@ -1,6 +1,5 @@
 ﻿using HarmonyLib;
 using Mutators.Mutators.Behaviours;
-using System.Reflection;
 
 namespace Mutators.Patches
 {
@@ -12,7 +11,7 @@ namespace Mutators.Patches
         static void Postfix(MapToolController __instance)
         {
             MutatorDescriptionAnnouncingBehaviour mutatorDescriptionAnnouncingBehaviour = MutatorDescriptionAnnouncingBehaviour.instance;
-            if (mutatorDescriptionAnnouncingBehaviour && __instance.Active)
+            if (mutatorDescriptionAnnouncingBehaviour && __instance.Active && RepoMutators.Settings.MutatorDescriptionInMapTool)
             {
                 mutatorDescriptionAnnouncingBehaviour.Show();
             }

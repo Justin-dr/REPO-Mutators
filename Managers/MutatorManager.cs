@@ -1,13 +1,11 @@
 ﻿using Mutators.Mutators;
 using Mutators.Mutators.Patches;
 using Mutators.Settings;
-using REPOLib.Modules;
 using Sirenix.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using Unity.VisualScripting;
 using UnityEngine;
 
 namespace Mutators.Managers

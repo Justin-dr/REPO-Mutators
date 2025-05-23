@@ -9,7 +9,7 @@ namespace Mutators.Mutators.Behaviours
     {
         private TextMeshProUGUI Text;
         internal static MutatorDescriptionAnnouncingBehaviour instance;
-        private float _showTimer = 5.5f;
+        private float _showTimer = RepoMutators.Settings.MutatorDescriptionInitialDisplayTime;
 
         public override void Start()
         {
@@ -27,7 +27,10 @@ namespace Mutators.Mutators.Behaviours
             Hide();
             if (_showTimer > 0f)
             {
-                _showTimer -= Time.deltaTime;
+                if (!RepoMutators.Settings.MutatorDescriptionPinned)
+                {
+                    _showTimer -= Time.deltaTime;
+                }
                 Show();
             }
         }
@@ -35,7 +38,7 @@ namespace Mutators.Mutators.Behaviours
         {
             SemiUISpringShakeY(20f, 10f, 0.3f);
             SemiUISpringScale(0.4f, 5f, 0.2f);
-            _showTimer = 5f;
+            _showTimer = RepoMutators.Settings.MutatorDescriptionInitialDisplayTime;
         }
 
     }

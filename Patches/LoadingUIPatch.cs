@@ -69,12 +69,12 @@ namespace Mutators.Patches
             rectTransform.anchorMax = new Vector2(1, 1);
             rectTransform.pivot = new Vector2(1, 1);
 
-            rectTransform.anchoredPosition = new Vector2(0, -95);
+            rectTransform.anchoredPosition = new Vector2(0, RepoMutators.Settings.MutatorDescriptionDisplayY);
             textMeshPro.alignment = TextAlignmentOptions.Right;
 
             mutatorObject.AddComponent<MutatorDescriptionAnnouncingBehaviour>();
-            textMeshPro.text = "No valuables spawn; weapons spawn instead. Enemy respawn time is reduced to 10 seconds, and the orb drop cap is removed.";
-            textMeshPro.fontSize = 20;
+            textMeshPro.text = string.Empty;
+            textMeshPro.fontSize = RepoMutators.Settings.MutatorDescriptionDisplaySize;
             textMeshPro.enabled = true;
         }
 
