@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using Mutators.Settings;
+using Sirenix.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -11,22 +12,24 @@ namespace Mutators.Mutators
         private readonly Harmony _harmony;
         private readonly IList<Type> _patches;
         private readonly IList<Func<bool>> _conditions;
-        public string Name { get; private set; }
+        private readonly IList<Action> _cleanUpActions;
+        public string Name => Settings.MutatorName;
+        public string Description => Settings.MutatorDescription;
         public bool Active { get; private set; }
         public AbstractMutatorSettings Settings { get; private set; }
         public IReadOnlyList<Func<bool>> Conditions => new ReadOnlyCollection<Func<bool>>(_conditions);
         public IReadOnlyList<Type> Patches => new ReadOnlyCollection<Type>(_patches);
 
-        public Mutator(string name, IList<Type> patches, AbstractMutatorSettings settings, IList<Func<bool>> conditions = null!)
+        public Mutator(AbstractMutatorSettings settings, IList<Type> patches, IList<Func<bool>> conditions = null!, IList<Action>? cleanUpActions = null)
         {
-            Name = name;
             Settings = settings;
-            _harmony = new Harmony($"{MyPluginInfo.PLUGIN_GUID}-{name}");
+            _harmony = new Harmony($"{MyPluginInfo.PLUGIN_GUID}-{settings.MutatorName}");
             _patches = patches ?? [];
             _conditions = conditions ?? [];
+            _cleanUpActions = cleanUpActions ?? [];
         }
 
-        public Mutator(string name, Type patch, AbstractMutatorSettings settings, IList<Func<bool>> conditions = null!) : this(name, [patch], settings, conditions)
+        public Mutator(AbstractMutatorSettings settings, Type patch, IList<Func<bool>> conditions = null!, IList<Action>? cleanUpActions = null) : this(settings, [patch], conditions, cleanUpActions)
         {
             
         }
@@ -52,6 +55,7 @@ namespace Mutators.Mutators
 
             _harmony.UnpatchSelf();
             Active = false;
+            _cleanUpActions.ForEach(action => action?.Invoke());
             RepoMutators.Logger.LogDebug($"Unpatched mutator: {Name}");
         }
     }

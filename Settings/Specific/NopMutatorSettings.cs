@@ -8,7 +8,9 @@ namespace Mutators.Settings.Specific
         private readonly ConfigEntry<uint> _minimumLevel;
         private readonly ConfigEntry<uint> _maximumLevel;
 
-        public override string MutatorName => Mutators.Mutators.NopMutator;
+        public override string MutatorName => Mutators.Mutators.NopMutatorName;
+
+        public override string MutatorDescription => Mutators.Mutators.NopMutatorDescription;
 
         public override uint Weight => _weight.Value;
 

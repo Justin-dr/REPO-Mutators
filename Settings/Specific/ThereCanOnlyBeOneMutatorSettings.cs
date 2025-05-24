@@ -8,7 +8,7 @@ namespace Mutators.Settings.Specific
     {
         private readonly ConfigEntry<uint> _groupSpawnsThreshold;
         public uint GroupSpawnsThreshold => _groupSpawnsThreshold.Value;
-        internal ThereCanOnlyBeOneMutatorSettings(string name, ConfigFile config) : base(name, config)
+        internal ThereCanOnlyBeOneMutatorSettings(string name, string description, ConfigFile config) : base(name, description, config)
         {
             _groupSpawnsThreshold = config.Bind<uint>(
             GetSection(name),

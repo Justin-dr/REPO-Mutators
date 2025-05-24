@@ -58,8 +58,7 @@ namespace Mutators.Mutators.Patches
 
         private static Func<T, R> CreateFieldGetter<T, R>(string fieldName)
         {
-            var field = AccessTools.Field(typeof(T), fieldName);
-            if (field == null) throw new Exception($"Field {fieldName} not found on {typeof(T)}");
+            var field = AccessTools.Field(typeof(T), fieldName) ?? throw new Exception($"Field {fieldName} not found on {typeof(T)}");
 
             var param = Expression.Parameter(typeof(T), "instance");
             var fieldAccess = Expression.Field(param, field);
@@ -69,8 +68,7 @@ namespace Mutators.Mutators.Patches
 
         private static Action<T, V> CreateFieldSetter<T, V>(string fieldName)
         {
-            var field = AccessTools.Field(typeof(T), fieldName);
-            if (field == null) throw new Exception($"Field {fieldName} not found on {typeof(T)}");
+            var field = AccessTools.Field(typeof(T), fieldName) ?? throw new Exception($"Field {fieldName} not found on {typeof(T)}");
 
             var targetExp = Expression.Parameter(typeof(T), "instance");
             var valueExp = Expression.Parameter(typeof(V), "value");

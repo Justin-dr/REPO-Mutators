@@ -17,20 +17,22 @@ namespace Mutators.Settings
         public static GenericMutatorSettings HuntingSeason { get; private set; } = null!;
         public static ThereCanOnlyBeOneMutatorSettings ThereCanOnlyBeOne { get; private set; } = null!;
         public static GenericMutatorSettings VolatileCargo { get; private set; } = null!;
+        public static SealedAwayMutatorSettings SealedAway { get; private set; } = null!;
         public static void Initialize(ConfigFile config)
         {
             NopMutator = new NopMutatorSettings(config);
-            ApolloEleven = new ApolloElevenMutatorSettings(Mutators.Mutators.ApolloEleven, config);
-            OutWithABang = new GenericMutatorSettings(Mutators.Mutators.OutWithABang, config);
-            DuckThis = new DuckThisMutatorSettings(Mutators.Mutators.DuckThis, config);
-            UltraViolence = new EnemyDisablingMutatorSettings(Mutators.Mutators.UltraViolence, config);
-            ProtectThePresident = new ProtectThePresidentMutatorSettings(Mutators.Mutators.ProtectThePresident, config);
-            OneShotOneKill = new OneShotOneKillMutatorSettings(Mutators.Mutators.OneShotOneKill, config);
-            RustyServos = new GenericMutatorSettings(Mutators.Mutators.RustyServos, config);
-            HandleWithCare = new HandleWithCareMutatorSettings(Mutators.Mutators.HandleWithCare, config);
-            HuntingSeason = new GenericMutatorSettings(Mutators.Mutators.HuntingSeason, config);
-            ThereCanOnlyBeOne = new ThereCanOnlyBeOneMutatorSettings(Mutators.Mutators.ThereCanOnlyBeOne, config);
-            VolatileCargo = new GenericMutatorSettings(Mutators.Mutators.VolatileCargo, config);
+            ApolloEleven = new ApolloElevenMutatorSettings(Mutators.Mutators.ApolloElevenName, Mutators.Mutators.ApolloElevenDescription, config);
+            OutWithABang = new GenericMutatorSettings(Mutators.Mutators.OutWithABangName, Mutators.Mutators.OutWithABangDescription, config);
+            DuckThis = new DuckThisMutatorSettings(Mutators.Mutators.DuckThisName, Mutators.Mutators.DuckThisDescription, config);
+            UltraViolence = new EnemyDisablingMutatorSettings(Mutators.Mutators.UltraViolenceName, Mutators.Mutators.UltraViolenceDescription, config);
+            ProtectThePresident = new ProtectThePresidentMutatorSettings(Mutators.Mutators.ProtectThePresidentName, Mutators.Mutators.ProtectThePresidentDescription, config);
+            OneShotOneKill = new OneShotOneKillMutatorSettings(Mutators.Mutators.OneShotOneKillName, Mutators.Mutators.OneShotOneKillDescription, config);
+            RustyServos = new GenericMutatorSettings(Mutators.Mutators.RustyServosName, Mutators.Mutators.RustyServosDescription, config);
+            HandleWithCare = new HandleWithCareMutatorSettings(Mutators.Mutators.HandleWithCareName, Mutators.Mutators.HandleWithCareDescription, config);
+            HuntingSeason = new GenericMutatorSettings(Mutators.Mutators.HuntingSeasonName, Mutators.Mutators.HuntingSeasonDescription, config);
+            ThereCanOnlyBeOne = new ThereCanOnlyBeOneMutatorSettings(Mutators.Mutators.ThereCanOnlyBeOneName, Mutators.Mutators.ThereCanOnlyBeOneDescription, config);
+            VolatileCargo = new GenericMutatorSettings(Mutators.Mutators.VolatileCargoName, Mutators.Mutators.VolatileCargoDescription, config);
+            SealedAway = new SealedAwayMutatorSettings(Mutators.Mutators.SealedAwayName, Mutators.Mutators.SealedAwayDescription, config);
         }
     }
 }

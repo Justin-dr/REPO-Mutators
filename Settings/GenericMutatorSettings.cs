@@ -9,13 +9,15 @@ namespace Mutators.Settings
         private readonly ConfigEntry<uint> _maximumLevel;
 
         public override string MutatorName { get; }
+        public override string MutatorDescription { get; }
         public override uint Weight => _weight.Value;
         public override uint MinimumLevel => _minimumLevel.Value;
         public override uint MaximumLevel => _maximumLevel.Value;
 
-        public GenericMutatorSettings(string name, ConfigFile config)
+        public GenericMutatorSettings(string name, string description, ConfigFile config)
         {
             MutatorName = name;
+            MutatorDescription = description;
 
             _weight = config.Bind<uint>(
                 GetSection(name),

@@ -6,6 +6,7 @@
         protected const string MinimumLevelConfigKey = "Minimum level";
         protected const string MaximumLevelConfigKey = "Maximum level";
         public abstract string MutatorName { get; }
+        public abstract string MutatorDescription { get; }
         public abstract uint Weight { get; }
         public abstract uint MinimumLevel { get; }
         public abstract uint MaximumLevel { get; }

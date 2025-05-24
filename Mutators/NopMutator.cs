@@ -9,7 +9,9 @@ namespace Mutators.Mutators
         private static readonly IReadOnlyList<Type> _patches = [];
         private static readonly IReadOnlyList<Func<bool>> _conditions = [];
 
-        public string Name => Mutators.NopMutator;
+        public string Name => Mutators.NopMutatorName;
+
+        public string Description => Mutators.NopMutatorDescription;
 
         public bool Active { get; private set; }
 

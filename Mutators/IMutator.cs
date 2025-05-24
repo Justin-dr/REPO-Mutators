@@ -12,6 +12,8 @@ namespace Mutators.Mutators
 
         string Name { get; }
 
+        string Description { get; }
+
         bool Active { get; }
 
         AbstractMutatorSettings Settings { get; }

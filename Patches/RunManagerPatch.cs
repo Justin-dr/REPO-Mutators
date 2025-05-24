@@ -2,7 +2,6 @@
 using Mutators.Managers;
 using Mutators.Mutators;
 using Mutators.Network;
-using Photon.Pun;
 using UnityEngine;
 
 namespace Mutators.Patches
@@ -17,6 +16,17 @@ namespace Mutators.Patches
             if (SemiFunc.IsMultiplayer() && SemiFunc.IsNotMasterClient()) return;
 
             RepoMutators.Logger.LogDebug("RunManagerPatch Host only");
+
+
+            if (!SemiFunc.IsMultiplayer() && !SemiFunc.RunIsLobbyMenu() && MutatorsNetworkManager.Instance == null)
+            {
+                RepoMutators.Logger.LogDebug($"Spawning singleplayer NetworkManager");
+                string myPrefabId = $"{MyPluginInfo.PLUGIN_GUID}/{RepoMutators.NETWORKMANAGER_NAME}";
+                GameObject? gameObject = REPOLib.Modules.NetworkPrefabs.SpawnNetworkPrefab(myPrefabId, Vector3.zero, Quaternion.identity);
+                gameObject?.SetActive(true);
+
+                GetAndSendMutator();
+            }
 
             ApplyPatch();
         }
@@ -37,11 +47,9 @@ namespace Mutators.Patches
             MutatorManager mutatorManager = MutatorManager.Instance;
             if (SemiFunc.RunIsShop() && SemiFunc.IsMasterClientOrSingleplayer())
             {
-                MutatorsNetworkManager mutatorsNetworkManager = MutatorsNetworkManager.Instance;
-                mutatorsNetworkManager.ClearBufferedRPCs();
+                MutatorsNetworkManager.Instance.ClearBufferedRPCs();
 
-                IMutator mutator = mutatorManager.GetWeightedMutator();
-                mutatorsNetworkManager.SendActiveMutator(mutator.Name);
+                GetAndSendMutator();
             }
             else if (SemiFunc.RunIsLevel())
             {
@@ -50,8 +58,14 @@ namespace Mutators.Patches
             }
             else if (SemiFunc.RunIsArena())
             {
-                mutatorManager.SetActiveMutator(Mutators.Mutators.NopMutator);
+                mutatorManager.SetActiveMutator(Mutators.Mutators.NopMutatorName);
             }
+        }
+
+        private static void GetAndSendMutator()
+        {
+            IMutator mutator = MutatorManager.Instance.GetWeightedMutator();
+            MutatorsNetworkManager.Instance.SendActiveMutator(mutator.Name);
         }
     }
 }

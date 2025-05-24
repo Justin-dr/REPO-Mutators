@@ -37,9 +37,12 @@ public class MyMod : BaseUnityPlugin
     private void Start()
     {
         IMutator myMutator = new Mutator(
-            "Explosive Ducks",                                      // Unique name
+            new GenericMutatorSettings(                             // Settings, including weight for random selection
+                "Explosive Ducks",                                  // Name and unique identifier of this mutator
+                "Duck go boom",                                     // Mutator description
+                config
+            ),
             typeof(ExplosiveDucksPatch),                            // Patch type implementing the mutator logic
-            new GenericMutatorSettings("Explosive Ducks", config),  // Settings, including weight for random selection
         );
 
         MutatorManager.Instance.RegisterMutator(myMutator);
@@ -57,9 +60,12 @@ You can control whether a mutator can be selected using conditions. Each one mus
 
 ```csharp
 var myConditionalMutator = new Mutator(
-    "Explosive Ducks",
+    new GenericMutatorSettings(
+                "Explosive Ducks",
+                "Duck go boom",
+                config
+    ),
     typeof(ExplosiveDucksPatch),
-    new GenericMutatorSettings("Explosive Ducks", config),
     [
         SemiFunc.IsMultiplayer,                   // Example: only allow in multiplayer
         () => SomePlayerCount > 3                 // Custom condition

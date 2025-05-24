@@ -9,7 +9,7 @@ namespace Mutators.Settings.Specific
         private readonly ConfigEntry<uint> _instaReviveHealth;
         public bool InstaReviveInTruckOrExtraction => _instaReviveInTruckOrExtraction.Value;
         public int InstaReviveHealth { get; private set; }
-        internal OneShotOneKillMutatorSettings(string name, ConfigFile config) : base(name, config)
+        internal OneShotOneKillMutatorSettings(string name, string description, ConfigFile config) : base(name, description, config)
         {
             _instaReviveInTruckOrExtraction = config.Bind(
             GetSection(name),

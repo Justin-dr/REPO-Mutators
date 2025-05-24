@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using UnityEngine;
 
 namespace Mutators.Managers
 {
@@ -16,17 +17,19 @@ namespace Mutators.Managers
 
         private readonly IDictionary<string, IMutator> _mutators  = new Dictionary<string, IMutator>();
 
-        internal IDictionary<string, string> metadata = new Dictionary<string, string>();
+        internal IDictionary<string, object> metadata = new Dictionary<string, object>();
 
         public IReadOnlyDictionary<string, IMutator> RegisteredMutators => new ReadOnlyDictionary<string, IMutator>(_mutators);
 
+        private IMutator? _previousMutator = null;
+        private int _repeatCount = 0;
         public IMutator CurrentMutator { get; internal set; } = _nopMutator;
 
-        public IReadOnlyDictionary<string, string> Metadata => new ReadOnlyDictionary<string, string>(metadata);
+        public IReadOnlyDictionary<string, object> Metadata => new ReadOnlyDictionary<string, object>(metadata);
 
         private bool _initialized = false;
 
-        public Action<IDictionary<string, string>> OnMetadataChanged { get; set; } = null!;
+        public Action<IDictionary<string, object>> OnMetadataChanged { get; set; } = null!;
 
         internal void InitializeDefaultMutators()
         {
@@ -38,17 +41,18 @@ namespace Mutators.Managers
 
             IList<IMutator> mutators = [
                 _nopMutator,
-                new Mutator(Mutators.Mutators.OutWithABang, typeof(OutWithABangPatch), MutatorSettings.OutWithABang),
-                new Mutator(Mutators.Mutators.ApolloEleven, typeof(ApolloElevenPatch), MutatorSettings.ApolloEleven),
-                new Mutator(Mutators.Mutators.UltraViolence, typeof(UltraViolencePatch), MutatorSettings.UltraViolence),
-                new Mutator(Mutators.Mutators.DuckThis, typeof(DuckThisPatch), MutatorSettings.DuckThis),
-                new Mutator(Mutators.Mutators.OneShotOneKill, typeof(OneShotOneKillPatch), MutatorSettings.OneShotOneKill),
-                new Mutator(Mutators.Mutators.ProtectThePresident, typeof(ProtectThePresidentPatch), MutatorSettings.ProtectThePresident, [SemiFunc.IsMultiplayer]),
-                new Mutator(Mutators.Mutators.RustyServos, typeof(RustyServosPatch), MutatorSettings.RustyServos),
-                new Mutator(Mutators.Mutators.HandleWithCare, typeof(HandleWithCarePatch), MutatorSettings.HandleWithCare),
-                new Mutator(Mutators.Mutators.HuntingSeason, typeof(HuntingSeasonPatch), MutatorSettings.HuntingSeason),
-                new Mutator(Mutators.Mutators.ThereCanOnlyBeOne, typeof(ThereCanOnlyBeOnePatch), MutatorSettings.ThereCanOnlyBeOne),
-                new Mutator(Mutators.Mutators.VolatileCargo, typeof(VolatileCargoPatch), MutatorSettings.VolatileCargo)
+                new Mutator(MutatorSettings.OutWithABang, typeof(OutWithABangPatch)),
+                new Mutator(MutatorSettings.ApolloEleven, typeof(ApolloElevenPatch)),
+                new Mutator(MutatorSettings.UltraViolence, typeof(UltraViolencePatch)),
+                new Mutator(MutatorSettings.DuckThis, typeof(DuckThisPatch)),
+                new Mutator(MutatorSettings.OneShotOneKill, typeof(OneShotOneKillPatch)),
+                new Mutator(MutatorSettings.ProtectThePresident, typeof(ProtectThePresidentPatch), [SemiFunc.IsMultiplayer]),
+                new Mutator(MutatorSettings.RustyServos, typeof(RustyServosPatch)),
+                new Mutator(MutatorSettings.HandleWithCare, typeof(HandleWithCarePatch)),
+                new Mutator(MutatorSettings.HuntingSeason, typeof(HuntingSeasonPatch)),
+                new Mutator(MutatorSettings.ThereCanOnlyBeOne, typeof(ThereCanOnlyBeOnePatch)),
+                new Mutator(MutatorSettings.VolatileCargo, typeof(VolatileCargoPatch)),
+                new Mutator(MutatorSettings.SealedAway, typeof(SealedAwayPatch), cleanUpActions: [SealedAwayPatch.Reset])
             ];
 
             mutators.ForEach(mutator => _mutators[mutator.Name] = mutator);
@@ -105,7 +109,19 @@ namespace Mutators.Managers
                 .Where(mutator => mutator.Conditions.All(condition => condition()))
                 .ToList();
 
+            float lastWeight = _previousMutator?.Settings.Weight ?? 0;
             float totalWeight = eligibleMutators.Sum(item => item.Settings.Weight);
+
+            if (lastWeight > 0 && totalWeight > 0)
+            {
+                float outlierThreshold = 0.1f;
+                float probability = Mathf.Pow(lastWeight / totalWeight, _repeatCount + 1);
+                if (probability < outlierThreshold)
+                {
+                    RepoMutators.Logger.LogDebug($"Cannot pick {_previousMutator?.Name ?? "None"}, threshold reached");
+                    eligibleMutators = eligibleMutators.Where(m => m != _previousMutator).ToList();
+                }
+            }
 
             if (totalWeight <= 0)
             {
@@ -119,7 +135,19 @@ namespace Mutators.Managers
             {
                 currentSum += mutator.Settings.Weight;
                 if (randomValue < currentSum)
+                {
+                    if (mutator == _previousMutator)
+                    {
+                        _repeatCount++;
+                    }
+                    else
+                    {
+                        _previousMutator = mutator;
+                        _repeatCount = 1;
+                    }
                     return mutator;
+                }
+                    
             }
 
             return _nopMutator;
