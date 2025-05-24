@@ -51,7 +51,8 @@ namespace Mutators.Managers
                 new Mutator(MutatorSettings.HandleWithCare, typeof(HandleWithCarePatch)),
                 new Mutator(MutatorSettings.HuntingSeason, typeof(HuntingSeasonPatch)),
                 new Mutator(MutatorSettings.ThereCanOnlyBeOne, typeof(ThereCanOnlyBeOnePatch)),
-                new Mutator(MutatorSettings.VolatileCargo, typeof(VolatileCargoPatch))
+                new Mutator(MutatorSettings.VolatileCargo, typeof(VolatileCargoPatch)),
+                new Mutator(MutatorSettings.SealedAway, typeof(SealedAwayPatch), cleanUpActions: [SealedAwayPatch.Reset])
             ];
 
             mutators.ForEach(mutator => _mutators[mutator.Name] = mutator);

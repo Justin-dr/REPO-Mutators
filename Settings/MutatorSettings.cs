@@ -17,6 +17,7 @@ namespace Mutators.Settings
         public static GenericMutatorSettings HuntingSeason { get; private set; } = null!;
         public static ThereCanOnlyBeOneMutatorSettings ThereCanOnlyBeOne { get; private set; } = null!;
         public static GenericMutatorSettings VolatileCargo { get; private set; } = null!;
+        public static SealedAwayMutatorSettings SealedAway { get; private set; } = null!;
         public static void Initialize(ConfigFile config)
         {
             NopMutator = new NopMutatorSettings(config);
@@ -31,6 +32,7 @@ namespace Mutators.Settings
             HuntingSeason = new GenericMutatorSettings(Mutators.Mutators.HuntingSeasonName, Mutators.Mutators.HuntingSeasonDescription, config);
             ThereCanOnlyBeOne = new ThereCanOnlyBeOneMutatorSettings(Mutators.Mutators.ThereCanOnlyBeOneName, Mutators.Mutators.ThereCanOnlyBeOneDescription, config);
             VolatileCargo = new GenericMutatorSettings(Mutators.Mutators.VolatileCargoName, Mutators.Mutators.VolatileCargoDescription, config);
+            SealedAway = new SealedAwayMutatorSettings(Mutators.Mutators.SealedAwayName, Mutators.Mutators.SealedAwayDescription, config);
         }
     }
 }

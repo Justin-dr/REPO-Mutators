@@ -67,6 +67,11 @@ namespace Mutators.Network
             Send(views, componentType.FullName, AddComponentToViewGameObject, RpcTarget.OthersBuffered);
         }
 
+        internal void SendScaleChange(int photonViewId, float scale)
+        {
+            Send(photonViewId, scale, SetScale, RpcTarget.OthersBuffered);
+        }
+
         [PunRPC]
         public void AddComponentToViewGameObject(int[] views, string componentType)
         {
@@ -115,6 +120,16 @@ namespace Mutators.Network
 
             mutatorManager.metadata = metadata;
             mutatorManager.OnMetadataChanged?.Invoke(metadata);
+        }
+
+        [PunRPC]
+        public void SetScale(int viewId, float scale)
+        {
+            PhotonView view = PhotonView.Find(viewId);
+            if (view != null)
+            {
+                view.transform.localScale = new Vector3(scale, scale, scale);
+            }
         }
 
         [PunRPC]

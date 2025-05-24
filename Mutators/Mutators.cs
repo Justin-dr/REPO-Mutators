@@ -15,6 +15,7 @@
         public const string HuntingSeasonName = "Hunting Season";
         public const string ThereCanOnlyBeOneName = "There Can Only Be One";
         public const string VolatileCargoName = "Volatile Cargo";
+        public const string SealedAwayName = "Sealed Away";
 
         // Descriptions
         public const string NopMutatorDescription = "A normal run, no special effects";
@@ -29,6 +30,7 @@
         public const string HuntingSeasonDescription = "No valuables spawn, weapons spawn instead\nEnemy respawn time reduced to 10 seconds\nOrb drop cap is removed";
         public const string ThereCanOnlyBeOneDescription = "All monster spawns are of the same type";
         public const string VolatileCargoDescription = "Valuables explode on destruction\nExplosion radius and strength based on value";
+        public const string SealedAwayDescription = "Breaking valuables has a chance to spawn monsters";
 
         internal static string[] All() => [
             NopMutatorName,
@@ -41,7 +43,8 @@
             HandleWithCareName,
             HuntingSeasonName,
             ThereCanOnlyBeOneName,
-            VolatileCargoName
+            VolatileCargoName,
+            SealedAwayName
         ];
     }
 }

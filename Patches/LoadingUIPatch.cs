@@ -71,6 +71,7 @@ namespace Mutators.Patches
 
             rectTransform.anchoredPosition = new Vector2(0, RepoMutators.Settings.MutatorDescriptionDisplayY);
             textMeshPro.alignment = TextAlignmentOptions.Right;
+            textMeshPro.verticalAlignment = VerticalAlignmentOptions.Top;
 
             mutatorObject.AddComponent<MutatorDescriptionAnnouncingBehaviour>();
             textMeshPro.text = string.Empty;

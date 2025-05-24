@@ -64,7 +64,7 @@ namespace Mutators.Settings
             _mutatorDescriptionDisplayY = config.Bind(
                     "Mutator Interface",
                     "Description Y position",
-                    -90f,
+                    -110f,
                     "The Y position of the active Mutator's description overlay"
             );
 
