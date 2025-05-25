@@ -1,5 +1,6 @@
 ﻿using Mutators.Managers;
 using Mutators.Settings;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 
@@ -24,14 +25,18 @@ namespace Mutators.Mutators.Behaviours
         public override void Update()
         {
             base.Update();
-            Hide();
+            base.Hide();
             if (_showTimer > 0f)
             {
                 if (!RepoMutators.Settings.MutatorDescriptionPinned)
                 {
                     _showTimer -= Time.deltaTime;
                 }
-                Show();
+
+                if (MenuPageEsc.instance?.menuPage == null)
+                {
+                    Show();
+                }
             }
         }
         public void ShowDescription()
@@ -40,6 +45,5 @@ namespace Mutators.Mutators.Behaviours
             SemiUISpringScale(0.4f, 5f, 0.2f);
             _showTimer = RepoMutators.Settings.MutatorDescriptionInitialDisplayTime;
         }
-
     }
 }

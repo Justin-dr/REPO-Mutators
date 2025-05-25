@@ -11,8 +11,9 @@ namespace Mutators.Patches
         static void Postfix(MapToolController __instance)
         {
             MutatorDescriptionAnnouncingBehaviour mutatorDescriptionAnnouncingBehaviour = MutatorDescriptionAnnouncingBehaviour.instance;
-            if (mutatorDescriptionAnnouncingBehaviour && __instance.Active && RepoMutators.Settings.MutatorDescriptionInMapTool)
+            if (mutatorDescriptionAnnouncingBehaviour && __instance.Active && RepoMutators.Settings.MutatorDescriptionInMapTool && __instance.PlayerAvatar == PlayerAvatar.instance)
             {
+                
                 mutatorDescriptionAnnouncingBehaviour.Show();
             }
         }
