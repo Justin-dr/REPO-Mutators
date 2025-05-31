@@ -88,6 +88,18 @@ namespace Mutators.Mutators.Behaviours
             }
         }
 
+        public void StopLaser(bool localOnly = false)
+        {
+            if (localOnly)
+            {
+                laserTimer = 0;
+            }
+            else
+            {
+                FireLaser(0);
+            }
+        }
+
         public bool IsActive()
         {
             return laserTimer > 0;

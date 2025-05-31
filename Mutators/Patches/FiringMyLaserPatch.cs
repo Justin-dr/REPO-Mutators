@@ -59,13 +59,26 @@ namespace Mutators.Mutators.Patches
         static void PlayerHealthHurtPostfix(PlayerHealth __instance, int damage)
         {
 
-            if (damage < 1) return;
+            if (damage < 1 || __instance.playerAvatar.deadSet) return;
 
             LaserFiringBehaviour laserFiringBehaviour = __instance.playerAvatar.GetComponentInChildren<LaserFiringBehaviour>();
 
             if (laserFiringBehaviour && !laserFiringBehaviour.IsActive())
             {
                 laserFiringBehaviour.FireLaser(2.5f);
+            }
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(PlayerAvatar))]
+        [HarmonyPatch(nameof(PlayerAvatar.PlayerDeath))]
+        static void PlayerAvatarReviveRPCPostfix(PlayerAvatar __instance)
+        {
+            LaserFiringBehaviour laserFiringBehaviour = __instance.GetComponentInChildren<LaserFiringBehaviour>(true);
+
+            if (laserFiringBehaviour)
+            {
+                laserFiringBehaviour.StopLaser(true);
             }
         }
     }
