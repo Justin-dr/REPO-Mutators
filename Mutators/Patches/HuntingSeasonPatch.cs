@@ -2,6 +2,7 @@
 using Mutators.Extensions;
 using Mutators.Mutators.Behaviours;
 using Mutators.Network;
+using Mutators.Utility;
 using Photon.Pun;
 using REPOLib.Modules;
 using System.Collections.Generic;
@@ -126,7 +127,7 @@ namespace Mutators.Mutators.Patches
         {
             if (SemiFunc.IsMultiplayer() && SemiFunc.IsNotMasterClient()) return;
 
-            DropItems();
+            TemporaryItemUtils.DropMarkedItems(Mutators.HuntingSeasonName);
         }
 
         [HarmonyPostfix]
@@ -137,7 +138,7 @@ namespace Mutators.Mutators.Patches
         {
             if (SemiFunc.IsMasterClientOrSingleplayer()) return;
 
-            DropItems();
+            TemporaryItemUtils.DropMarkedItems(Mutators.HuntingSeasonName);
         }
 
         [HarmonyPrefix]
@@ -150,38 +151,13 @@ namespace Mutators.Mutators.Patches
             // This means we are sending less data to be synced (Amazing), and our clients won't get warnings in console (wow!)
             if (SemiFunc.IsMasterClientOrSingleplayer() && SemiFunc.RunIsShop())
             {
-                RemoveAllHuntingSeasonItems();
+                TemporaryItemUtils.RemoveMarkedItems(Mutators.HuntingSeasonName);
             }
         }
 
         private static Item[] GetPossibleItems()
         {
             return Items.AllItems.Where(i => i.itemType == SemiFunc.itemType.melee || i.itemType == SemiFunc.itemType.gun).ToArray();
-        }
-
-        private static void DropItems()
-        {
-            Inventory inventory = Inventory.instance;
-            foreach (InventorySpot inventorySpot in inventory.inventorySpots)
-            {
-                ItemEquippable currentItem = inventorySpot.CurrentItem;
-                if (currentItem && currentItem.gameObject.GetComponent<TemporaryLevelItemBehaviour>())
-                {
-                    currentItem.GetComponent<ItemEquippable>().ForceUnequip(inventory.playerAvatar.PlayerVisionTarget.VisionTransform.position, SemiFunc.IsMultiplayer() ? inventory.physGrabber.photonView.ViewID : -1);
-                }
-            }
-
-            RemoveAllHuntingSeasonItems();
-        }
-
-        private static void RemoveAllHuntingSeasonItems()
-        {
-            StatsManager statsManager = StatsManager.instance;
-            foreach (string item in statsManager.item.Where(item => item.Key.Contains($"({Mutators.HuntingSeasonName})")).Select(x => x.Key).ToList())
-            {
-                statsManager.item.Remove(item);
-                statsManager.itemStatBattery.Remove(item);
-            }
         }
     }
 }

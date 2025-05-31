@@ -18,6 +18,8 @@ namespace Mutators.Settings
         public static ThereCanOnlyBeOneMutatorSettings ThereCanOnlyBeOne { get; private set; } = null!;
         public static GenericMutatorSettings VolatileCargo { get; private set; } = null!;
         public static SealedAwayMutatorSettings SealedAway { get; private set; } = null!;
+        public static GenericMutatorSettings ProtectTheWeak { get; private set; } = null!;
+        public static GenericMutatorSettings FiringMyLaser { get; private set; } = null!;
         public static void Initialize(ConfigFile config)
         {
             NopMutator = new NopMutatorSettings(config);
@@ -33,6 +35,8 @@ namespace Mutators.Settings
             ThereCanOnlyBeOne = new ThereCanOnlyBeOneMutatorSettings(Mutators.Mutators.ThereCanOnlyBeOneName, Mutators.Mutators.ThereCanOnlyBeOneDescription, config);
             VolatileCargo = new GenericMutatorSettings(Mutators.Mutators.VolatileCargoName, Mutators.Mutators.VolatileCargoDescription, config);
             SealedAway = new SealedAwayMutatorSettings(Mutators.Mutators.SealedAwayName, Mutators.Mutators.SealedAwayDescription, config);
+            ProtectTheWeak = new GenericMutatorSettings(Mutators.Mutators.ProtectTheWeakName, Mutators.Mutators.ProtectTheWeakDescription, config);
+            FiringMyLaser = new GenericMutatorSettings(Mutators.Mutators.FiringMyLaserName, Mutators.Mutators.FiringMyLaserDescription, config);
         }
     }
 }

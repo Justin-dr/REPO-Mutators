@@ -1,15 +1,13 @@
 ﻿using Mutators.Managers;
-using Mutators.Settings;
-using System.Linq;
 using TMPro;
 using UnityEngine;
 
-namespace Mutators.Mutators.Behaviours
+namespace Mutators.Mutators.Behaviours.UI
 {
-    internal class MutatorDescriptionAnnouncingBehaviour : SemiUI
+    public class MutatorDescriptionAnnouncingBehaviour : SemiUI
     {
-        private TextMeshProUGUI Text;
-        internal static MutatorDescriptionAnnouncingBehaviour instance;
+        public TextMeshProUGUI Text { get; private set; }
+        public static MutatorDescriptionAnnouncingBehaviour Instance { get; private set; }
         private float _showTimer = RepoMutators.Settings.MutatorDescriptionInitialDisplayTime;
 
         public override void Start()
@@ -18,14 +16,14 @@ namespace Mutators.Mutators.Behaviours
             hidePosition = new Vector2(400, 0);
             base.Start();
             Text = GetComponent<TextMeshProUGUI>();
-            instance = this;
+            Instance = this;
             Text.text = MutatorManager.Instance.CurrentMutator.Description;
         }
 
         public override void Update()
         {
             base.Update();
-            base.Hide();
+            Hide();
             if (_showTimer > 0f)
             {
                 if (!RepoMutators.Settings.MutatorDescriptionPinned)
@@ -39,11 +37,13 @@ namespace Mutators.Mutators.Behaviours
                 }
             }
         }
-        public void ShowDescription()
+        public void ShowDescription(float showTimerOverride = 0f)
         {
             SemiUISpringShakeY(20f, 10f, 0.3f);
             SemiUISpringScale(0.4f, 5f, 0.2f);
-            _showTimer = RepoMutators.Settings.MutatorDescriptionInitialDisplayTime;
+
+            float configShowTimer = RepoMutators.Settings.MutatorDescriptionInitialDisplayTime;
+            _showTimer = showTimerOverride > configShowTimer ? showTimerOverride : configShowTimer;
         }
     }
 }

@@ -16,6 +16,8 @@ namespace Mutators.Mutators
 
         bool Active { get; }
 
+        public bool HasSpecialAction { get; }
+
         AbstractMutatorSettings Settings { get; }
 
         IReadOnlyList<Type> Patches { get; }

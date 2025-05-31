@@ -1,7 +1,7 @@
 ﻿using HarmonyLib;
 using Mutators.Extensions;
 using Mutators.Managers;
-using Mutators.Mutators.Behaviours;
+using Mutators.Mutators.Behaviours.UI;
 using Mutators.Network;
 using Photon.Realtime;
 using System.Collections.Generic;

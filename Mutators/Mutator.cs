@@ -16,20 +16,22 @@ namespace Mutators.Mutators
         public string Name => Settings.MutatorName;
         public string Description => Settings.MutatorDescription;
         public bool Active { get; private set; }
+        public bool HasSpecialAction { get; private set; }
         public AbstractMutatorSettings Settings { get; private set; }
         public IReadOnlyList<Func<bool>> Conditions => new ReadOnlyCollection<Func<bool>>(_conditions);
         public IReadOnlyList<Type> Patches => new ReadOnlyCollection<Type>(_patches);
 
-        public Mutator(AbstractMutatorSettings settings, IList<Type> patches, IList<Func<bool>> conditions = null!, IList<Action>? cleanUpActions = null)
+        public Mutator(AbstractMutatorSettings settings, IList<Type> patches, IList<Func<bool>> conditions = null!, IList<Action>? cleanUpActions = null, bool specialActionOverlay = false)
         {
             Settings = settings;
             _harmony = new Harmony($"{MyPluginInfo.PLUGIN_GUID}-{settings.MutatorName}");
             _patches = patches ?? [];
             _conditions = conditions ?? [];
             _cleanUpActions = cleanUpActions ?? [];
+            HasSpecialAction = specialActionOverlay;
         }
 
-        public Mutator(AbstractMutatorSettings settings, Type patch, IList<Func<bool>> conditions = null!, IList<Action>? cleanUpActions = null) : this(settings, [patch], conditions, cleanUpActions)
+        public Mutator(AbstractMutatorSettings settings, Type patch, IList<Func<bool>> conditions = null!, IList<Action>? cleanUpActions = null, bool specialActionOverlay = false) : this(settings, [patch], conditions, cleanUpActions, specialActionOverlay)
         {
             
         }

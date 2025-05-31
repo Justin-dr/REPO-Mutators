@@ -1,5 +1,5 @@
 ﻿using HarmonyLib;
-using Mutators.Mutators.Behaviours;
+using Mutators.Mutators.Behaviours.UI;
 
 namespace Mutators.Patches
 {
@@ -10,7 +10,7 @@ namespace Mutators.Patches
         [HarmonyPatch(nameof(MapToolController.Update))]
         static void Postfix(MapToolController __instance)
         {
-            MutatorDescriptionAnnouncingBehaviour mutatorDescriptionAnnouncingBehaviour = MutatorDescriptionAnnouncingBehaviour.instance;
+            MutatorDescriptionAnnouncingBehaviour mutatorDescriptionAnnouncingBehaviour = MutatorDescriptionAnnouncingBehaviour.Instance;
             if (mutatorDescriptionAnnouncingBehaviour && __instance.Active && RepoMutators.Settings.MutatorDescriptionInMapTool && __instance.PlayerAvatar == PlayerAvatar.instance)
             {
                 

@@ -16,6 +16,8 @@
         public const string ThereCanOnlyBeOneName = "There Can Only Be One";
         public const string VolatileCargoName = "Volatile Cargo";
         public const string SealedAwayName = "Sealed Away";
+        public const string ProtectTheWeakName = "Protect the Weak";
+        public const string FiringMyLaserName = "Firing My Laser";
 
         // Descriptions
         public const string NopMutatorDescription = "A normal run, no special effects";
@@ -31,6 +33,8 @@
         public const string ThereCanOnlyBeOneDescription = "All monster spawns are of the same type";
         public const string VolatileCargoDescription = "Valuables explode on destruction\nExplosion radius and strength based on value";
         public const string SealedAwayDescription = "Breaking valuables has a chance to spawn monsters";
+        public const string ProtectTheWeakDescription = "Protect your weaker friends!";
+        public const string FiringMyLaserDescription = "Fire a laser when you get hit";
 
         internal static string[] All() => [
             NopMutatorName,
@@ -44,7 +48,9 @@
             HuntingSeasonName,
             ThereCanOnlyBeOneName,
             VolatileCargoName,
-            SealedAwayName
+            SealedAwayName,
+            ProtectTheWeakName,
+            FiringMyLaserName
         ];
     }
 }

@@ -1,6 +1,6 @@
 ﻿using TMPro;
 
-namespace Mutators.Mutators.Behaviours
+namespace Mutators.Mutators.Behaviours.UI
 {
     public class TargetPlayerAnnouncingBehaviour : SemiUI
     {

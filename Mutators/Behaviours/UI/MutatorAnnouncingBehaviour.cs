@@ -1,9 +1,8 @@
 ﻿using Mutators.Managers;
-using Mutators.Settings;
 using TMPro;
 using UnityEngine;
 
-namespace Mutators.Mutators.Behaviours
+namespace Mutators.Mutators.Behaviours.UI
 {
     internal class MutatorAnnouncingBehaviour : SemiUI
     {
@@ -30,7 +29,7 @@ namespace Mutators.Mutators.Behaviours
             }
             if (!_isVisible)
             {
-                base.Hide();
+                Hide();
             }
         }
 

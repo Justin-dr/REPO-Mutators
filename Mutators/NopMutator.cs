@@ -21,6 +21,8 @@ namespace Mutators.Mutators
 
         public IReadOnlyList<Func<bool>> Conditions => _conditions;
 
+        public bool HasSpecialAction => false;
+
         internal NopMutator(AbstractMutatorSettings settings)
         {
             Settings = settings;

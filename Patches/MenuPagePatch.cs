@@ -1,5 +1,5 @@
 ﻿using HarmonyLib;
-using Mutators.Mutators.Behaviours;
+using Mutators.Mutators.Behaviours.UI;
 
 namespace Mutators.Patches
 {
@@ -11,8 +11,9 @@ namespace Mutators.Patches
         static void MenuPageLockAndHidePostfix()
         {
             MutatorAnnouncingBehaviour mutatorAnnouncingBehaviour = MutatorAnnouncingBehaviour.instance;
-            MutatorDescriptionAnnouncingBehaviour mutatorDescriptionAnnouncingBehaviour = MutatorDescriptionAnnouncingBehaviour.instance;
+            MutatorDescriptionAnnouncingBehaviour mutatorDescriptionAnnouncingBehaviour = MutatorDescriptionAnnouncingBehaviour.Instance;
             TargetPlayerAnnouncingBehaviour targetPlayerAnnouncingBehaviour = TargetPlayerAnnouncingBehaviour.instance;
+            SpecialActionAnnouncingBehaviour specialActionAnnouncingBehaviour = SpecialActionAnnouncingBehaviour.instance;
 
             if (mutatorAnnouncingBehaviour)
             {
@@ -27,6 +28,11 @@ namespace Mutators.Patches
             if (targetPlayerAnnouncingBehaviour)
             {
                 targetPlayerAnnouncingBehaviour.Hide();
+            }
+
+            if (specialActionAnnouncingBehaviour)
+            {
+                specialActionAnnouncingBehaviour.Hide();
             }
         }
     }

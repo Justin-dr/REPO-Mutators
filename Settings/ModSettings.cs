@@ -21,6 +21,9 @@ namespace Mutators.Settings
         // Target
         private readonly ConfigEntry<float> _targetDisplaySize;
 
+        // Target
+        private readonly ConfigEntry<float> _specialActionY;
+
         // Mutator Name
         public float MutatorDisplayY => _mutatorDisplayY.Value;
         public float MutatorDisplaySize => _mutatorDisplaySize.Value;
@@ -35,6 +38,9 @@ namespace Mutators.Settings
 
         // Target
         public float TargetDisplaySize => _targetDisplaySize.Value;
+
+        // Special Action
+        public float SpecialActionY => _specialActionY.Value;
 
         internal ModSettings(ConfigFile config)
         {
@@ -102,6 +108,14 @@ namespace Mutators.Settings
                     "Target Size",
                     40f,
                     "The size of the target (e.g. president health) overlay"
+            );
+
+            // Special Action
+            _specialActionY = config.Bind(
+                    "Special Action",
+                    "Special Action Y position",
+                    -50f,
+                    "The Y position of the Special Action overlay"
             );
 
             CacheKey();

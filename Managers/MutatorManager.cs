@@ -52,7 +52,9 @@ namespace Mutators.Managers
                 new Mutator(MutatorSettings.HuntingSeason, typeof(HuntingSeasonPatch)),
                 new Mutator(MutatorSettings.ThereCanOnlyBeOne, typeof(ThereCanOnlyBeOnePatch)),
                 new Mutator(MutatorSettings.VolatileCargo, typeof(VolatileCargoPatch)),
-                new Mutator(MutatorSettings.SealedAway, typeof(SealedAwayPatch), cleanUpActions: [SealedAwayPatch.Reset])
+                new Mutator(MutatorSettings.SealedAway, typeof(SealedAwayPatch), cleanUpActions: [SealedAwayPatch.Reset]),
+                new Mutator(MutatorSettings.ProtectTheWeak, typeof(ProtectTheWeakPatch), [SemiFunc.IsMultiplayer], [ProtectTheWeakPatch.Reset]),
+                new Mutator(MutatorSettings.FiringMyLaser, typeof(FiringMyLaserPatch), specialActionOverlay: true)
             ];
 
             mutators.ForEach(mutator => _mutators[mutator.Name] = mutator);
@@ -86,6 +88,8 @@ namespace Mutators.Managers
             RegisteredMutators.Values
                 .Where(mutator => mutator.Active)
                 .ForEach(mutator => mutator.Unpatch());
+
+            metadata.Clear();
 
             if (_mutators.TryGetValue(name, out IMutator mutator))
             {

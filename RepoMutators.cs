@@ -3,6 +3,7 @@ using BepInEx.Logging;
 using HarmonyLib;
 using Mutators.Managers;
 using Mutators.Mutators;
+using Mutators.Mutators.Behaviours;
 using Mutators.Network;
 using Mutators.Patches;
 using Mutators.Settings;
@@ -40,6 +41,14 @@ public class RepoMutators : BaseUnityPlugin
         BundleLoader.LoadBundle(path, assetbundle =>
         {
             AssetStore.Preset = assetbundle.LoadAsset<ExplosionPreset>("explosion default");
+
+            GameObject firingMyLaser = assetbundle.LoadAsset<GameObject>("FiringMyLaser");
+            firingMyLaser.SetActive(false);
+            firingMyLaser.AddComponent<PhotonView>();
+            firingMyLaser.AddComponent<LaserFiringBehaviour>();
+
+            REPOLib.Modules.NetworkPrefabs.RegisterNetworkPrefab($"{MyPluginInfo.PLUGIN_GUID}/FiringMyLaser", firingMyLaser);
+
             _logger.LogInfo($"Loaded {MyPluginInfo.NAME} asset bundle");
         });
 
