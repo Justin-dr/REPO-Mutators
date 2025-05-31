@@ -17,7 +17,7 @@ namespace Mutators.Mutators.Behaviours.UI
             base.Start();
             Text = GetComponent<TextMeshProUGUI>();
             Instance = this;
-            Text.text = MutatorManager.Instance.CurrentMutator.Description;
+            Text.text = GetDescription();
         }
 
         public override void Update()
@@ -44,6 +44,16 @@ namespace Mutators.Mutators.Behaviours.UI
 
             float configShowTimer = RepoMutators.Settings.MutatorDescriptionInitialDisplayTime;
             _showTimer = showTimerOverride > configShowTimer ? showTimerOverride : configShowTimer;
+        }
+
+        private string GetDescription()
+        {
+            string description = MutatorManager.Instance.CurrentMutator.Description;
+            if (!description.Contains("{specialActionKey}"))
+            {
+                return description;
+            }
+            return description.Replace("{specialActionKey}", RepoMutators.Settings.SpecialActionKey.ToString());
         }
     }
 }

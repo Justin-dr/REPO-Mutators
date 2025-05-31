@@ -11,7 +11,7 @@ namespace Mutators.Settings.Specific
             _duckAggroCooldown = config.Bind(
                 GetSection(name),
                 "Duck aggro cooldown",
-                120f,
+                50f,
                 $"The cooldown between duck aggro while the {Mutators.Mutators.DuckThisName} Mutator is active."
             );
         }

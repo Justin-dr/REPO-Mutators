@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
 using Mutators.Mutators.Behaviours;
 using Mutators.Mutators.Behaviours.Custom;
+using Mutators.Settings;
 using UnityEngine;
 
 namespace Mutators.Mutators.Patches
@@ -14,7 +15,11 @@ namespace Mutators.Mutators.Patches
         {
             if (!SemiFunc.IsMasterClientOrSingleplayer()) return;
 
-            GameObject? laser = REPOLib.Modules.NetworkPrefabs.SpawnNetworkPrefab($"{MyPluginInfo.PLUGIN_GUID}/FiringMyLaser", Vector3.zero, Quaternion.identity, data: [__instance.steamID]);
+            GameObject? laser = REPOLib.Modules.NetworkPrefabs.SpawnNetworkPrefab(
+                $"{MyPluginInfo.PLUGIN_GUID}/FiringMyLaser", Vector3.zero, Quaternion.identity,
+                data: [__instance.steamID, MutatorSettings.FiringMyLaser.LaserActionCooldown]
+            );
+
             if (!laser || laser == null)
             {
                 RepoMutators.Logger.LogWarning($"Failed to create laser for {__instance.playerName}");
@@ -22,6 +27,13 @@ namespace Mutators.Mutators.Patches
             else if (!SemiFunc.IsMultiplayer())
             {
                 laser.transform.SetParent(__instance.transform, false);
+                LaserFiringBehaviour laserFiringBehaviour = laser.GetComponentInChildren<LaserFiringBehaviour>();
+                if (laserFiringBehaviour)
+                {
+                    laser.SetActive(true);
+                    laserFiringBehaviour.laserCooldown = MutatorSettings.FiringMyLaser.LaserActionCooldown;
+                    laserFiringBehaviour.laserCooldownTimer = MutatorSettings.FiringMyLaser.LaserActionCooldown;
+                }
             }
         }
 
@@ -50,12 +62,6 @@ namespace Mutators.Mutators.Patches
             if (damage < 1) return;
 
             LaserFiringBehaviour laserFiringBehaviour = __instance.playerAvatar.GetComponentInChildren<LaserFiringBehaviour>();
-
-            for (int i = 0; i < __instance.transform.childCount; i++)
-            {
-                Transform child = __instance.transform.GetChild(i);
-                RepoMutators.Logger.LogInfo($"Child {i}: {child.name}");
-            }
 
             if (laserFiringBehaviour && !laserFiringBehaviour.IsActive())
             {

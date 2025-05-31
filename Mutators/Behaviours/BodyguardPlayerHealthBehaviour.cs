@@ -21,7 +21,6 @@ namespace Mutators.Mutators.Behaviours
         void Awake()
         {
             instance = this;
-            RepoMutators.Logger.LogInfo("Awake BodyguardHealth");
             playerAvatar = PlayerAvatar.instance;
             playerHealth = playerAvatar.playerHealth;
             StartCoroutine(GetAndSetHealthLate());
@@ -38,8 +37,6 @@ namespace Mutators.Mutators.Behaviours
             originalMaxHealth = playerHealth.maxHealth;
 
             SendHealth();
-
-            RepoMutators.Logger.LogInfo($"Original Health: {originalHealth} - Maximum Health: {originalMaxHealth}");
 
             while (GetBodyguardId() == null)
             {

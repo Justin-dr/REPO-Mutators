@@ -34,7 +34,7 @@
         public const string VolatileCargoDescription = "Valuables explode on destruction\nExplosion radius and strength based on value";
         public const string SealedAwayDescription = "Breaking valuables has a chance to spawn monsters";
         public const string ProtectTheWeakDescription = "Protect your weaker friends!";
-        public const string FiringMyLaserDescription = "Fire a laser when you get hit";
+        public const string FiringMyLaserDescription = "Fire your laser by pressing {specialActionKey}\nUncontrollably fire your laser when taking damage";
 
         internal static string[] All() => [
             NopMutatorName,

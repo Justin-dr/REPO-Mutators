@@ -37,7 +37,7 @@ namespace Mutators.Mutators.Patches
         [HarmonyPatch(nameof(PlayerHealth.Hurt))]
         static void PlayerHealthHurtPrefix(PlayerHealth __instance, ref int damage, ref bool savingGrace)
         {
-            if (__instance.godMode) return;
+            if (__instance.godMode || damage < 1) return;
             damage = __instance.maxHealth;
             savingGrace = false;
         }
@@ -47,7 +47,7 @@ namespace Mutators.Mutators.Patches
         [HarmonyPatch(nameof(PlayerHealth.HurtOther))]
         static void PlayerHealthHurtOtherPrefix(PlayerHealth __instance, ref int damage, ref bool savingGrace)
         {
-            if (__instance.godMode) return;
+            if (__instance.godMode || damage < 1) return;
             damage = __instance.maxHealth;
             savingGrace = false;
         }

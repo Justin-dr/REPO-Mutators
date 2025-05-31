@@ -1,5 +1,6 @@
 ﻿using Mutators.Mutators.Behaviours.Custom;
 using Mutators.Mutators.Behaviours.UI;
+using Mutators.Settings;
 using Photon.Pun;
 using UnityEngine;
 
@@ -13,8 +14,8 @@ namespace Mutators.Mutators.Behaviours
         private Transform visionTransform;
         private float laserTimer;
 
-        private readonly float laserCooldown = 100f;
-        private float laserCooldownTimer = 100f;
+        internal float laserCooldown = 100f;
+        internal float laserCooldownTimer = 100f;
 
         void Awake()
         {
@@ -24,8 +25,6 @@ namespace Mutators.Mutators.Behaviours
         void Start()
         {
             playerAvatar = transform.parent.GetComponent<PlayerAvatar>();
-
-            RepoMutators.Logger.LogInfo($"Starting Laser for {playerAvatar.playerName}");
 
             visionTransform = playerAvatar.transform.Find("Vision Target");
             semiLaser = transform.Find("SemiLaser").GetComponent<SemiLaser>();
@@ -41,7 +40,7 @@ namespace Mutators.Mutators.Behaviours
                     laserCooldownTimer += Time.deltaTime;
                 }
 
-                if (laserCooldownTimer >= laserCooldown && Input.GetKeyDown(KeyCode.R))
+                if (laserCooldownTimer >= laserCooldown && Input.GetKeyDown(RepoMutators.Settings.SpecialActionKey))
                 {
                     FireLaser(2.5f);
                     laserCooldownTimer = 0;
@@ -52,7 +51,6 @@ namespace Mutators.Mutators.Behaviours
                 {
                     specialActionAnnouncing.Text.text = $"{(int)laserCooldownTimer}";
                     specialActionAnnouncing.TextMax.text = $"/{(int)laserCooldown}";
-                    RepoMutators.Logger.LogInfo(specialActionAnnouncing.Text.text);
                 }
             }
 
@@ -80,7 +78,14 @@ namespace Mutators.Mutators.Behaviours
 
         public void FireLaser(float _time)
         {
-            photonView.RPC(nameof(StaffLaserRPC), RpcTarget.All, _time);
+            if (SemiFunc.IsMultiplayer())
+            {
+                photonView.RPC(nameof(StaffLaserRPC), RpcTarget.All, _time);
+            }
+            else
+            {
+                StaffLaserRPC(_time);
+            }
         }
 
         public bool IsActive()
@@ -91,10 +96,22 @@ namespace Mutators.Mutators.Behaviours
         public void OnPhotonInstantiate(PhotonMessageInfo info)
         {
             object[] data = info.photonView.InstantiationData;
+
+            if (data.Length < 2)
+            {
+                RepoMutators.Logger.LogWarning("Received invalid data for LaserFiringBehaviour");
+                return;
+            }
+
             if (data[0] is string steamId)
             {
                 PlayerAvatar playerAvatar = SemiFunc.PlayerAvatarGetFromSteamID(steamId);
                 transform.SetParent(playerAvatar.transform, false);
+            }
+            if (data[1] is int laserActionCooldown)
+            {
+                laserCooldown = laserActionCooldown;
+                laserCooldownTimer = laserActionCooldown;
             }
         }
     }

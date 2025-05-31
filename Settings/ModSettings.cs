@@ -21,8 +21,9 @@ namespace Mutators.Settings
         // Target
         private readonly ConfigEntry<float> _targetDisplaySize;
 
-        // Target
+        // Special action
         private readonly ConfigEntry<float> _specialActionY;
+        private readonly ConfigEntry<string> _specialActionKey;
 
         // Mutator Name
         public float MutatorDisplayY => _mutatorDisplayY.Value;
@@ -41,6 +42,7 @@ namespace Mutators.Settings
 
         // Special Action
         public float SpecialActionY => _specialActionY.Value;
+        public KeyCode SpecialActionKey { get; private set; }
 
         internal ModSettings(ConfigFile config)
         {
@@ -118,17 +120,20 @@ namespace Mutators.Settings
                     "The Y position of the Special Action overlay"
             );
 
-            CacheKey();
+            _specialActionKey = config.Bind<string>(
+                    "Special Action",
+                    "Special Action Key",
+                    "R",
+                    "Keybind that activates the Special Action"
+            );
+
+            CacheKeys();
         }
 
-        internal void CacheKey()
+        internal void CacheKeys()
         {
-            if (Enum.TryParse(typeof(KeyCode), _mutatorDisplayToggleKey.Value, out object result))
-            {
-                MutatorDisplayToggleKey = (KeyCode)result;
-                return;
-            }
-            MutatorDisplayToggleKey = KeyCode.None;
+            MutatorDisplayToggleKey = Enum.TryParse(typeof(KeyCode), _mutatorDisplayToggleKey.Value, out object toggle) ? (KeyCode)toggle : KeyCode.None;
+            SpecialActionKey = Enum.TryParse(typeof(KeyCode), _specialActionKey.Value, out object specialAction) ? (KeyCode)specialAction : KeyCode.None;
         }
     }
 }

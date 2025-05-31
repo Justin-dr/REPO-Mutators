@@ -36,13 +36,11 @@ namespace Mutators.Mutators.Patches
         {
             while (playerAvatar.steamID == null)
             {
-                RepoMutators.Logger.LogInfo($"{playerAvatar.steamID}");
                 yield return new WaitForSeconds(0.1f);
             }
 
             if (playerAvatar.steamID == PlayerAvatar.instance.steamID)
             {
-                RepoMutators.Logger.LogInfo($"Added BodyguardBehaviour");
                 playerAvatar.AddComponent<BodyguardPlayerHealthBehaviour>();
             }
         }
@@ -196,14 +194,6 @@ namespace Mutators.Mutators.Patches
                 PlayerAvatar.instance.GetComponent<BodyguardPlayerHealthBehaviour>()?.RestoreOriginalHealth();
             }
             
-        }
-
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(ItemEquippable))]
-        [HarmonyPatch(nameof(ItemEquippable.RPC_UpdateItemState))]
-        static void UpdateHealthDebug(int state, int spotIndex, int ownerId)
-        {
-            RepoMutators.Logger.LogWarning($"Updating item state {state} - {spotIndex} - {ownerId}");
         }
 
         [HarmonyPostfix]
@@ -366,8 +356,8 @@ namespace Mutators.Mutators.Patches
         {
             IDictionary<string, object> meta = new Dictionary<string, object>() {
                 { BodyGuardId, bodyguard.steamID },
-                { "description", $"You are fragile but {bodyguard.playerName} will protect you!" },
-                { "descriptionBodyguard", $"You are the bodyguard, you have increased health\nYour tranq gun has infinite ammo\nProtect your friends!" }
+                { "description", $"You are fragile but {bodyguard.playerName} will protect you!\n{bodyguard.playerName} dies if they are the last one standing" },
+                { "descriptionBodyguard", $"You are the bodyguard, you have increased health\nYour tranq gun has infinite ammo\nYou die if you are the last one standing\nProtect your friends!" }
             };
 
             if (tranqGunId > 0)
