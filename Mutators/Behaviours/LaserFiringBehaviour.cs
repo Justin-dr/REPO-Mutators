@@ -40,7 +40,7 @@ namespace Mutators.Mutators.Behaviours
                     laserCooldownTimer += Time.deltaTime;
                 }
 
-                if (laserCooldownTimer >= laserCooldown && Input.GetKeyDown(RepoMutators.Settings.SpecialActionKey))
+                if (laserCooldownTimer >= laserCooldown && !ChatManager.instance.StateIsActive() && Input.GetKeyDown(RepoMutators.Settings.SpecialActionKey))
                 {
                     FireLaser(2.5f);
                     laserCooldownTimer = 0;
