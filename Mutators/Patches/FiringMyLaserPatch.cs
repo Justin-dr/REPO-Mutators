@@ -62,7 +62,6 @@ namespace Mutators.Mutators.Patches
         static void PlayerHealthHurtOtherRPCPrefix(PlayerHealth __instance, int damage, Vector3 hurtPosition, int enemyIndex)
         {
             if (__instance.playerAvatar != PlayerAvatar.instance || enemyIndex != -1 || hurtPosition != Vector3.zero) return;
-            RepoMutators.Logger.LogInfo("Blocking laser");
             LaserBlocked = true;
         }
 
@@ -86,24 +85,7 @@ namespace Mutators.Mutators.Patches
         [HarmonyPatch(nameof(PlayerHealth.Hurt))]
         static void PlayerHealthHurtLaserResetPostfix()
         {
-            RepoMutators.Logger.LogInfo("Unblocking laser");
             LaserBlocked = false;
-        }
-
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(PhysGrabber))]
-        [HarmonyPatch(nameof(PhysGrabber.PhysGrabStarted))]
-        static void StaticGrabObjectGrabStartedPostfix(PhysGrabber __instance)
-        {
-            //ToggleCanFireLaser(__instance, false);
-        }
-
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(PhysGrabber))]
-        [HarmonyPatch(nameof(PhysGrabber.PhysGrabEnded))]
-        static void StaticGrabObjectGrabEndedPostfix(PhysGrabber __instance)
-        {
-            //ToggleCanFireLaser(__instance, true);
         }
 
         [HarmonyPostfix]
