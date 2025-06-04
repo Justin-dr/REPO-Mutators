@@ -8,6 +8,8 @@ namespace Mutators.Mutators.Patches
 {
     internal class FiringMyLaserPatch
     {
+        private static bool LaserBlocked = false;
+
         [HarmonyPostfix]
         [HarmonyPatch(typeof(PlayerAvatar))]
         [HarmonyPatch(nameof(PlayerAvatar.Start))]
@@ -17,7 +19,7 @@ namespace Mutators.Mutators.Patches
 
             GameObject? laser = REPOLib.Modules.NetworkPrefabs.SpawnNetworkPrefab(
                 $"{MyPluginInfo.PLUGIN_GUID}/FiringMyLaser", Vector3.zero, Quaternion.identity,
-                data: [__instance.steamID, MutatorSettings.FiringMyLaser.LaserActionCooldown]
+                data: [__instance.steamID, MutatorSettings.FiringMyLaser.LaserActionCooldown, MutatorSettings.FiringMyLaser.LaserActionEnemyDamage]
             );
 
             if (!laser || laser == null)
@@ -33,6 +35,7 @@ namespace Mutators.Mutators.Patches
                     laser.SetActive(true);
                     laserFiringBehaviour.laserCooldown = MutatorSettings.FiringMyLaser.LaserActionCooldown;
                     laserFiringBehaviour.laserCooldownTimer = MutatorSettings.FiringMyLaser.LaserActionCooldown;
+                    laser.GetComponentInChildren<PlayerIgnoringHurtCollider>(true).enemyDamage = MutatorSettings.FiringMyLaser.LaserActionEnemyDamage;
                 }
             }
         }
@@ -53,20 +56,54 @@ namespace Mutators.Mutators.Patches
             return true;
         }
 
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(PlayerHealth))]
+        [HarmonyPatch(nameof(PlayerHealth.HurtOtherRPC))]
+        static void PlayerHealthHurtOtherRPCPrefix(PlayerHealth __instance, int damage, Vector3 hurtPosition, int enemyIndex)
+        {
+            if (__instance.playerAvatar != PlayerAvatar.instance || enemyIndex != -1 || hurtPosition != Vector3.zero) return;
+            RepoMutators.Logger.LogInfo("Blocking laser");
+            LaserBlocked = true;
+        }
+
         [HarmonyPostfix]
         [HarmonyPatch(typeof(PlayerHealth))]
         [HarmonyPatch(nameof(PlayerHealth.Hurt))]
         static void PlayerHealthHurtPostfix(PlayerHealth __instance, int damage)
         {
-
-            if (damage < 1 || __instance.playerAvatar.deadSet) return;
+            if (damage < 1 || __instance.playerAvatar.deadSet || LaserBlocked) return;
 
             LaserFiringBehaviour laserFiringBehaviour = __instance.playerAvatar.GetComponentInChildren<LaserFiringBehaviour>();
-
             if (laserFiringBehaviour && !laserFiringBehaviour.IsActive())
             {
                 laserFiringBehaviour.FireLaser(2.5f);
             }
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPriority(Priority.Last + 1)]
+        [HarmonyPatch(typeof(PlayerHealth))]
+        [HarmonyPatch(nameof(PlayerHealth.Hurt))]
+        static void PlayerHealthHurtLaserResetPostfix()
+        {
+            RepoMutators.Logger.LogInfo("Unblocking laser");
+            LaserBlocked = false;
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(PhysGrabber))]
+        [HarmonyPatch(nameof(PhysGrabber.PhysGrabStarted))]
+        static void StaticGrabObjectGrabStartedPostfix(PhysGrabber __instance)
+        {
+            //ToggleCanFireLaser(__instance, false);
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(PhysGrabber))]
+        [HarmonyPatch(nameof(PhysGrabber.PhysGrabEnded))]
+        static void StaticGrabObjectGrabEndedPostfix(PhysGrabber __instance)
+        {
+            //ToggleCanFireLaser(__instance, true);
         }
 
         [HarmonyPostfix]
@@ -80,6 +117,11 @@ namespace Mutators.Mutators.Patches
             {
                 laserFiringBehaviour.StopLaser(true);
             }
+        }
+
+        internal static void Reset()
+        {
+            LaserBlocked = false;
         }
     }
 }

@@ -2,6 +2,7 @@
 using Mutators.Mutators.Behaviours.UI;
 using Mutators.Settings;
 using Photon.Pun;
+using System.Collections;
 using UnityEngine;
 
 namespace Mutators.Mutators.Behaviours
@@ -16,6 +17,8 @@ namespace Mutators.Mutators.Behaviours
 
         internal float laserCooldown = 100f;
         internal float laserCooldownTimer = 100f;
+
+        internal bool canFire = true;
 
         void Awake()
         {
@@ -109,7 +112,7 @@ namespace Mutators.Mutators.Behaviours
         {
             object[] data = info.photonView.InstantiationData;
 
-            if (data.Length < 2)
+            if (data.Length < 3)
             {
                 RepoMutators.Logger.LogWarning("Received invalid data for LaserFiringBehaviour");
                 return;
@@ -125,6 +128,19 @@ namespace Mutators.Mutators.Behaviours
                 laserCooldown = laserActionCooldown;
                 laserCooldownTimer = laserActionCooldown;
             }
+            if (data[2] is int laserDamage)
+            {
+                StartCoroutine(ApplyDamageDelayed(laserDamage));
+            }
+        }
+
+        private IEnumerator ApplyDamageDelayed(int damage)
+        {
+            while (semiLaser == null)
+            {
+                yield return new WaitForSeconds(0.1f);
+            }
+            semiLaser.GetComponentInChildren<PlayerIgnoringHurtCollider>(true).enemyDamage = damage;
         }
     }
 }

@@ -54,7 +54,7 @@ namespace Mutators.Managers
                 new Mutator(MutatorSettings.VolatileCargo, typeof(VolatileCargoPatch)),
                 new Mutator(MutatorSettings.SealedAway, typeof(SealedAwayPatch), cleanUpActions: [SealedAwayPatch.Reset]),
                 new Mutator(MutatorSettings.ProtectTheWeak, typeof(ProtectTheWeakPatch), [SemiFunc.IsMultiplayer], [ProtectTheWeakPatch.Reset]),
-                new Mutator(MutatorSettings.FiringMyLaser, typeof(FiringMyLaserPatch), specialActionOverlay: true)
+                new Mutator(MutatorSettings.FiringMyLaser, typeof(FiringMyLaserPatch), cleanUpActions: [FiringMyLaserPatch.Reset], specialActionOverlay: true)
             ];
 
             mutators.ForEach(mutator => _mutators[mutator.Name] = mutator);
