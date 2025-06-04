@@ -30,9 +30,9 @@ namespace Mutators.Mutators.Patches
         [HarmonyPostfix]
         [HarmonyPatch(typeof(PhysGrabObjectImpactDetector))]
         [HarmonyPatch(nameof(PhysGrabObjectImpactDetector.Update))]
-        static void LevelGeneratorGenerateDonePostfix(PhysGrabObjectImpactDetector __instance)
+        static void PhysGrabObjectImpactDetectorUpdatePostfix(PhysGrabObjectImpactDetector __instance)
         {
-            if (__instance.isNotValuable) return;
+            if (!SemiFunc.IsMasterClientOrSingleplayer() || MutatorSettings.ApolloEleven.ApplyInCart || __instance.isNotValuable) return;
 
             if (__instance.inCart && !__instance.inCartPrevious)
             {
@@ -59,7 +59,7 @@ namespace Mutators.Mutators.Patches
         [HarmonyPatch(nameof(PhysGrabObject.OverrideDrag))]
         static bool PhysGrabObjectOverrideDragPrefix(PhysGrabObject __instance, float value, float time)
         {
-            if (__instance.impactDetector.inCart)
+            if (__instance.impactDetector.inCart && !MutatorSettings.ApolloEleven.ApplyInCart)
             {
                 return true;
             }
@@ -72,7 +72,7 @@ namespace Mutators.Mutators.Patches
         [HarmonyPatch(nameof(PhysGrabObject.OverrideAngularDrag))]
         static bool PhysGrabObjectOverrideAngularDragPrefix(PhysGrabObject __instance, float value, float time)
         {
-            if (__instance.impactDetector.inCart)
+            if (__instance.impactDetector.inCart && !MutatorSettings.ApolloEleven.ApplyInCart)
             {
                 return true;
             }
@@ -85,7 +85,7 @@ namespace Mutators.Mutators.Patches
         [HarmonyPatch(nameof(PhysGrabObject.OverrideZeroGravity))]
         static bool PhysGrabObjectOverrideZeroGravityPrefix(PhysGrabObject __instance, float time)
         {
-            if (__instance.impactDetector.inCart)
+            if (__instance.impactDetector.inCart && !MutatorSettings.ApolloEleven.ApplyInCart)
             {
                 return true;
             }
