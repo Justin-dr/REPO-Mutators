@@ -32,7 +32,6 @@ namespace Mutators.Mutators.Patches
             IList<PlayerAvatar> playerAvatars = SemiFunc.PlayerGetAll();
 
             MutatorsNetworkManager.Instance.Run(WaitForVoiceChats(playerAvatars));
-            //MutatorsNetworkManager.Instance.Run(CheckForVoice());
         }
 
         [HarmonyPrefix]
@@ -40,34 +39,28 @@ namespace Mutators.Mutators.Patches
         [HarmonyPatch(nameof(NetworkManager.OnPlayerLeftRoom))]
         static void NetworkManagerOnPlayerLeftRoomPrefix(Player otherPlayer)
         {
-            RepoMutators.Logger.LogInfo("Player left triggered");
-            PlayerAvatar leavingPlayer = SemiFunc.PlayerGetFromName(otherPlayer.NickName);
-            string leavingPlayerHasVoiceOf = voiceOwnership[leavingPlayer.steamID];
+            // Identify the leaving player
+            string? leavingPlayerId = SemiFunc.PlayerGetFromName(otherPlayer.NickName)?.steamID;
+            if (leavingPlayerId == null || !originalVoiceChats.ContainsKey(leavingPlayerId)) return;
 
-            RepoMutators.Logger.LogInfo($"{SemiFunc.PlayerAvatarGetFromSteamID(leavingPlayerHasVoiceOf).playerName} returning own voice: {originalVoiceChats[leavingPlayerHasVoiceOf]}");
-            ChangeVoices(leavingPlayerHasVoiceOf, originalVoiceChats[leavingPlayerHasVoiceOf]);
-        }
+            // Who’s voice the leaving player was holding
+            string originalOwnerOfLeavingVoice = voiceOwnership[leavingPlayerId];
 
-        private static IEnumerator CheckForVoice()
-        {
-            while (true)
-            {
-                PlayerAvatar playerAvatar = PlayerAvatar.instance;
-                if (playerAvatar.voiceChatFetched)
-                {
-                    if (playerAvatar.voiceChat)
-                    {
-                        RepoMutators.Logger.LogInfo($"I have a voice chat");
-                    }
-                    else
-                    {
-                        RepoMutators.Logger.LogInfo("I do not have a voice chat");
-                    }
-                }
-                
-                
-                yield return new WaitForSeconds(1);
-            }
+            // Who was holding the leaving player’s voice
+            string recipientOfLeavingVoice = voiceOwnership.First(kvp => kvp.Value == leavingPlayerId).Key;
+
+            // Restore the leaving player back to their own original view
+            ChangeVoices(leavingPlayerId, originalVoiceChats[leavingPlayerId]);
+
+            // Give the recipient the view that had been held by the leaver
+            ChangeVoices(recipientOfLeavingVoice, originalVoiceChats[originalOwnerOfLeavingVoice]);
+
+            // Update tracking for the recipient
+            voiceOwnership[recipientOfLeavingVoice] = originalOwnerOfLeavingVoice;
+
+            // Remove the leaving player from all maps
+            originalVoiceChats.Remove(leavingPlayerId);
+            voiceOwnership.Remove(leavingPlayerId);
         }
 
         private static IEnumerator WaitForVoiceChats(IList<PlayerAvatar> playerAvatars)
@@ -78,14 +71,7 @@ namespace Mutators.Mutators.Patches
             }
 
             originalVoiceChats = playerAvatars.ToDictionary(a => a.steamID, a => a.voiceChat.photonView.ViewID);
-
-            IDictionary<string, string> voiceOwnership = DerangeVoices(originalVoiceChats, out Dictionary<string, int> newAssignments);
-
-            //foreach (PlayerAvatar playerAvatar in playerAvatars)
-            //{
-            //    int newVoiceChatId = newAssignments[playerAvatar.steamID];
-            //    playerAvatar.photonView.RPC("UpdateMyPlayerVoiceChat", RpcTarget.AllBuffered, newVoiceChatId);
-            //}
+            voiceOwnership = DerangeVoices(originalVoiceChats, out Dictionary<string, int> newAssignments);
 
             IDictionary<string, object> metadata = new Dictionary<string, object>() {
                 { "voices", newAssignments },
@@ -94,54 +80,56 @@ namespace Mutators.Mutators.Patches
             };
             MutatorsNetworkManager.Instance.SendMetadata(metadata);
 
-            voiceOwnership.ForEach(kvp => RepoMutators.Logger.LogInfo($"Gave voice of {SemiFunc.PlayerAvatarGetFromSteamID(kvp.Key)?.playerName} to {SemiFunc.PlayerAvatarGetFromSteamID(kvp.Value)?.playerName}"));
+            voiceOwnership.ForEach(kvp => RepoMutators.Logger.LogInfo($"Gave voice of {SemiFunc.PlayerAvatarGetFromSteamID(kvp.Value)?.playerName} to {SemiFunc.PlayerAvatarGetFromSteamID(kvp.Key)?.playerName}"));
             foreach (KeyValuePair<string, int> playerVoice in newAssignments)
             {
                 ChangeVoices(playerVoice.Key, playerVoice.Value);
             }
         }
 
-        // Returns the new mapping AND who owns whose voice
         public static Dictionary<string, string> DerangeVoices(IDictionary<string, int> originalMap, out Dictionary<string, int> newAssignments)
         {
-            List<string> userIds = new List<string>(originalMap.Keys);
-            List<int> voices = new List<int>(originalMap.Values);
+            var userIds = new List<string>(originalMap.Keys);
+            var voices = new List<int>(originalMap.Values);
 
-            List<int> deranged = new List<int>(voices);
-            int n = deranged.Count;
+            int n = userIds.Count;
+            var deranged = new List<int>(voices);
 
-            // Perform derangement using Unity Random
+            // Fisher–Yates Derangement
             for (int i = 0; i < n - 1; i++)
             {
-                int j = UnityEngine.Random.Range(i + 1, n);
+                int j = Random.Range(i + 1, n);
                 (deranged[i], deranged[j]) = (deranged[j], deranged[i]);
             }
 
-            // Last element check
-            if (EqualityComparer<object>.Default.Equals(deranged[n - 1], voices[n - 1]))
+            if (deranged[n - 1] == voices[n - 1])
             {
-                int swapWith = UnityEngine.Random.Range(0, n - 1);
+                int swapWith = Random.Range(0, n - 1);
                 (deranged[n - 1], deranged[swapWith]) = (deranged[swapWith], deranged[n - 1]);
             }
 
-            // Build final maps
             newAssignments = new Dictionary<string, int>();
-            Dictionary<string, string> voiceOwnership = new Dictionary<string, string>();
+            var whoHasWhoseVoice = new Dictionary<string, string>();
+
+            // Build originalVoiceOwner map: int voiceId → userId
+            var voiceToOriginalUser = new Dictionary<int, string>();
+            for (int i = 0; i < n; i++)
+            {
+                voiceToOriginalUser[voices[i]] = userIds[i];
+            }
 
             for (int i = 0; i < n; i++)
             {
                 string userId = userIds[i];
                 int newVoice = deranged[i];
+
                 newAssignments[userId] = newVoice;
 
-                // Reverse-lookup: who had this voice originally?
-                int originalOwnerIndex = voices.IndexOf(newVoice);
-                string originalOwnerId = userIds[originalOwnerIndex];
-
-                voiceOwnership[userId] = originalOwnerId;
+                string originalOwner = voiceToOriginalUser[newVoice];
+                whoHasWhoseVoice[userId] = originalOwner;
             }
 
-            return voiceOwnership;
+            return whoHasWhoseVoice;
         }
 
         private static void OnMetadataChanged(IDictionary<string, object> metadata)
@@ -177,6 +165,7 @@ namespace Mutators.Mutators.Patches
         {
             originalVoiceChats.Clear();
             voiceOwnership.Clear();
+            MutatorManager.Instance.OnMetadataChanged -= OnMetadataChanged;
         }
     }
 }

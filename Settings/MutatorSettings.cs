@@ -20,7 +20,7 @@ namespace Mutators.Settings
         public static SealedAwayMutatorSettings SealedAway { get; private set; } = null!;
         public static GenericMutatorSettings ProtectTheWeak { get; private set; } = null!;
         public static FiringMyLaserMutatorSettings FiringMyLaser { get; private set; } = null!;
-        public static GenericMutatorSettings Voiceover { get; private set; } = null!;
+        public static VoiceoverMutatorSettings Voiceover { get; private set; } = null!;
         public static void Initialize(ConfigFile config)
         {
             NopMutator = new NopMutatorSettings(config);
@@ -38,7 +38,7 @@ namespace Mutators.Settings
             SealedAway = new SealedAwayMutatorSettings(Mutators.Mutators.SealedAwayName, Mutators.Mutators.SealedAwayDescription, config);
             ProtectTheWeak = new ProtectTheWeakMutatorSettings(Mutators.Mutators.ProtectTheWeakName, Mutators.Mutators.ProtectTheWeakDescription, config);
             FiringMyLaser = new FiringMyLaserMutatorSettings(Mutators.Mutators.FiringMyLaserName, Mutators.Mutators.FiringMyLaserDescription, config);
-            Voiceover = new GenericMutatorSettings(Mutators.Mutators.VoiceoverName, Mutators.Mutators.VoiceoverDescription, config);
+            Voiceover = new VoiceoverMutatorSettings(Mutators.Mutators.VoiceoverName, Mutators.Mutators.VoiceoverDescription, config);
         }
     }
 }

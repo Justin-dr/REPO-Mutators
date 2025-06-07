@@ -130,6 +130,7 @@ namespace Mutators.Managers
 
             if (totalWeight <= 0)
             {
+                RepoMutators.Logger.LogWarning($"Fell back to None mutator, invalid total weight: {totalWeight}");
                 return _nopMutator;
             }
 
@@ -155,6 +156,7 @@ namespace Mutators.Managers
                     
             }
 
+            RepoMutators.Logger.LogWarning($"Fell back to None mutator, mutator selection failed");
             return _nopMutator;
         }
     }
