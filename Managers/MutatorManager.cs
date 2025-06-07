@@ -52,9 +52,10 @@ namespace Mutators.Managers
                 new Mutator(MutatorSettings.HuntingSeason, typeof(HuntingSeasonPatch)),
                 new Mutator(MutatorSettings.ThereCanOnlyBeOne, typeof(ThereCanOnlyBeOnePatch)),
                 new Mutator(MutatorSettings.VolatileCargo, typeof(VolatileCargoPatch)),
-                new Mutator(MutatorSettings.SealedAway, typeof(SealedAwayPatch), cleanUpActions: [SealedAwayPatch.Reset]),
-                new Mutator(MutatorSettings.ProtectTheWeak, typeof(ProtectTheWeakPatch), [SemiFunc.IsMultiplayer], [ProtectTheWeakPatch.Reset]),
-                new Mutator(MutatorSettings.FiringMyLaser, typeof(FiringMyLaserPatch), cleanUpActions: [FiringMyLaserPatch.Reset], specialActionOverlay: true)
+                new Mutator(MutatorSettings.SealedAway, typeof(SealedAwayPatch)),
+                new Mutator(MutatorSettings.ProtectTheWeak, typeof(ProtectTheWeakPatch), [SemiFunc.IsMultiplayer]),
+                new Mutator(MutatorSettings.FiringMyLaser, typeof(FiringMyLaserPatch), specialActionOverlay: true),
+                new Mutator(MutatorSettings.Voiceover, typeof(VoiceoverPatch), [SemiFunc.IsMultiplayer])
             ];
 
             mutators.ForEach(mutator => _mutators[mutator.Name] = mutator);

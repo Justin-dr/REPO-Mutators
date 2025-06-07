@@ -112,7 +112,7 @@ namespace Mutators.Mutators.Patches
             }
         }
 
-        internal static void Reset()
+        private static void BeforeUnpatchAll()
         {
             _currentSpawns = 0;
             RepoMutators.Logger.LogDebug($"[Sealed Away] Set tracked monster spawns to {_currentSpawns}");

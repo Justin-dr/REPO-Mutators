@@ -18,6 +18,7 @@
         public const string SealedAwayName = "Sealed Away";
         public const string ProtectTheWeakName = "Protect the Weak";
         public const string FiringMyLaserName = "Firing My Laser";
+        public const string VoiceoverName = "Voiceover";
 
         // Descriptions
         public const string NopMutatorDescription = "A normal run, no special effects";
@@ -35,6 +36,7 @@
         public const string SealedAwayDescription = "Breaking valuables has a chance to spawn monsters";
         public const string ProtectTheWeakDescription = "Protect your weaker friends!";
         public const string FiringMyLaserDescription = "Fire your laser by pressing {specialActionKey}\nUncontrollably fire your laser when taking damage";
+        public const string VoiceoverDescription = "Player voices are shuffled";
 
         internal static string[] All() => [
             NopMutatorName,
@@ -50,7 +52,8 @@
             VolatileCargoName,
             SealedAwayName,
             ProtectTheWeakName,
-            FiringMyLaserName
+            FiringMyLaserName,
+            VoiceoverName
         ];
     }
 }

@@ -101,7 +101,7 @@ namespace Mutators.Mutators.Patches
             }
         }
 
-        internal static void Reset()
+        private static void BeforeUnpatchAll()
         {
             LaserBlocked = false;
         }

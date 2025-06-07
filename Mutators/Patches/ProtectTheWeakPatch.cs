@@ -368,7 +368,7 @@ namespace Mutators.Mutators.Patches
             return meta;
         }
 
-        internal static void Reset()
+        private static void BeforeUnpatchAll()
         {
             initialHealth = 100;
             initDone = false;
