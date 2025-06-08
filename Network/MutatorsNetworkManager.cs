@@ -119,6 +119,7 @@ namespace Mutators.Network
             MutatorManager mutatorManager = MutatorManager.Instance;
 
             mutatorManager.metadata = metadata;
+            if (!SemiFunc.IsMultiplayer() && metadata.Count == 0) return;
             mutatorManager.OnMetadataChanged?.Invoke(metadata);
         }
 

@@ -36,9 +36,9 @@ namespace Mutators.Mutators.Patches
         {
             if (SemiFunc.IsMultiplayer() && SemiFunc.IsMasterClient())
             {
-                if (MutatorSettings.TheFloorIsLava.ImmunePlayerCount > 0 && SemiFunc.PlayerGetAll().Count > 1)
+                IList<PlayerAvatar> eligiblePlayers = SemiFunc.PlayerGetAll().ToList();
+                if (MutatorSettings.TheFloorIsLava.ImmunePlayerCount > 0 && eligiblePlayers.Count > 1)
                 {
-                    IList<PlayerAvatar> eligiblePlayers = SemiFunc.PlayerGetAll().ToList();
                     int count = UnityEngine.Mathf.Min(MutatorSettings.TheFloorIsLava.ImmunePlayerCount, eligiblePlayers.Count);
                     for (int i = 0; i < count; i++)
                     {

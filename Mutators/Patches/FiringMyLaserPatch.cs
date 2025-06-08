@@ -1,14 +1,41 @@
 ﻿using HarmonyLib;
+using Mutators.Extensions;
+using Mutators.Managers;
 using Mutators.Mutators.Behaviours;
 using Mutators.Mutators.Behaviours.Custom;
+using Mutators.Network;
 using Mutators.Settings;
+using Mutators.Utility;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Mutators.Mutators.Patches
 {
     internal class FiringMyLaserPatch
     {
+        private const string LaserActionEnabled = "laserActionEnabled";
         private static bool LaserBlocked = false;
+
+        static void AfterPatchAll()
+        {
+            MutatorManager.Instance.OnMetadataChanged += OnMetadataChanged;
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(LevelGenerator))]
+        [HarmonyPatch(nameof(LevelGenerator.GenerateDone))]
+        static void LevelGeneratorGenerateDonePostfix()
+        {
+            if (SemiFunc.IsMasterClientOrSingleplayer())
+            {
+                IDictionary<string, object> metadata = new Dictionary<string, object>()
+                {
+                    { LaserActionEnabled, MutatorSettings.FiringMyLaser.LaserActionEnabled }
+                };
+
+                MutatorsNetworkManager.Instance.SendMetadata(metadata);
+            }
+        }
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(PlayerAvatar))]
@@ -19,7 +46,7 @@ namespace Mutators.Mutators.Patches
 
             GameObject? laser = REPOLib.Modules.NetworkPrefabs.SpawnNetworkPrefab(
                 $"{MyPluginInfo.PLUGIN_GUID}/FiringMyLaser", Vector3.zero, Quaternion.identity,
-                data: [__instance.steamID, MutatorSettings.FiringMyLaser.LaserActionCooldown, MutatorSettings.FiringMyLaser.LaserActionEnemyDamage]
+                data: [__instance.steamID, MutatorSettings.FiringMyLaser.LaserActionCooldown, MutatorSettings.FiringMyLaser.LaserActionEnemyDamage, MutatorSettings.FiringMyLaser.LaserActionEnabled]
             );
 
             if (!laser || laser == null)
@@ -35,6 +62,7 @@ namespace Mutators.Mutators.Patches
                     laser.SetActive(true);
                     laserFiringBehaviour.laserCooldown = MutatorSettings.FiringMyLaser.LaserActionCooldown;
                     laserFiringBehaviour.laserCooldownTimer = MutatorSettings.FiringMyLaser.LaserActionCooldown;
+                    laserFiringBehaviour.manualActionEnabled = MutatorSettings.FiringMyLaser.LaserActionEnabled;
                     laser.GetComponentInChildren<PlayerIgnoringHurtCollider>(true).enemyDamage = MutatorSettings.FiringMyLaser.LaserActionEnemyDamage;
                 }
             }
@@ -101,9 +129,19 @@ namespace Mutators.Mutators.Patches
             }
         }
 
+        private static void OnMetadataChanged(IDictionary<string, object> metadata)
+        {
+            if (!metadata.Get<bool>(LaserActionEnabled))
+            {
+                MutatorsNetworkManager.Instance.Run(DescriptionUtils.LateUpdateDescription(Mutators.FiringMyLaserDescription.Split("\n")[1]));
+            }
+            MutatorManager.Instance.OnMetadataChanged -= OnMetadataChanged;
+        }
+
         private static void BeforeUnpatchAll()
         {
             LaserBlocked = false;
+            MutatorManager.Instance.OnMetadataChanged -= OnMetadataChanged;
         }
     }
 }

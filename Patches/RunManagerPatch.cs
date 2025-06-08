@@ -2,7 +2,7 @@
 using Mutators.Managers;
 using Mutators.Mutators;
 using Mutators.Network;
-using Mutators.Settings.Specific;
+using Mutators.Settings;
 using System.Collections.Generic;
 using UnityEngine;
 

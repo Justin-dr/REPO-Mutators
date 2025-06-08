@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Mutators.Settings.Specific
+namespace Mutators.Settings
 {
     internal interface ILevelRemovingMutatorSettings
     {

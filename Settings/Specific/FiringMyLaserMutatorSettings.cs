@@ -6,11 +6,20 @@ namespace Mutators.Settings.Specific
     {
         private readonly ConfigEntry<int> _laserActionCooldown;
         private readonly ConfigEntry<int> _laserActionEnemyDamage;
+        private readonly ConfigEntry<bool> _laserActionEnabled;
         public int LaserActionCooldown => _laserActionCooldown.Value;
         public int LaserActionEnemyDamage => _laserActionEnemyDamage.Value;
+        public bool LaserActionEnabled => _laserActionEnabled.Value;
 
         internal FiringMyLaserMutatorSettings(string name, string description, ConfigFile config) : base(name, description, config)
         {
+            _laserActionEnabled = config.Bind(
+            GetSection(name),
+            "Allow manual laser action",
+            true,
+            $"If true, players can manually use their laser action while the cooldown is over. Otherwise, only use the laser when getting hit"
+            );
+
             _laserActionCooldown = config.Bind(
             GetSection(name),
             "Laser action cooldown",

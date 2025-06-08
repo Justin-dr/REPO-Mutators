@@ -19,6 +19,7 @@ namespace Mutators.Mutators.Behaviours
         internal float laserCooldownTimer = 100f;
 
         internal bool canFire = true;
+        internal bool manualActionEnabled = true;
 
         void Awake()
         {
@@ -43,7 +44,7 @@ namespace Mutators.Mutators.Behaviours
                     laserCooldownTimer += Time.deltaTime;
                 }
 
-                if (laserCooldownTimer >= laserCooldown && !ChatManager.instance.StateIsActive() && Input.GetKeyDown(RepoMutators.Settings.SpecialActionKey))
+                if (manualActionEnabled && laserCooldownTimer >= laserCooldown && !ChatManager.instance.StateIsActive() && Input.GetKeyDown(RepoMutators.Settings.SpecialActionKey))
                 {
                     FireLaser(2.5f);
                     laserCooldownTimer = 0;
@@ -52,8 +53,16 @@ namespace Mutators.Mutators.Behaviours
                 SpecialActionAnnouncingBehaviour specialActionAnnouncing = SpecialActionAnnouncingBehaviour.instance;
                 if (specialActionAnnouncing?.Text != null && specialActionAnnouncing?.TextMax != null)
                 {
-                    specialActionAnnouncing.Text.text = $"{(int)laserCooldownTimer}";
-                    specialActionAnnouncing.TextMax.text = $"/{(int)laserCooldown}";
+                    if (manualActionEnabled)
+                    {
+                        specialActionAnnouncing.Text.text = $"{(int)laserCooldownTimer}";
+                        specialActionAnnouncing.TextMax.text = $"/{(int)laserCooldown}";
+                    }
+                    else
+                    {
+                        specialActionAnnouncing.Hide();
+                    }
+                    
                 }
             }
 
@@ -112,7 +121,7 @@ namespace Mutators.Mutators.Behaviours
         {
             object[] data = info.photonView.InstantiationData;
 
-            if (data.Length < 3)
+            if (data.Length < 4)
             {
                 RepoMutators.Logger.LogWarning("Received invalid data for LaserFiringBehaviour");
                 return;
@@ -131,6 +140,10 @@ namespace Mutators.Mutators.Behaviours
             if (data[2] is int laserDamage)
             {
                 StartCoroutine(ApplyDamageDelayed(laserDamage));
+            }
+            if (data[3] is bool allowManualAction)
+            {
+                manualActionEnabled = allowManualAction;
             }
         }
 
