@@ -158,6 +158,75 @@ This method is the **entry point for activating gameplay-altering behavior**.
 
 ---
 
+## 🔁 Mutator Lifecycle Hooks
+
+When you register a mutator with patches, the `Mutator` class automatically looks for special lifecycle hooks in each patch class. These let you run custom code **before/after patching** or **before/after unpatching**.
+
+### 🪝 Available Hook Methods
+
+If a patch class defines any of the following **static** methods, they will be invoked at the appropriate stage:
+
+| Method Name          | Called When                   |
+| -------------------- | ----------------------------- |
+| `BeforePatchAll()`   | Before any patch is applied   |
+| `AfterPatchAll()`    | After all patches are applied |
+| `BeforeUnpatchAll()` | Before any patch is removed   |
+| `AfterUnpatchAll()`  | After all patches are removed |
+
+These methods are optional — the `Mutator` system will only call them if they exist.
+
+---
+
+### 🧪 Example Patch Class With Hooks
+
+```csharp
+public static class ExplosiveEnemiesPatch
+{
+    public static void BeforePatchAll()
+    {
+        Logger.LogInfo("ExplosiveEnemies: Preparing to patch...");
+    }
+
+    public static void AfterPatchAll()
+    {
+        Logger.LogInfo("ExplosiveEnemies: Patch applied.");
+    }
+
+    public static void BeforeUnpatchAll()
+    {
+        Logger.LogInfo("ExplosiveEnemies: Cleaning up...");
+    }
+
+    public static void AfterUnpatchAll()
+    {
+        Logger.LogInfo("ExplosiveEnemies: Unpatched successfully.");
+    }
+
+    [HarmonyPatch(typeof(Enemy), nameof(Enemy.Die))]
+    [HarmonyPostfix]
+    public static void ExplodeOnDeath(Enemy __instance)
+    {
+        // Custom explosion logic
+    }
+}
+```
+
+---
+
+### 🔄 How It Works
+
+When you construct a new `Mutator`, its constructor automatically scans the list of patch `Type`s and registers any of the above lifecycle methods it finds:
+
+```csharp
+TryAddHook(patchType, "BeforePatchAll", _beforePatchAllHooks);
+TryAddHook(patchType, "AfterPatchAll", _afterPatchAllHooks);
+...
+```
+
+You don’t need to register these manually — just name the static methods correctly in your patch class, and the system will invoke them at the correct time.
+
+---
+
 ## 🔄 Versioning Considerations
 
 * Breaking changes can occur on **minor** version bumps before `1.0.0`.
