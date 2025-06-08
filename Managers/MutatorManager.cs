@@ -55,7 +55,8 @@ namespace Mutators.Managers
                 new Mutator(MutatorSettings.SealedAway, typeof(SealedAwayPatch)),
                 new Mutator(MutatorSettings.ProtectTheWeak, typeof(ProtectTheWeakPatch), [SemiFunc.IsMultiplayer]),
                 new Mutator(MutatorSettings.FiringMyLaser, typeof(FiringMyLaserPatch), specialActionOverlay: true),
-                new Mutator(MutatorSettings.Voiceover, typeof(VoiceoverPatch), [SemiFunc.IsMultiplayer])
+                new Mutator(MutatorSettings.Voiceover, typeof(VoiceoverPatch), [SemiFunc.IsMultiplayer]),
+                new Mutator(MutatorSettings.TheFloorIsLava, typeof(TheFloorIsLavaPatch))
             ];
 
             mutators.ForEach(mutator => _mutators[mutator.Name] = mutator);

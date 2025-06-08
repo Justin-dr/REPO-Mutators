@@ -19,6 +19,7 @@
         public const string ProtectTheWeakName = "Protect the Weak";
         public const string FiringMyLaserName = "Firing My Laser";
         public const string VoiceoverName = "Voiceover";
+        public const string TheFloorIsLavaName = "The Floor Is Lava";
 
         // Descriptions
         public const string NopMutatorDescription = "A normal run, no special effects";
@@ -37,6 +38,7 @@
         public const string ProtectTheWeakDescription = "Protect your weaker friends!";
         public const string FiringMyLaserDescription = "Fire your laser by pressing {specialActionKey}\nUncontrollably fire your laser when taking damage";
         public const string VoiceoverDescription = "Player voices are shuffled";
+        public const string TheFloorIsLavaDescription = "You take damage while standing on the floor";
 
         internal static string[] All() => [
             NopMutatorName,
@@ -53,7 +55,8 @@
             SealedAwayName,
             ProtectTheWeakName,
             FiringMyLaserName,
-            VoiceoverName
+            VoiceoverName,
+            TheFloorIsLavaName
         ];
     }
 }
