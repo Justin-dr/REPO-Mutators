@@ -126,6 +126,7 @@ namespace Mutators.Managers
                 {
                     RepoMutators.Logger.LogDebug($"Cannot pick {_previousMutator?.Name ?? "None"}, threshold reached");
                     eligibleMutators = eligibleMutators.Where(m => m != _previousMutator).ToList();
+                    totalWeight = eligibleMutators.Sum(m => m.Settings.Weight);
                 }
             }
 
@@ -141,7 +142,7 @@ namespace Mutators.Managers
             foreach (IMutator mutator in eligibleMutators)
             {
                 currentSum += mutator.Settings.Weight;
-                if (randomValue < currentSum)
+                if (randomValue <= currentSum)
                 {
                     if (mutator == _previousMutator)
                     {

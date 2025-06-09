@@ -1,6 +1,4 @@
 ﻿using BepInEx.Configuration;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Mutators.Settings.Specific
 {

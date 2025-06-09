@@ -9,6 +9,7 @@ using Mutators.Utility;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.VisualScripting;
+using UnityEngine;
 
 namespace Mutators.Mutators.Patches
 {
@@ -26,6 +27,27 @@ namespace Mutators.Mutators.Patches
             if (!SemiFunc.IsMasterClientOrSingleplayer())
             {
                 MutatorManager.Instance.OnMetadataChanged += OnMetaDataChanged;
+            }
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPriority(Priority.High)]
+        [HarmonyPatch(typeof(EnemyDirector))]
+        [HarmonyPatch(nameof(EnemyDirector.GetEnemy))]
+        static void EnemyDirectorGetEnemyPrefix(ref List<EnemySetup> ___enemyList, int ___enemyListIndex)
+        {
+            if (SemiFunc.IsMasterClientOrSingleplayer() && MutatorSettings.TheFloorIsLava.DisableEnemies)
+            {
+                ___enemyList.Clear();
+
+                var emptyEnemySetup = ScriptableObject.CreateInstance<EnemySetup>();
+                emptyEnemySetup.spawnObjects = new List<GameObject>();
+                ___enemyList.Add(emptyEnemySetup);
+
+                while (___enemyList.Count < ___enemyListIndex + 1)
+                {
+                    ___enemyList.Add(emptyEnemySetup);
+                }
             }
         }
 

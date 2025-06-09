@@ -7,10 +7,12 @@ namespace Mutators.Settings.Specific
     {
         private readonly ConfigEntry<bool> _usePercentageDamage;
         private readonly ConfigEntry<bool> _allowCustomLevels;
+        private readonly ConfigEntry<bool> _disableEnemies;
         public int DamagePerTick { get; private set; }
         public int ImmunePlayerCount { get; private set; }
         public bool UsePercentageDamage => _usePercentageDamage.Value;
         public bool AllowCustomLevels => _allowCustomLevels.Value;
+        public bool DisableEnemies => _disableEnemies.Value;
 
         internal TheFloorIsLavaMutatorSettings(string name, string description, ConfigFile config) : base(name, description, config)
         {
@@ -40,6 +42,13 @@ namespace Mutators.Settings.Specific
             "Allow custom levels",
             true,
             $"If false, custom levels cannot be picked while the {name} Mutator is active."
+            );
+
+            _disableEnemies = config.Bind(
+            GetSection(name),
+            "Disable enemies",
+            false,
+            $"If true, no enemies will spawn while the {name} Mutator is active."
             );
 
             DamagePerTick = Math.Clamp(_damagePerTick.Value, 0, int.MaxValue);
