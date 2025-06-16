@@ -47,7 +47,16 @@ namespace Mutators.Mutators.Patches
             int damage = (int)Math.Ceiling(Math.Max(25f, value / 250));
             float size = Math.Clamp(value / 12000, 0.5f, 3f);
 
-            __instance.physGrabObject.impactDetector.onDestroy.AddListener(new UnityAction(() => Explode(__instance, particleScriptExplosion, size, damage)));
+            PhysGrabObjectImpactDetector impactDetector = __instance.GetComponent<PhysGrabObjectImpactDetector>();
+
+            if (impactDetector != null)
+            {
+                impactDetector.onDestroy.AddListener(new UnityAction(() => Explode(__instance, particleScriptExplosion, size, damage)));
+            }
+            else
+            {
+                RepoMutators.Logger.LogWarning($"[Volatile Cargo] unable to find impactDetector on {__instance.transform.name}");
+            }
         }
     }
 }
