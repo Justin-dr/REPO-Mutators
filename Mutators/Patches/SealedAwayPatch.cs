@@ -22,8 +22,15 @@ namespace Mutators.Mutators.Patches
         {
             if (!SemiFunc.IsMasterClientOrSingleplayer()) return;
 
-
-            __instance.physGrabObject.impactDetector.onDestroy.AddListener(new UnityAction(() => Spawn(__instance)));
+            PhysGrabObjectImpactDetector impactDetector = __instance.physGrabObject.impactDetector;
+            if (impactDetector != null)
+            {
+                impactDetector.onDestroy.AddListener(new UnityAction(() => Spawn(__instance)));
+            }
+            else
+            {
+                RepoMutators.Logger.LogWarning($"[Sealed Away] unable to find impactDetector on {__instance.transform.name}");
+            }
         }
 
         private static void Spawn(ValuableObject valuableObject)

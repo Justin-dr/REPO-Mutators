@@ -19,7 +19,7 @@ namespace Mutators.Settings.Specific
             ConfigEntry<int> _damagePerTick = config.Bind(
             GetSection(name),
             "Damage",
-            10,
+            1,
             $"The amount of damage that players receive per second when standing on floor tiles."
             );
 
@@ -51,7 +51,7 @@ namespace Mutators.Settings.Specific
             $"If true, no enemies will spawn while the {name} Mutator is active."
             );
 
-            DamagePerTick = Math.Clamp(_damagePerTick.Value, 0, int.MaxValue);
+            DamagePerTick = Math.Clamp(_damagePerTick.Value, 1, int.MaxValue);
             ImmunePlayerCount = Math.Clamp(_immunePlayerCount.Value, 0, int.MaxValue);
         }
     }

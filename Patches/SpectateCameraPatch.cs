@@ -10,7 +10,12 @@ namespace Mutators.Patches
         [HarmonyPatch(nameof(SpectateCamera.LateUpdate))]
         static void SpectateCameraLateUpdatePostfix()
         {
-            SpecialActionAnnouncingBehaviour.instance?.Hide();
+            SpecialActionAnnouncingBehaviour specialActionAnnouncingBehaviour = SpecialActionAnnouncingBehaviour.instance;
+
+            if (specialActionAnnouncingBehaviour)
+            {
+                specialActionAnnouncingBehaviour.Hide();
+            }
         }
     }
 }
