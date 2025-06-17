@@ -22,7 +22,7 @@ namespace Mutators.Mutators.Patches
         {
             if (!SemiFunc.IsMasterClientOrSingleplayer()) return;
 
-            PhysGrabObjectImpactDetector impactDetector = __instance.physGrabObject.impactDetector;
+            PhysGrabObjectImpactDetector impactDetector = __instance.GetComponent<PhysGrabObjectImpactDetector>();
             if (impactDetector != null)
             {
                 impactDetector.onDestroy.AddListener(new UnityAction(() => Spawn(__instance)));
