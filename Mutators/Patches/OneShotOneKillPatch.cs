@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using Mutators.Extensions;
 using Mutators.Settings;
 
 namespace Mutators.Mutators.Patches
@@ -12,6 +13,17 @@ namespace Mutators.Mutators.Patches
         static void PlayerHealthGrabStart(PlayerHealthGrab __instance)
         {
             __instance.enabled = false;
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPriority(Priority.LowerThanNormal)]
+        [HarmonyPatch(typeof(EnemyDirector))]
+        [HarmonyPatch(nameof(EnemyDirector.Start))]
+        static void EnemyDirectorAmountSetupPostfix(EnemyDirector __instance)
+        {
+            if (!SemiFunc.IsMasterClientOrSingleplayer()) return;
+
+            __instance.DisableEnemies();
         }
 
         [HarmonyPostfix]
