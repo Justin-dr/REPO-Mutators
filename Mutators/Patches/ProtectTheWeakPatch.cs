@@ -200,9 +200,9 @@ namespace Mutators.Mutators.Patches
         [HarmonyPriority(Priority.LowerThanNormal)]
         [HarmonyPatch(typeof(PunManager))]
         [HarmonyPatch(nameof(PunManager.UpdateHealthRightAway))]
-        static void PunManagerUpgradeHealthRightAwayPostfix(string playerName)
+        static void PunManagerUpgradeHealthRightAwayPostfix(string _steamID)
         {
-            PlayerAvatar playerAvatar = SemiFunc.PlayerAvatarGetFromSteamID(playerName);
+            PlayerAvatar playerAvatar = SemiFunc.PlayerAvatarGetFromSteamID(_steamID);
             BodyguardPlayerHealthBehaviour bodyguardPlayerHealth = playerAvatar.GetComponent<BodyguardPlayerHealthBehaviour>();
             if (bodyguardPlayerHealth != null)
             {
