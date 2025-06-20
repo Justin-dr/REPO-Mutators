@@ -27,7 +27,6 @@ namespace Mutators.Patches
 
             RepoMutators.Logger.LogDebug("RunManagerPatch Host only");
 
-
             if (!SemiFunc.IsMultiplayer() && !SemiFunc.RunIsLobbyMenu() && MutatorsNetworkManager.Instance == null)
             {
                 RepoMutators.Logger.LogDebug($"Spawning singleplayer NetworkManager");
@@ -78,7 +77,7 @@ namespace Mutators.Patches
         private static void ApplyPatch()
         {
             MutatorManager mutatorManager = MutatorManager.Instance;
-            if (SemiFunc.RunIsShop() && SemiFunc.IsMasterClientOrSingleplayer())
+            if (IsInShop() && SemiFunc.IsMasterClientOrSingleplayer())
             {
                 MutatorsNetworkManager.Instance.ClearBufferedRPCs();
 
@@ -99,6 +98,12 @@ namespace Mutators.Patches
         {
             IMutator mutator = MutatorManager.Instance.GetWeightedMutator();
             MutatorsNetworkManager.Instance.SendActiveMutator(mutator.Name);
+        }
+
+        private static bool IsInShop()
+        {
+            RunManager runManager = RunManager.instance;
+            return runManager.levelCurrent.name == runManager.levelShop.name;
         }
     }
 }
