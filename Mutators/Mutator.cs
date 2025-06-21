@@ -16,6 +16,7 @@ namespace Mutators.Mutators
 
         // HOOKS
         private readonly IList<Action> _beforePatchAllHooks = [];
+        private readonly IList<Action<IDictionary<string, object>>> _onMetadataChangedHooks = [];
         private readonly IList<Action> _afterPatchAllHooks = [];
         private readonly IList<Action> _beforeUnpatchAllHooks = [];
         private readonly IList<Action> _afterUnpatchAllHooks = [];
@@ -43,6 +44,8 @@ namespace Mutators.Mutators
                 TryAddHook(patch, "AfterPatchAll", _afterPatchAllHooks);
                 TryAddHook(patch, "BeforeUnpatchAll", _beforeUnpatchAllHooks);
                 TryAddHook(patch, "AfterUnpatchAll", _afterUnpatchAllHooks);
+
+                TryAddMetadataHook(patch, "OnMetadataChanged", _onMetadataChangedHooks);
             }
         }
 
@@ -86,10 +89,7 @@ namespace Mutators.Mutators
 
         private static void TryAddHook(Type type, string methodName, IList<Action> hookList)
         {
-            var method = type.GetMethod(
-                methodName,
-                BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly
-            );
+            var method = GetMethodInfo(type, methodName);
 
             if (method == null) return;
 
@@ -115,6 +115,44 @@ namespace Mutators.Mutators
             {
                 RepoMutators.Logger.LogError($"Failed to bind lifecycle hook '{methodName}' in type '{type.FullName}': {ex.Message}");
             }
+        }
+
+        private static void TryAddMetadataHook(Type type, string methodName, IList<Action<IDictionary<string, object>>> hookList)
+        {
+            var method = GetMethodInfo(type, methodName);
+
+            if (method == null) return;
+
+            if (method.GetParameters().Length > 1)
+            {
+                RepoMutators.Logger.LogWarning($"Lifecycle hook '{methodName}' in type '{type.FullName}' must not have more than one parameter.");
+                return;
+            }
+
+            if (method.ReturnType != typeof(void))
+            {
+                RepoMutators.Logger.LogWarning($"Lifecycle hook '{methodName}' in type '{type.FullName}' must return void.");
+                return;
+            }
+
+            try
+            {
+                var action = (Action<IDictionary<string, object>>)Delegate.CreateDelegate(typeof(Action<IDictionary<string, object>>), method);
+                hookList.Add(action);
+                RepoMutators.Logger.LogDebug($"Lifecycle hook '{methodName}' in type '{type.FullName}' was succesfully registered");
+            }
+            catch (Exception ex)
+            {
+                RepoMutators.Logger.LogError($"Failed to bind lifecycle hook '{methodName}' in type '{type.FullName}': {ex.Message}");
+            }
+        }
+
+        private static MethodInfo? GetMethodInfo(Type type, string methodName)
+        {
+            return type.GetMethod(
+                methodName,
+                BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly
+            );
         }
     }
 }
