@@ -3,13 +3,13 @@ using System;
 
 namespace Mutators.Settings.Specific
 {
-    public class OneShotOneKillMutatorSettings : GenericMutatorSettings
+    public class OneShotOneKillMutatorSettings : EnemyDisablingMutatorSettings
     {
         private readonly ConfigEntry<bool> _instaReviveInTruckOrExtraction;
         private readonly ConfigEntry<uint> _instaReviveHealth;
         public bool InstaReviveInTruckOrExtraction => _instaReviveInTruckOrExtraction.Value;
         public int InstaReviveHealth { get; private set; }
-        internal OneShotOneKillMutatorSettings(string name, string description, ConfigFile config) : base(name, description, config)
+        internal OneShotOneKillMutatorSettings(string name, string description, ConfigFile config) : base(name, description, config, "Peeper")
         {
             _instaReviveInTruckOrExtraction = config.Bind(
             GetSection(name),
