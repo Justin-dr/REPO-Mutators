@@ -9,7 +9,7 @@ namespace Mutators.Settings
         public static ApolloElevenMutatorSettings ApolloEleven { get; private set; } = null!;
         public static GenericMutatorSettings OutWithABang { get; private set; } = null!;
         public static DuckThisMutatorSettings DuckThis { get; private set; } = null!;
-        public static GenericMutatorSettings UltraViolence { get; private set; } = null!;
+        public static UltraViolenceMutatorSettings UltraViolence { get; private set; } = null!;
         public static ProtectThePresidentMutatorSettings ProtectThePresident { get; private set; } = null!;
         public static OneShotOneKillMutatorSettings OneShotOneKill { get; private set; } = null!;
         public static GenericMutatorSettings RustyServos { get; private set; } = null!;
@@ -28,7 +28,7 @@ namespace Mutators.Settings
             ApolloEleven = new ApolloElevenMutatorSettings(Mutators.Mutators.ApolloElevenName, Mutators.Mutators.ApolloElevenDescription, config);
             OutWithABang = new GenericMutatorSettings(Mutators.Mutators.OutWithABangName, Mutators.Mutators.OutWithABangDescription, config);
             DuckThis = new DuckThisMutatorSettings(Mutators.Mutators.DuckThisName, Mutators.Mutators.DuckThisDescription, config);
-            UltraViolence = new EnemyDisablingMutatorSettings(Mutators.Mutators.UltraViolenceName, Mutators.Mutators.UltraViolenceDescription, config);
+            UltraViolence = new UltraViolenceMutatorSettings(Mutators.Mutators.UltraViolenceName, Mutators.Mutators.UltraViolenceDescription, config);
             ProtectThePresident = new ProtectThePresidentMutatorSettings(Mutators.Mutators.ProtectThePresidentName, Mutators.Mutators.ProtectThePresidentDescription, config);
             OneShotOneKill = new OneShotOneKillMutatorSettings(Mutators.Mutators.OneShotOneKillName, Mutators.Mutators.OneShotOneKillDescription, config);
             RustyServos = new GenericMutatorSettings(Mutators.Mutators.RustyServosName, Mutators.Mutators.RustyServosDescription, config);

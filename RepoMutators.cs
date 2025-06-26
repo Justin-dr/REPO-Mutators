@@ -108,7 +108,6 @@ public class RepoMutators : BaseUnityPlugin
         Harmony.PatchAll(typeof(LoadingUIPatch));
         Harmony.PatchAll(typeof(MapToolControllerPatch));
         Harmony.PatchAll(typeof(SemiFuncPatch));
-        Harmony.PatchAll(typeof(EnemyDirectorPatch));
         Harmony.PatchAll(typeof(MenuPagePatch));
         Harmony.PatchAll(typeof(SpectateCameraPatch));
     }

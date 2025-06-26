@@ -1,6 +1,11 @@
 ﻿using HarmonyLib;
 using Mutators.Extensions;
+using Mutators.Managers;
+using Mutators.Network;
+using Mutators.Settings;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 
 namespace Mutators.Mutators.Patches
@@ -11,6 +16,29 @@ namespace Mutators.Mutators.Patches
         private static readonly Func<RoundDirector, int> _getExtractionPointsCompleted = CreateFieldGetter<RoundDirector, int>("extractionPointsCompleted");
         private static readonly Action<RoundDirector, int> _setExtractionPointsCompleted = CreateFieldSetter<RoundDirector, int>("extractionPointsCompleted");
 
+        private static bool _keepLightsOn = MutatorSettings.UltraViolence.KeepOnLight;
+
+        static void AfterPatchAll()
+        {
+            MutatorManager.Instance.OnMetadataChanged += OnMetadataChanged;
+        }
+
+        private static void OnMetadataChanged(IDictionary<string, object> dictionary)
+        {
+            _keepLightsOn = dictionary.Get<bool>("keepLightsOn");
+            MutatorManager.Instance.OnMetadataChanged -= OnMetadataChanged;
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(LevelGenerator))]
+        [HarmonyPatch(nameof(LevelGenerator.GenerateDone))]
+        static void LevelGeneratorGenerateDonePostfix()
+        {
+            if (SemiFunc.IsMasterClientOrSingleplayer())
+            {
+                MutatorsNetworkManager.Instance.SendMetadata(new Dictionary<string, object>() { { "keepLightsOn", MutatorSettings.UltraViolence.KeepOnLight } });
+            }
+        }
 
         [HarmonyPostfix]
         [HarmonyPriority(Priority.LowerThanNormal)]
@@ -26,7 +54,7 @@ namespace Mutators.Mutators.Patches
         [HarmonyPostfix]
         [HarmonyPatch(typeof(ExtractionPoint))]
         [HarmonyPatch(nameof(ExtractionPoint.ActivateTheFirstExtractionPointAutomaticallyWhenAPlayerLeaveTruck))]
-        static void LevelGeneratorGenerateDonePostfix()
+        static void ExtractionPointActivateTheFirstExtractionPointAutomaticallyWhenAPlayerLeaveTruckPostfix()
         {
             int extractionPoints = _getExtractionPoints(RoundDirector.instance);
             _setExtractionPointsCompleted(RoundDirector.instance, extractionPoints);
@@ -34,6 +62,31 @@ namespace Mutators.Mutators.Patches
             RoundDirector.instance.ExtractionCompletedAllCheck();
 
             _setExtractionPointsCompleted(RoundDirector.instance, 0);
+
+            if (_keepLightsOn)
+            {
+                RoundDirector.instance.allExtractionPointsCompleted = false;
+            }
+            else
+            {
+                MutatorsNetworkManager.Instance.Run(TurnOffLightsLate());
+            }
+
+            
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(LightManager))]
+        [HarmonyPatch(nameof(LightManager.TurnOffLights))]
+        static bool LightManagerTurnOffLightsPrefix()
+        {
+            RepoMutators.Logger.LogInfo($"Turn off lights: {LightManager.instance.turnOffLights}");
+            if (_keepLightsOn)
+            {
+                RepoMutators.Logger.LogInfo($"All Extractions completed: {RoundDirector.instance.allExtractionPointsCompleted}");
+                return RoundDirector.instance.allExtractionPointsCompleted;
+            }
+            return true;
         }
 
         [HarmonyPrefix]
@@ -78,6 +131,18 @@ namespace Mutators.Mutators.Patches
 
             var lambda = Expression.Lambda<Action<T, V>>(assignExp, targetExp, valueExp);
             return lambda.Compile();
+        }
+
+        private static IEnumerator TurnOffLightsLate()
+        {
+            yield return null;
+            RoundDirector.instance.allExtractionPointsCompleted = false;
+        }
+
+        private static void BeforeUnpatchAll()
+        {
+            _keepLightsOn = MutatorSettings.UltraViolence.KeepOnLight;
+            MutatorManager.Instance.OnMetadataChanged -= OnMetadataChanged;
         }
     }
 }
