@@ -5,7 +5,7 @@
     <LangVersion>12</LangVersion>
     <Nullable>enable</Nullable>
     <Authors>Xepos</Authors>
-    <Version>0.5.6</Version>
+    <Version>0.5.7</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
