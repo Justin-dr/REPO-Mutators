@@ -31,7 +31,7 @@ namespace Mutators.Mutators.Patches
         }
 
         [HarmonyPrefix]
-        [HarmonyPriority(Priority.High)]
+        [HarmonyPriority(Priority.High + 1)]
         [HarmonyPatch(typeof(EnemyDirector))]
         [HarmonyPatch(nameof(EnemyDirector.GetEnemy))]
         static void EnemyDirectorGetEnemyPrefix(ref List<EnemySetup> ___enemyList, int ___enemyListIndex)
