@@ -1,5 +1,4 @@
-﻿using HarmonyLib;
-using TMPro;
+﻿using TMPro;
 using UnityEngine;
 
 namespace Mutators.Mutators.Behaviours.UI
@@ -14,8 +13,7 @@ namespace Mutators.Mutators.Behaviours.UI
         {
             animateTheEntireObject = true;
             hidePosition = new Vector2(-140, 0);
-            // Quick fix so I can wait for humidifier update
-            AccessTools.DeclaredField(typeof(SemiUI), "doNotDisable").SetValue(this, new System.Collections.Generic.List<GameObject>());
+            doNotDisable = [];
             base.Start();
             Text = GetComponent<TextMeshProUGUI>();
             TextMax = transform.Find("SpecialActionMax").GetComponent<TextMeshProUGUI>();

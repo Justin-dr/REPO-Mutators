@@ -9,7 +9,10 @@ using Mutators.Patches;
 using Mutators.Settings;
 using Photon.Pun;
 using REPOLib;
+using System.Collections;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -103,6 +106,9 @@ public class RepoMutators : BaseUnityPlugin
 
     internal void Patch()
     {
+        var hasSpawnManager = BepInEx.Bootstrap.Chainloader.PluginInfos.Values.Any(x => x.Metadata.GUID == "soundedsquash.spawnmanager");
+        _logger.LogInfo($"HasSpawnManager: {hasSpawnManager}");
+
         Harmony ??= new Harmony(Info.Metadata.GUID);
         Harmony.PatchAll(typeof(RunManagerPatch));
         Harmony.PatchAll(typeof(LoadingUIPatch));
@@ -110,6 +116,11 @@ public class RepoMutators : BaseUnityPlugin
         Harmony.PatchAll(typeof(SemiFuncPatch));
         Harmony.PatchAll(typeof(MenuPagePatch));
         Harmony.PatchAll(typeof(SpectateCameraPatch));
+
+        if (!hasSpawnManager)
+        {
+            Harmony.PatchAll(typeof(EnemyDirectorPatch));
+        }
     }
 
     internal void Unpatch()

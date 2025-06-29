@@ -1,43 +1,68 @@
 ﻿using HarmonyLib;
+using Mutators.Managers;
+using Mutators.Network;
 using Mutators.Settings;
+using Photon.Pun;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 
 namespace Mutators.Mutators.Patches
 {
     internal class HandleWithCarePatch
     {
         private const string SurplusValuable = "Surplus Valuable";
-        private static bool _haulGoalReset = false;
+        private static readonly IList<ValuableObject> valuableObjects = new List<ValuableObject>();
+        private static bool SetupDone = false;
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(ValuableObject))]
-        [HarmonyPatch(nameof(ValuableObject.DollarValueSetLogic))]
-        static void ValuableObjectDollarValueSetLogicPostfix(ValuableObject __instance)
+        [HarmonyPatch(nameof(ValuableObject.Awake))]
+        static void ValuableObjectAwake(ValuableObject __instance)
         {
-            _haulGoalReset = false;
             if (SemiFunc.IsMasterClientOrSingleplayer())
             {
                 if (!MutatorSettings.HandleWithCare.MultiplySurplusValue && __instance.gameObject.name.StartsWith(SurplusValuable)) 
                 {
                     return;
                 }
+                RepoMutators.Logger.LogInfo($"{__instance.name}: {__instance.photonView}");
+                valuableObjects.Add(__instance);
+            }
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(ValuableObject))]
+        [HarmonyPatch(nameof(ValuableObject.DollarValueSetLogic))]
+        static void ValuableObjectDollarValueSetLogicPostfix(ValuableObject __instance)
+        {
+            if (SemiFunc.IsMasterClientOrSingleplayer() && SetupDone)
+            {
+                if (!MutatorSettings.HandleWithCare.MultiplySurplusValue && __instance.gameObject.name.StartsWith(SurplusValuable))
+                {
+                    return;
+                }
                 __instance.dollarValueCurrent *= MutatorSettings.HandleWithCare.ValueMultiplier;
                 __instance.dollarValueOriginal *= MutatorSettings.HandleWithCare.ValueMultiplier;
             }
-            
         }
 
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(RoundDirector))]
-        [HarmonyPatch(nameof(RoundDirector.StartRoundLogic))]
-        static void RoundDirectorStartRoundLogicPrefix(ref int value)
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(LevelGenerator))]
+        [HarmonyPatch(nameof(LevelGenerator.GenerateDone))]
+        static void LevelGeneratorGenerateDonePostfix()
         {
-            if (!_haulGoalReset && SemiFunc.IsMasterClientOrSingleplayer())
+            if (!SemiFunc.IsMasterClientOrSingleplayer()) return;
+            SetupDone = true;
+
+            foreach (ValuableObject valuableObject in valuableObjects)
             {
-                float newValue = value / MutatorSettings.HandleWithCare.ValueMultiplier;
-                value = (int)newValue;
-                _haulGoalReset = true;
+                valuableObject.dollarValueCurrent *= MutatorSettings.HandleWithCare.ValueMultiplier;
+                valuableObject.dollarValueOriginal *= MutatorSettings.HandleWithCare.ValueMultiplier;
+
+                valuableObject.photonView.RPC("DollarValueSetRPC", RpcTarget.Others, valuableObject.dollarValueCurrent);
             }
-            
+            valuableObjects.Clear();
         }
 
         [HarmonyPrefix]
@@ -53,6 +78,11 @@ namespace Mutators.Mutators.Patches
             {
                 valueLost = __instance.valuableObject.dollarValueCurrent;
             }
+        }
+
+        private static void BeforeUnpatchAll()
+        {
+            SetupDone = false;
         }
     }
 }
