@@ -1,4 +1,7 @@
 ﻿using HarmonyLib;
+using Mutators.Extensions;
+using Mutators.Managers;
+using Mutators.Settings.Specific;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine.Events;
@@ -10,9 +13,27 @@ namespace Mutators.Mutators.Patches
     {
         private static ExplosionPreset explosionPreset = null!;
 
-        private static readonly float ExplosionSizeFallback = 1.2f;
-        private static readonly int ExplosionDamageFallback = 100;
-        private static readonly IDictionary<EnemyParent.Difficulty, (float size, int damage)> SizeDamage = InitDamageMap();
+        private static readonly float ExplosionSizeFallback = 3f;
+        private static readonly int ExplosionDamageFallback = 200;
+        private static readonly IDictionary<EnemyParent.Difficulty, (float size, int damage)> SizeDamage = new Dictionary<EnemyParent.Difficulty, (float, int)>();
+
+        static void AfterPatchAll()
+        {
+            float tier1Radius = MutatorManager.Instance.Metadata.Get<float>(OutWithABangMutatorSettings.Tier1Radius);
+            int tier1Damage = MutatorManager.Instance.Metadata.Get<int>(OutWithABangMutatorSettings.Tier1Damage);
+
+            SizeDamage.Add(EnemyParent.Difficulty.Difficulty1, (tier1Radius, tier1Damage));
+
+            float tier2Radius = MutatorManager.Instance.Metadata.Get<float>(OutWithABangMutatorSettings.Tier2Radius);
+            int tier2Damage = MutatorManager.Instance.Metadata.Get<int>(OutWithABangMutatorSettings.Tier2Damage);
+
+            SizeDamage.Add(EnemyParent.Difficulty.Difficulty2, (tier2Radius, tier2Damage));
+
+            float tier3Radius = MutatorManager.Instance.Metadata.Get<float>(OutWithABangMutatorSettings.Tier3Radius);
+            int tier3Damage = MutatorManager.Instance.Metadata.Get<int>(OutWithABangMutatorSettings.Tier3Damage);
+
+            SizeDamage.Add(EnemyParent.Difficulty.Difficulty3, (tier3Radius, tier3Damage));
+        }
 
         [HarmonyPostfix]
         [HarmonyPatch(nameof(EnemyHealth.Awake))]
@@ -47,13 +68,9 @@ namespace Mutators.Mutators.Patches
             particleScriptExplosion.Spawn(enemy.CenterTransform.position, size, damage, damage);
         }
 
-        private static IDictionary<EnemyParent.Difficulty, (float size, int damage)> InitDamageMap()
+        static void BeforeUnpatchAll()
         {
-            return new Dictionary<EnemyParent.Difficulty, (float size, int damage)>(){
-                { EnemyParent.Difficulty.Difficulty1, (0.6f, 25) },
-                { EnemyParent.Difficulty.Difficulty2, (0.9f, 50) },
-                { EnemyParent.Difficulty.Difficulty3, (ExplosionSizeFallback, ExplosionDamageFallback) }
-            };
+            SizeDamage.Clear();
         }
     }
 }

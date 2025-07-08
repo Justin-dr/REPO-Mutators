@@ -97,7 +97,7 @@ namespace Mutators.Patches
         private static void GetAndSendMutator()
         {
             IMutator mutator = MutatorManager.Instance.GetWeightedMutator();
-            MutatorsNetworkManager.Instance.SendActiveMutator(mutator.Name);
+            MutatorsNetworkManager.Instance.SendActiveMutator(mutator.Name, mutator.Settings.AsMetadata());
         }
 
         private static bool IsInShop()

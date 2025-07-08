@@ -80,7 +80,7 @@ namespace Mutators.Mutators.Patches
             };
             MutatorsNetworkManager.Instance.SendMetadata(metadata);
 
-            voiceOwnership.ForEach(kvp => RepoMutators.Logger.LogInfo($"Gave voice of {SemiFunc.PlayerAvatarGetFromSteamID(kvp.Value)?.playerName} to {SemiFunc.PlayerAvatarGetFromSteamID(kvp.Key)?.playerName}"));
+            voiceOwnership.ForEach(kvp => RepoMutators.Logger.LogDebug($"Gave voice of {SemiFunc.PlayerAvatarGetFromSteamID(kvp.Value)?.playerName} to {SemiFunc.PlayerAvatarGetFromSteamID(kvp.Key)?.playerName}"));
             foreach (KeyValuePair<string, int> playerVoice in newAssignments)
             {
                 ChangeVoices(playerVoice.Key, playerVoice.Value);

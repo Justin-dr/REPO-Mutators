@@ -1,4 +1,6 @@
-﻿namespace Mutators.Settings
+﻿using System.Collections.Generic;
+
+namespace Mutators.Settings
 {
     public abstract class AbstractMutatorSettings
     {
@@ -28,6 +30,11 @@
             }
 
             return levelsCompleted >= MinimumLevel && levelsCompleted <= MaximumLevel;
+        }
+
+        public virtual IDictionary<string, object>? AsMetadata()
+        {
+            return null;
         }
     }
 }

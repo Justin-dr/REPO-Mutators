@@ -80,10 +80,8 @@ namespace Mutators.Mutators.Patches
         [HarmonyPatch(nameof(LightManager.TurnOffLights))]
         static bool LightManagerTurnOffLightsPrefix()
         {
-            RepoMutators.Logger.LogInfo($"Turn off lights: {LightManager.instance.turnOffLights}");
             if (_keepLightsOn)
             {
-                RepoMutators.Logger.LogInfo($"All Extractions completed: {RoundDirector.instance.allExtractionPointsCompleted}");
                 return RoundDirector.instance.allExtractionPointsCompleted;
             }
             return true;

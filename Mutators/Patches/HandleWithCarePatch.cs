@@ -26,7 +26,6 @@ namespace Mutators.Mutators.Patches
                 {
                     return;
                 }
-                RepoMutators.Logger.LogInfo($"{__instance.name}: {__instance.photonView}");
                 valuableObjects.Add(__instance);
             }
         }

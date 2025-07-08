@@ -20,6 +20,8 @@
         public const string FiringMyLaserName = "Firing My Laser";
         public const string VoiceoverName = "Voiceover";
         public const string TheFloorIsLavaName = "The Floor Is Lava";
+        public const string LessIsMoreName = "Less Is More";
+        public const string FragmentationProtocolName = "Fragmentation Protocol";
 
         // Descriptions
         public const string NopMutatorDescription = "A normal run, no special effects";
@@ -39,6 +41,7 @@
         public const string FiringMyLaserDescription = "Fire your laser by pressing {specialActionKey}\nUncontrollably fire your laser when taking damage";
         public const string VoiceoverDescription = "Player voices are shuffled";
         public const string TheFloorIsLavaDescription = "You take damage while standing on the floor";
+        public const string LessIsMoreDescription = "Valuables are less valuable but increase in value when taking hits\nValuables still break as they normally would";
 
         internal static string[] All() => [
             NopMutatorName,
@@ -56,7 +59,9 @@
             ProtectTheWeakName,
             FiringMyLaserName,
             VoiceoverName,
-            TheFloorIsLavaName
+            TheFloorIsLavaName,
+            LessIsMoreName,
+            FragmentationProtocolName
         ];
     }
 }

@@ -16,7 +16,7 @@ namespace Mutators.Settings.Specific
             5,
             new ConfigDescription(
                 $"Maximum amount of extra monsters that can be spawned by the {name} Mutator per level.",
-                new AcceptableValueRange<int>(1, 10)
+                new AcceptableValueRange<int>(1, 15)
                 )
             );
 

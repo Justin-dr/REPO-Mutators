@@ -9,8 +9,6 @@ using Mutators.Patches;
 using Mutators.Settings;
 using Photon.Pun;
 using REPOLib;
-using System.Collections;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -91,7 +89,7 @@ public class RepoMutators : BaseUnityPlugin
             Logger.LogDebug($"Picked weighted mutator: {mutator.Name}");
 
             mutatorManager.CurrentMutator = mutator;
-            MutatorsNetworkManager.Instance!.SendActiveMutator(mutator.Name);
+            MutatorsNetworkManager.Instance!.SendActiveMutator(mutator.Name, mutator.Settings.AsMetadata());
 
             Logger.LogDebug($"Mutator set: {mutator.Name}");
         };
