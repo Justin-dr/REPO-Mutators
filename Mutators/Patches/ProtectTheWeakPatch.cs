@@ -1,9 +1,9 @@
 ﻿using HarmonyLib;
 using Mutators.Extensions;
-using Mutators.Managers;
 using Mutators.Mutators.Behaviours;
 using Mutators.Mutators.Behaviours.UI;
 using Mutators.Network;
+using Mutators.Settings;
 using Mutators.Utility;
 using Photon.Pun;
 using Photon.Realtime;
@@ -22,6 +22,27 @@ namespace Mutators.Mutators.Patches
         private static int initialHealth = 100;
         internal const string BodyGuardId = "BodyguardId";
         internal const string TranqViewId = "tranqViewId";
+
+        private static string? _bodyGuardId = null;
+        private static IDictionary<string, object>? _clients;
+
+        static void OnMetadataChanged(IDictionary<string, object> metadata)
+        {
+            string? newBodyguardId = metadata.Get<string>(BodyGuardId);
+            _clients = metadata.Get<IDictionary<string, object>>("clients");
+
+            if (newBodyguardId != _bodyGuardId)
+            {
+                _bodyGuardId = newBodyguardId;
+                BodyguardPlayerHealthBehaviour? bodyguardPlayerHealthBehaviour = PlayerAvatar.instance?.GetComponent<BodyguardPlayerHealthBehaviour>();
+                if (bodyguardPlayerHealthBehaviour != null && bodyguardPlayerHealthBehaviour)
+                {
+                    bodyguardPlayerHealthBehaviour.BodyguardId = _bodyGuardId;
+                }
+
+                AssignBodyguard(metadata);
+            }
+        }
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(PlayerAvatar))]
@@ -42,17 +63,6 @@ namespace Mutators.Mutators.Patches
             if (playerAvatar.steamID == PlayerAvatar.instance.steamID)
             {
                 playerAvatar.AddComponent<BodyguardPlayerHealthBehaviour>();
-            }
-        }
-
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(LevelGenerator))]
-        [HarmonyPatch(nameof(LevelGenerator.GenerateDone))]
-        static void LevelGeneratorGenerateDonePrefix()
-        {
-            if (SemiFunc.IsMultiplayer())
-            {
-                MutatorManager.Instance.OnMetadataChanged += OnMetadataChanged;
             }
         }
 
@@ -98,7 +108,7 @@ namespace Mutators.Mutators.Patches
                 bool canShoot = false;
                 foreach (PhysGrabber grabber in __instance.physGrabObject.playerGrabbing)
                 {
-                    canShoot = grabber.playerAvatar.steamID == MutatorManager.Instance.Metadata.Get<string>(BodyGuardId);
+                    canShoot = grabber.playerAvatar.steamID == _bodyGuardId;
                     if (canShoot)
                     {
                         break;
@@ -116,10 +126,8 @@ namespace Mutators.Mutators.Patches
         static void NetworkManagerOnPlayerLeftRoomPrefix(Player otherPlayer)
         {
             PlayerAvatar leavingPlayer = SemiFunc.PlayerGetFromName(otherPlayer.NickName);
-            if (leavingPlayer.steamID == MutatorManager.Instance.Metadata.Get<string>(BodyGuardId))
+            if (leavingPlayer.steamID == _bodyGuardId)
             {
-                MutatorManager.Instance.OnMetadataChanged += OnMetadataChanged;
-
                 StartupLogic(leavingPlayer.steamID);
             }
         }
@@ -177,9 +185,7 @@ namespace Mutators.Mutators.Patches
             {
                 foreach (PlayerAvatar player in SemiFunc.PlayerGetAll().Where(player => player.steamID != PlayerAvatar.instance.steamID))
                 {
-                    int? health = MutatorManager.Instance.Metadata.Get<IDictionary<string, object>>("clients")
-                        .Get<IDictionary<string, object>>(player.steamID)
-                        .Get<int>("originalHealth");
+                    int? health = _clients.Get<IDictionary<string, object>>(player.steamID).Get<int>("originalHealth");
 
                     if (health == null)
                     {
@@ -220,7 +226,7 @@ namespace Mutators.Mutators.Patches
         static void PlayerDeathRPCPostfix()
         {
             PlayerAvatar localPlayer = PlayerAvatar.instance;
-            if (MutatorManager.Instance.Metadata.Get<string>(BodyGuardId) == PlayerAvatar.instance.steamID && !localPlayer.deadSet)
+            if (_bodyGuardId == PlayerAvatar.instance.steamID && !localPlayer.deadSet)
             {
                 IList<PlayerAvatar> players = SemiFunc.PlayerGetAll();
                 if (players.Count <= 1) return;
@@ -266,17 +272,15 @@ namespace Mutators.Mutators.Patches
             MutatorsNetworkManager.Instance.SendMetadata(BuildMeta(bodyguard));
         }
 
-        private static void OnMetadataChanged(IDictionary<string, object> metadata)
+        private static void AssignBodyguard(IDictionary<string, object> metadata)
         {
-            string bodyguardId = metadata.Get<string>(BodyGuardId);
-
-            if (!string.IsNullOrEmpty(bodyguardId))
+            if (!string.IsNullOrEmpty(_bodyGuardId))
             {
                 PlayerAvatar playerAvatar = PlayerAvatar.instance;
                 if (initDone)
                 {
                     MutatorDescriptionAnnouncingBehaviour mutatorDescriptionAnnouncingBehaviour = MutatorDescriptionAnnouncingBehaviour.Instance;
-                    if (bodyguardId == playerAvatar.steamID)
+                    if (_bodyGuardId == playerAvatar.steamID)
                     {
                         mutatorDescriptionAnnouncingBehaviour.Text.text = metadata.Get<string>("descriptionBodyguard");
                         playerAvatar.GetComponent<BodyguardPlayerHealthBehaviour>()?.UpdateHealth();
@@ -292,7 +296,7 @@ namespace Mutators.Mutators.Patches
                 else
                 {
                     initDone = true;
-                    if (bodyguardId == playerAvatar.steamID)
+                    if (_bodyGuardId == playerAvatar.steamID)
                     {
                         MutatorsNetworkManager.Instance.Run(LateUpdateDescription(metadata.Get<string>("descriptionBodyguard")));
                         MutatorsNetworkManager.Instance.Run(EquipDelayed(metadata));
@@ -302,10 +306,7 @@ namespace Mutators.Mutators.Patches
                         MutatorsNetworkManager.Instance.Run(LateUpdateDescription(metadata.Get<string>("description")));
                     }
                 }
-
-
             }
-            MutatorManager.Instance.OnMetadataChanged -= OnMetadataChanged;
         }
 
         private static IEnumerator EquipDelayed(IDictionary<string, object> metadata, float delay = 3f)
@@ -365,13 +366,16 @@ namespace Mutators.Mutators.Patches
                 meta.Add(TranqViewId, tranqGunId);
             }
 
-            return meta;
+            return meta.WithMutator(MutatorSettings.ProtectTheWeak.MutatorName);
         }
 
         private static void BeforeUnpatchAll()
         {
             initialHealth = 100;
             initDone = false;
+
+            _bodyGuardId = null;
+            _clients?.Clear();
         }
     }
 }

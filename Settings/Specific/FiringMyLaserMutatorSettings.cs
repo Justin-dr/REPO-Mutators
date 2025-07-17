@@ -1,4 +1,6 @@
 ﻿using BepInEx.Configuration;
+using Mutators.Extensions;
+using System.Collections.Generic;
 
 namespace Mutators.Settings.Specific
 {
@@ -37,6 +39,16 @@ namespace Mutators.Settings.Specific
                 $"The amount of damage the laser special action deals to enemies per tick.",
                 new AcceptableValueRange<int>(10, 200))
             );
+        }
+
+        public override IDictionary<string, object>? AsMetadata()
+        {
+            IDictionary<string, object> metadata = new Dictionary<string, object>
+            {
+                { "laserActionEnabled", LaserActionEnabled }
+            };
+
+            return metadata.WithMutator(MutatorName);
         }
     }
 }

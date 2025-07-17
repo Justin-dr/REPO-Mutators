@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Mutators.Mutators;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -62,6 +63,16 @@ namespace Mutators.Extensions
             }
 
             return result;
+        }
+
+        public static IDictionary<string, object> WithMutator(this IDictionary<string, object> dictionary, string mutatorName)
+        {
+            return new Dictionary<string, object>() { { mutatorName, dictionary } };
+        }
+
+        public static IDictionary<string, object> WithMutator(this IDictionary<string, object> dictionary, IMutator mutator)
+        {
+            return new Dictionary<string, object>() { { mutator.Name, dictionary } };
         }
     }
 }

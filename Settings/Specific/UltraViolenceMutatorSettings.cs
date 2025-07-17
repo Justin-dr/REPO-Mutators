@@ -1,6 +1,8 @@
 ﻿using BepInEx.Configuration;
+using Mutators.Extensions;
 using Photon.Pun;
 using Photon.Realtime;
+using System.Collections.Generic;
 
 namespace Mutators.Settings.Specific
 {
@@ -37,6 +39,16 @@ namespace Mutators.Settings.Specific
                 return room != null && room.PlayerCount >= MinimumPlayerCount;
             }
             return false;
+        }
+
+        public override IDictionary<string, object>? AsMetadata()
+        {
+            IDictionary<string, object> metadata = new Dictionary<string, object>()
+            {
+                { "keepLightsOn", KeepOnLight }
+            };
+
+            return metadata.WithMutator(MutatorName);
         }
     }
 }

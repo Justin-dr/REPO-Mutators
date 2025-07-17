@@ -1,6 +1,5 @@
 ﻿using HarmonyLib;
 using Mutators.Extensions;
-using Mutators.Managers;
 using Mutators.Mutators.Behaviours;
 using Mutators.Mutators.Behaviours.Custom;
 using Mutators.Network;
@@ -16,9 +15,12 @@ namespace Mutators.Mutators.Patches
         private const string LaserActionEnabled = "laserActionEnabled";
         private static bool LaserBlocked = false;
 
-        static void AfterPatchAll()
+        static void OnMetadataChanged(IDictionary<string, object> metadata)
         {
-            MutatorManager.Instance.OnMetadataChanged += OnMetadataChanged;
+            if (!metadata.Get<bool>(LaserActionEnabled))
+            {
+                MutatorsNetworkManager.Instance.Run(DescriptionUtils.LateUpdateDescription(Mutators.FiringMyLaserDescription.Split("\n")[1]));
+            }
         }
 
         [HarmonyPostfix]
@@ -129,19 +131,9 @@ namespace Mutators.Mutators.Patches
             }
         }
 
-        private static void OnMetadataChanged(IDictionary<string, object> metadata)
-        {
-            if (!metadata.Get<bool>(LaserActionEnabled))
-            {
-                MutatorsNetworkManager.Instance.Run(DescriptionUtils.LateUpdateDescription(Mutators.FiringMyLaserDescription.Split("\n")[1]));
-            }
-            MutatorManager.Instance.OnMetadataChanged -= OnMetadataChanged;
-        }
-
         private static void BeforeUnpatchAll()
         {
             LaserBlocked = false;
-            MutatorManager.Instance.OnMetadataChanged -= OnMetadataChanged;
         }
     }
 }

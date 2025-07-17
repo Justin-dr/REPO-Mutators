@@ -17,22 +17,22 @@ namespace Mutators.Mutators.Patches
         private static readonly int ExplosionDamageFallback = 200;
         private static readonly IDictionary<EnemyParent.Difficulty, (float size, int damage)> SizeDamage = new Dictionary<EnemyParent.Difficulty, (float, int)>();
 
-        static void AfterPatchAll()
+        static void OnMetadataChanged(IDictionary<string, object> metadata)
         {
-            float tier1Radius = MutatorManager.Instance.Metadata.Get<float>(OutWithABangMutatorSettings.Tier1Radius);
-            int tier1Damage = MutatorManager.Instance.Metadata.Get<int>(OutWithABangMutatorSettings.Tier1Damage);
+            float tier1Radius = metadata.Get<float>(OutWithABangMutatorSettings.Tier1Radius);
+            int tier1Damage = metadata.Get<int>(OutWithABangMutatorSettings.Tier1Damage);
 
-            SizeDamage.Add(EnemyParent.Difficulty.Difficulty1, (tier1Radius, tier1Damage));
+            SizeDamage[EnemyParent.Difficulty.Difficulty1] = (tier1Radius, tier1Damage);
 
-            float tier2Radius = MutatorManager.Instance.Metadata.Get<float>(OutWithABangMutatorSettings.Tier2Radius);
-            int tier2Damage = MutatorManager.Instance.Metadata.Get<int>(OutWithABangMutatorSettings.Tier2Damage);
+            float tier2Radius = metadata.Get<float>(OutWithABangMutatorSettings.Tier2Radius);
+            int tier2Damage = metadata.Get<int>(OutWithABangMutatorSettings.Tier2Damage);
 
-            SizeDamage.Add(EnemyParent.Difficulty.Difficulty2, (tier2Radius, tier2Damage));
+            SizeDamage[EnemyParent.Difficulty.Difficulty2] = (tier2Radius, tier2Damage);
 
-            float tier3Radius = MutatorManager.Instance.Metadata.Get<float>(OutWithABangMutatorSettings.Tier3Radius);
-            int tier3Damage = MutatorManager.Instance.Metadata.Get<int>(OutWithABangMutatorSettings.Tier3Damage);
+            float tier3Radius = metadata.Get<float>(OutWithABangMutatorSettings.Tier3Radius);
+            int tier3Damage = metadata.Get<int>(OutWithABangMutatorSettings.Tier3Damage);
 
-            SizeDamage.Add(EnemyParent.Difficulty.Difficulty3, (tier3Radius, tier3Damage));
+            SizeDamage[EnemyParent.Difficulty.Difficulty3] = (tier3Radius, tier3Damage);
         }
 
         [HarmonyPostfix]

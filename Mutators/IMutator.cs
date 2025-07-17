@@ -10,6 +10,8 @@ namespace Mutators.Mutators
 
         void Unpatch();
 
+        void ConsumeMetadata(IDictionary<string, object> metadata);
+
         string Name { get; }
 
         string Description { get; }

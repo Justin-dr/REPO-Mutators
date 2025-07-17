@@ -88,9 +88,13 @@ namespace Mutators.Patches
                 RepoMutators.Logger.LogDebug($"Applying patch now for mutator: {mutatorManager.CurrentMutator.Name}");
                 mutatorManager.CurrentMutator.Patch();
             }
-            else if (SemiFunc.RunIsArena())
+            else
             {
-                mutatorManager.SetActiveMutator(Mutators.Mutators.NopMutatorName);
+                mutatorManager.GameState = Enums.MutatorsGameState.None;
+                if (SemiFunc.RunIsArena())
+                {
+                    mutatorManager.SetActiveMutator(Mutators.Mutators.NopMutatorName);
+                }
             }
         }
 

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Mutators.Mutators
 {
-    public class NopMutator : IMutator
+    public sealed class NopMutator : IMutator
     {
         private static readonly IReadOnlyList<Type> _patches = [];
         private static readonly IReadOnlyList<Func<bool>> _conditions = [];
@@ -36,6 +36,11 @@ namespace Mutators.Mutators
         public void Unpatch()
         {
             Active = false;
+        }
+
+        public void ConsumeMetadata(IDictionary<string, object> metadata)
+        {
+
         }
     }
 }

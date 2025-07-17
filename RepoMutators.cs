@@ -94,6 +94,8 @@ public class RepoMutators : BaseUnityPlugin
             Logger.LogDebug($"Mutator set: {mutator.Name}");
         };
 
+        MutatorManager.Instance.GameStateChanged += (gameState) => Logger.LogDebug($"Changed Mutators gamestate to {gameState}");
+
         Patch();
 
         Logger.LogInfo($"{Info.Metadata.GUID} v{Info.Metadata.Version} has loaded!");
@@ -114,6 +116,7 @@ public class RepoMutators : BaseUnityPlugin
         Harmony.PatchAll(typeof(SemiFuncPatch));
         Harmony.PatchAll(typeof(MenuPagePatch));
         Harmony.PatchAll(typeof(SpectateCameraPatch));
+        Harmony.PatchAll(typeof(LevelGeneratorPatch));
 
         if (!hasSpawnManager)
         {

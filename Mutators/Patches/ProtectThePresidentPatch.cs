@@ -1,8 +1,8 @@
 ﻿using HarmonyLib;
 using Mutators.Extensions;
-using Mutators.Managers;
 using Mutators.Mutators.Behaviours.UI;
 using Mutators.Network;
+using Mutators.Settings;
 using Photon.Realtime;
 using System.Collections.Generic;
 using UnityEngine;
@@ -14,6 +14,19 @@ namespace Mutators.Mutators.Patches
         private const string PresidentId = "presidentId";
         private static bool _presidentAlive = true;
         private static bool _failureMessageSent = false;
+
+        private static string? _presidentId;
+
+        static void OnMetadataChanged(IDictionary<string, object> metadata)
+        {
+            string? newPresidentId = metadata.Get<string>(PresidentId);
+
+            if (_presidentId != newPresidentId)
+            {
+                _presidentId = newPresidentId;
+                UpdatePresidentHealth(_presidentId);
+            }
+        }
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(LevelGenerator))]
@@ -27,7 +40,7 @@ namespace Mutators.Mutators.Patches
                 PlayerAvatar president = PickPresidentPlayer();
                 RepoMutators.Logger.LogDebug($"Picked {president.playerName} as the president!");
 
-                MutatorsNetworkManager.Instance.SendMetadata(new Dictionary<string, object>() { { PresidentId, president.steamID } });
+                SendPresidentMeta(president);
             }
         }
 
@@ -37,14 +50,12 @@ namespace Mutators.Mutators.Patches
         static void NetworkManagerOnPlayerLeftRoomPrefix(Player otherPlayer)
         {
             PlayerAvatar leavingPlayer = SemiFunc.PlayerGetFromName(otherPlayer.NickName);
-            if (leavingPlayer.steamID == MutatorManager.Instance.Metadata.Get<string>(PresidentId))
+            if (leavingPlayer.steamID == _presidentId)
             {
-                MutatorManager.Instance.OnMetadataChanged += OnMetadataChanged;
-
                 if (SemiFunc.IsMultiplayer() && SemiFunc.IsMasterClient())
                 {
                     PlayerAvatar president = PickPresidentPlayer();
-                    MutatorsNetworkManager.Instance.SendMetadata(new Dictionary<string, object>() { { PresidentId, president.steamID } });
+                    SendPresidentMeta(president);
                 }
             }
         }
@@ -54,13 +65,11 @@ namespace Mutators.Mutators.Patches
         [HarmonyPatch(nameof(PlayerAvatar.PlayerDeathRPC))]
         static void PlayerAvatarPlayerDeathRPCPostfix(PlayerAvatar __instance, int enemyIndex)
         {
-            string presidentId = MutatorManager.Instance.Metadata.Get<string>(PresidentId);
-
             // If we are the president, do nothing. Else, die.
-            if (__instance.steamID == presidentId && __instance.steamID != PlayerAvatar.instance.steamID)
+            if (__instance.steamID == _presidentId && __instance.steamID != PlayerAvatar.instance.steamID)
             {
                 _presidentAlive = false;
-                PlayerAvatar? presidentAvatar = SemiFunc.PlayerGetFromSteamID(presidentId);
+                PlayerAvatar? presidentAvatar = SemiFunc.PlayerGetFromSteamID(_presidentId);
                 SemiFunc.UIFocusText($"President {(presidentAvatar?.playerName != null ? $"{presidentAvatar.playerName} " : "")} has died.", Color.white, AssetManager.instance.colorYellow);
                 ChatManager.instance.PossessSelfDestruction();
             }
@@ -73,7 +82,7 @@ namespace Mutators.Mutators.Patches
         {
             if (!_presidentAlive && !_failureMessageSent && _possessChatID == ChatManager.PossessChatID.SelfDestruct)
             {
-                PlayerAvatar playerAvatar = SemiFunc.PlayerGetFromSteamID(MutatorManager.Instance.Metadata.Get<string>(PresidentId));
+                PlayerAvatar playerAvatar = SemiFunc.PlayerGetFromSteamID(_presidentId);
                 message = $"We have failed {playerAvatar?.playerName ?? " the president"}";
                 _failureMessageSent = true;
             }
@@ -85,10 +94,9 @@ namespace Mutators.Mutators.Patches
         [HarmonyPatch(nameof(PlayerHealth.UpdateHealthRPC))]
         static void PlayerHealthUpdateHealthRPCPostfix(PlayerHealth __instance)
         {
-            string presidentId = MutatorManager.Instance.Metadata.Get<string>(PresidentId);
-            if (__instance.playerAvatar.steamID != presidentId || presidentId == PlayerAvatar.instance.steamID) return;
+            if (__instance.playerAvatar.steamID != _presidentId || _presidentId == PlayerAvatar.instance.steamID) return;
 
-            UpdatePresidentHealth(presidentId);
+            UpdatePresidentHealth(_presidentId);
         }
 
         [HarmonyPrefix]
@@ -105,11 +113,10 @@ namespace Mutators.Mutators.Patches
                 }
                 return;
             };
-            string presidentId = MutatorManager.Instance.Metadata.Get<string>(PresidentId);
 
-            if (presidentId != PlayerAvatar.instance.steamID)
+            if (_presidentId != null && _presidentId != PlayerAvatar.instance.steamID)
             {
-                MutatorsNetworkManager.Instance.Run(InitializePresidentHealthEnumerator(presidentId));
+                MutatorsNetworkManager.Instance.Run(InitializePresidentHealthEnumerator(_presidentId));
             }
         }
 
@@ -119,7 +126,14 @@ namespace Mutators.Mutators.Patches
             if (!targetPlayerAnnouncingBehaviour) return;
 
             RepoMutators.Logger.LogDebug("Updating President Health");
-            targetPlayerAnnouncingBehaviour.Text.text = BuildPresidentText(presidentId);
+            if (presidentId == PlayerAvatar.instance.steamID)
+            {
+                targetPlayerAnnouncingBehaviour.Text.text = string.Empty;
+            }
+            else
+            {
+                targetPlayerAnnouncingBehaviour.Text.text = BuildPresidentText(presidentId);
+            }
         }
 
         internal static string BuildPresidentText(string presidentId)
@@ -143,12 +157,16 @@ namespace Mutators.Mutators.Patches
             return playerAvatars[Random.RandomRangeInt(0, playerAvatars.Count)];
         }
 
-        private static void OnMetadataChanged(IDictionary<string, object> metadata)
+        private static void SendPresidentMeta(PlayerAvatar president)
         {
-            RepoMutators.Logger.LogDebug("President metadata has changed");
-            UpdatePresidentHealth(metadata.Get<string>(PresidentId));
+            MutatorsNetworkManager.Instance.SendMetadata(
+                new Dictionary<string, object>() { { PresidentId, president.steamID } }.WithMutator(MutatorSettings.ProtectThePresident.MutatorName)
+            );
+        }
 
-            MutatorManager.Instance.OnMetadataChanged -= OnMetadataChanged;
+        private static void AfterUnpatchAll()
+        {
+            _presidentId = null;
         }
     }
 }

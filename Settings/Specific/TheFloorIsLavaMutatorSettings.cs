@@ -1,5 +1,8 @@
 ﻿using BepInEx.Configuration;
+using Mutators.Extensions;
+using Mutators.Mutators.Patches;
 using System;
+using System.Collections.Generic;
 
 namespace Mutators.Settings.Specific
 {
@@ -53,6 +56,17 @@ namespace Mutators.Settings.Specific
 
             DamagePerTick = Math.Clamp(_damagePerTick.Value, 1, int.MaxValue);
             ImmunePlayerCount = Math.Clamp(_immunePlayerCount.Value, 0, int.MaxValue);
+        }
+
+        public override IDictionary<string, object>? AsMetadata()
+        {
+            IDictionary<string, object> metadata = new Dictionary<string, object>
+            {
+                { TheFloorIsLavaPatch.Damage, DamagePerTick },
+                { TheFloorIsLavaPatch.UsePercentageDamage, UsePercentageDamage },
+            };
+
+            return metadata.WithMutator(MutatorName);
         }
     }
 }

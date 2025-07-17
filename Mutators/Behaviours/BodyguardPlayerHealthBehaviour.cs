@@ -5,6 +5,7 @@ using Mutators.Network;
 using Photon.Pun;
 using System;
 using System.Collections;
+using System.Text;
 using UnityEngine;
 
 namespace Mutators.Mutators.Behaviours
@@ -17,6 +18,8 @@ namespace Mutators.Mutators.Behaviours
         internal int originalHealth = 100;
         internal int originalMaxHealth = 100;
         private bool initDone = false;
+
+        internal string? BodyguardId { get; set; } = null;
 
         void Awake()
         {
@@ -38,7 +41,7 @@ namespace Mutators.Mutators.Behaviours
 
             SendHealth();
 
-            while (GetBodyguardId() == null)
+            while (BodyguardId == null)
             {
                 yield return new WaitForSeconds(0.1f);
             }
@@ -48,7 +51,7 @@ namespace Mutators.Mutators.Behaviours
 
         internal void UpdateHealth()
         {
-            bool isBodyguard = GetBodyguardId() == playerAvatar.steamID;
+            bool isBodyguard = BodyguardId == playerAvatar.steamID;
             if (isBodyguard)
             {
                 if (!initDone)
@@ -100,11 +103,6 @@ namespace Mutators.Mutators.Behaviours
             };
 
             MutatorsNetworkManager.Instance.SendMetaToHost(playerAvatar.steamID, clientMeta);
-        }
-
-        private string GetBodyguardId()
-        {
-            return MutatorManager.Instance.Metadata.Get<string>(ProtectTheWeakPatch.BodyGuardId);
         }
 
         private static float CalculateBodyguardHealthMultiplier(int health)

@@ -1,6 +1,7 @@
 ﻿using Mutators.Extensions;
 using Mutators.Managers;
 using Mutators.Network.Meta;
+using Mutators.Settings;
 using Photon.Pun;
 using Photon.Realtime;
 using System;
@@ -109,19 +110,15 @@ namespace Mutators.Network
         [PunRPC]
         public void SetActiveMutator(string name, ExitGames.Client.Photon.Hashtable? hashtable)
         {
+            MutatorManager mutatorManager = MutatorManager.Instance;
             bool runIsLevel = SemiFunc.RunIsLevel();
 
             RepoMutators.Logger.LogDebug($"Set mutator to {name}, applying patch {(runIsLevel ? "now" : "later")}");
-            MutatorManager.Instance.SetActiveMutator(name, runIsLevel);
+            mutatorManager.SetActiveMutator(name, runIsLevel);
 
             IDictionary<string, object> metadata = hashtable == null ? new Dictionary<string, object>() : hashtable.FromPhotonHashtable();
 
-            MutatorManager mutatorManager = MutatorManager.Instance;
-
-            mutatorManager.metadata = metadata;
-
-            if (!SemiFunc.IsMultiplayer() && metadata.Count == 0) return;
-            mutatorManager.OnMetadataChanged?.Invoke(metadata);
+            mutatorManager.CurrentMutator.ConsumeMetadata(metadata);
         }
 
         [PunRPC]
@@ -130,12 +127,16 @@ namespace Mutators.Network
             MutatorManager mutatorManager = MutatorManager.Instance;
             IDictionary<string, object> metadata = hashtable.FromPhotonHashtable();
 
-            RepoMutators.Logger.LogDebug($"[RPC] Received metadata: {string.Join(", ", metadata.Select(kvp => $"{kvp.Key}: {kvp.Value}"))}");
+            if (metadata.TryGetValue(MutatorSettings.TheFloorIsLava.MutatorName, out object value) && value is IDictionary<string, object> lavameta)
+            {
+                RepoMutators.Logger.LogDebug($"[RPC] Received metadata: {string.Join(", ", lavameta.Select(kvp => $"{kvp.Key}: {kvp.Value}"))}");
+            }
+            else
+            {
+                RepoMutators.Logger.LogDebug($"[RPC] Received metadata: {string.Join(", ", metadata.Select(kvp => $"{kvp.Key}: {kvp.Value}"))}");
+            }
 
-            metadata = mutatorManager.metadata.DeepMergedWith(metadata);
-
-            mutatorManager.metadata = metadata;
-            mutatorManager.OnMetadataChanged?.Invoke(metadata);
+            mutatorManager.CurrentMutator.ConsumeMetadata(metadata);
         }
 
         [PunRPC]
@@ -160,10 +161,7 @@ namespace Mutators.Network
                 { "clients", sender }
             };
 
-            IDictionary<string, object> metadata = mutatorManager.metadata.DeepMergedWith(clientMeta);
-
-            mutatorManager.metadata = metadata;
-            mutatorManager.OnMetadataChanged?.Invoke(metadata);
+            mutatorManager.CurrentMutator.ConsumeMetadata(clientMeta);
         }
 
         [PunRPC]

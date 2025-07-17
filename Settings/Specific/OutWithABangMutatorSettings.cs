@@ -1,4 +1,5 @@
 ﻿using BepInEx.Configuration;
+using Mutators.Extensions;
 using System.Collections.Generic;
 
 namespace Mutators.Settings.Specific
@@ -83,7 +84,7 @@ namespace Mutators.Settings.Specific
                 { Tier3Damage, Tier3ExplosionDamage }
             };
 
-            return metadata;
+            return metadata.WithMutator(MutatorName);
         }
     }
 }

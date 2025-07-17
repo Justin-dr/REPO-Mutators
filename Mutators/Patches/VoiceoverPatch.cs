@@ -1,6 +1,5 @@
 ﻿using HarmonyLib;
 using Mutators.Extensions;
-using Mutators.Managers;
 using Mutators.Network;
 using Photon.Pun;
 using Photon.Realtime;
@@ -17,9 +16,21 @@ namespace Mutators.Mutators.Patches
         private static IDictionary<string, int> originalVoiceChats = new Dictionary<string, int>();
         private static IDictionary<string, string> voiceOwnership = new Dictionary<string, string>();
 
-        static void AfterPatchAll()
+        private static void OnMetadataChanged(IDictionary<string, object> metadata)
         {
-            MutatorManager.Instance.OnMetadataChanged += OnMetadataChanged;
+            IDictionary<string, int> originals = metadata.Get<IDictionary<string, int>>("originalVoices");
+            IDictionary<string, string> ownership = metadata.Get<IDictionary<string, string>>("voiceOwnership");
+            if (originalVoiceChats.Count == 0 && originals?.Count > 0 && ownership.Count > 0)
+            {
+                originalVoiceChats = originals;
+                voiceOwnership = ownership;
+
+                IDictionary<string, int> voices = metadata.Get<IDictionary<string, int>>("voices");
+                foreach (KeyValuePair<string, int> playerVoice in voices)
+                {
+                    ChangeVoices(playerVoice.Key, playerVoice.Value);
+                }
+            }
         }
 
         [HarmonyPostfix]
@@ -132,20 +143,6 @@ namespace Mutators.Mutators.Patches
             return whoHasWhoseVoice;
         }
 
-        private static void OnMetadataChanged(IDictionary<string, object> metadata)
-        {
-            originalVoiceChats = metadata.Get<IDictionary<string, int>>("originalVoices");
-            voiceOwnership = metadata.Get<IDictionary<string, string>>("voiceOwnership");
-
-            IDictionary<string, int> voices = metadata.Get<IDictionary<string, int>>("voices");
-            foreach (KeyValuePair<string, int> playerVoice in voices)
-            {
-                ChangeVoices(playerVoice.Key, playerVoice.Value);
-            }
-
-            MutatorManager.Instance.OnMetadataChanged -= OnMetadataChanged;
-        }
-
         private static void ChangeVoices(string steamId, int photonViewID)
         {
             PlayerAvatar playerAvatar = SemiFunc.PlayerAvatarGetFromSteamID(steamId);
@@ -165,7 +162,6 @@ namespace Mutators.Mutators.Patches
         {
             originalVoiceChats.Clear();
             voiceOwnership.Clear();
-            MutatorManager.Instance.OnMetadataChanged -= OnMetadataChanged;
         }
     }
 }

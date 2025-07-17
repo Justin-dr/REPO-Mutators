@@ -18,15 +18,9 @@ namespace Mutators.Mutators.Patches
 
         private static bool _keepLightsOn = MutatorSettings.UltraViolence.KeepOnLight;
 
-        static void AfterPatchAll()
+        private static void OnMetadataChanged(IDictionary<string, object> metadata)
         {
-            MutatorManager.Instance.OnMetadataChanged += OnMetadataChanged;
-        }
-
-        private static void OnMetadataChanged(IDictionary<string, object> dictionary)
-        {
-            _keepLightsOn = dictionary.Get<bool>("keepLightsOn");
-            MutatorManager.Instance.OnMetadataChanged -= OnMetadataChanged;
+            _keepLightsOn = metadata.Get<bool>("keepLightsOn");
         }
 
         [HarmonyPostfix]
@@ -140,7 +134,6 @@ namespace Mutators.Mutators.Patches
         private static void BeforeUnpatchAll()
         {
             _keepLightsOn = MutatorSettings.UltraViolence.KeepOnLight;
-            MutatorManager.Instance.OnMetadataChanged -= OnMetadataChanged;
         }
     }
 }

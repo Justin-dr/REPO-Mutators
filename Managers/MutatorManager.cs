@@ -1,4 +1,5 @@
-﻿using Mutators.Mutators;
+﻿using Mutators.Enums;
+using Mutators.Mutators;
 using Mutators.Mutators.Patches;
 using Mutators.Settings;
 using Sirenix.Utilities;
@@ -17,19 +18,30 @@ namespace Mutators.Managers
 
         private readonly IDictionary<string, IMutator> _mutators  = new Dictionary<string, IMutator>();
 
-        internal IDictionary<string, object> metadata = new Dictionary<string, object>();
-
         public IReadOnlyDictionary<string, IMutator> RegisteredMutators => new ReadOnlyDictionary<string, IMutator>(_mutators);
+
+        public IMutator CurrentMutator { get; internal set; } = _nopMutator;
+
+        public Action<MutatorsGameState> GameStateChanged { get; set; } = default!;
+
+        public MutatorsGameState GameState
+        {
+            get => _gameState;
+            internal set
+            {
+                if (_gameState == value) return;
+
+                _gameState = value;
+                GameStateChanged?.Invoke(value);
+            }
+        }
+
+        private MutatorsGameState _gameState;
 
         private IMutator? _previousMutator = null;
         private int _repeatCount = 0;
-        public IMutator CurrentMutator { get; internal set; } = _nopMutator;
-
-        public IReadOnlyDictionary<string, object> Metadata => new ReadOnlyDictionary<string, object>(metadata);
 
         private bool _initialized = false;
-
-        public Action<IDictionary<string, object>> OnMetadataChanged { get; set; } = null!;
 
         internal void InitializeDefaultMutators()
         {
@@ -92,8 +104,6 @@ namespace Mutators.Managers
             RegisteredMutators.Values
                 .Where(mutator => mutator.Active)
                 .ForEach(mutator => mutator.Unpatch());
-
-            metadata.Clear();
 
             if (_mutators.TryGetValue(name, out IMutator mutator))
             {
