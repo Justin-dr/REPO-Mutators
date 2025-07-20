@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Mutators.Enums
+﻿namespace Mutators.Enums
 {
     public enum MutatorsGameState
     {
         None = 0,
-        LevelGenerated = 10
+        Shop = 5,
+        LevelGenerated = 30
     }
 }

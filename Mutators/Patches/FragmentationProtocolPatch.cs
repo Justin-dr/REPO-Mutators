@@ -9,62 +9,110 @@ namespace Mutators.Mutators.Patches
 {
     internal class FragmentationProtocolPatch
     {
-        private static HashSet<EnemyParent> fragments = new HashSet<EnemyParent>();
+        private static readonly IDictionary<EnemyParent, EnemyParent> fragmentsParentMap = new Dictionary<EnemyParent, EnemyParent>();
 
         [HarmonyPostfix]
-        [HarmonyPatch(typeof(EnemyHealth))]
-        [HarmonyPatch(nameof(EnemyHealth.Awake))]
-        static void EnemyHealthAwakePostfix(EnemyHealth __instance)
+        [HarmonyPatch(typeof(Enemy))]
+        [HarmonyPatch(nameof(Enemy.Start))]
+        static void EnemyHealthAwakePostfix(Enemy __instance)
         {
             if (!SemiFunc.IsMasterClientOrSingleplayer()) return;
 
             RepoMutators.Logger.LogInfo($"Checking fragment");
 
-            if (IsFragment(__instance.enemy.EnemyParent)) return;
+            if (!__instance.HasHealth || IsFragment(__instance.EnemyParent)) return;
 
             RepoMutators.Logger.LogInfo($"Enemy was not a fragment");
 
-            if (REPOLib.Modules.Enemies.TryGetEnemyByName(__instance.enemy.EnemyParent.enemyName, out EnemySetup? enemySetup))
+            if (REPOLib.Modules.Enemies.TryGetEnemyByName(__instance.EnemyParent.enemyName, out EnemySetup? enemySetup))
             {
-                List<EnemyParent>? enemyParents = REPOLib.Modules.Enemies.SpawnEnemy(enemySetup, __instance.enemy.EnemyParent.transform.position, UnityEngine.Quaternion.identity);
+                FragmentationProtocolBehaviour fragmentationProtocolBehaviour = __instance.EnemyParent.GetOrAddComponent<FragmentationProtocolBehaviour>();
 
-                if (enemyParents == null || enemyParents.Count == 0) return;
-
-                FragmentationProtocolBehaviour fragmentationProtocolBehaviour = __instance.enemy.EnemyParent.AddComponent<FragmentationProtocolBehaviour>();
-
-                foreach (EnemyParent enemyParent in enemyParents)
-                {
-                    RepoMutators.Logger.LogInfo($"Adding fragment: {enemyParent.transform.name}");
-                    enemyParent.DespawnedTimer = float.MaxValue;
-                    fragmentationProtocolBehaviour.AddFragmentation(enemyParent);
-                    fragments.Add(enemyParent);
-                    MutatorsNetworkManager.Instance.SendScaleChange(enemyParent.photonView.ViewID, 0.6f);
-
-                    RepoMutators.Logger.LogInfo($"Added fragment: {enemyParent.transform.name}");
-                }
-
-                __instance.onDeath.AddListener(new UnityAction(() => MakeBabies(__instance.enemy.EnemyParent)));
+                __instance.Health.onDeath.AddListener(new UnityAction(() => MakeBabies(__instance.EnemyParent, enemySetup, fragmentationProtocolBehaviour)));
             }
         }
 
-        private static void MakeBabies(EnemyParent enemyParent)
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(EnemyParent))]
+        [HarmonyPatch(nameof(EnemyParent.Despawn))]
+        static void EnemyHealthAwakePostfix(EnemyParent __instance)
         {
-            if (IsFragment(enemyParent)) return;
-
-            FragmentationProtocolBehaviour fragmentationProtocolBehaviour = enemyParent.GetComponent<FragmentationProtocolBehaviour>();
-            if (fragmentationProtocolBehaviour)
+            if (SemiFunc.IsMasterClientOrSingleplayer() && fragmentsParentMap.ContainsKey(__instance))
             {
-                foreach (EnemyParent fragmentation in fragmentationProtocolBehaviour.GetFragmentations())
+                RepoMutators.Logger.LogInfo("Despawned " + __instance.enemyName);
+                __instance.DespawnedTimer = float.MaxValue;
+            }
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(EnemyParent))]
+        [HarmonyPatch(nameof(EnemyParent.SpawnedTimerPause))]
+        static void EnemyHealthAwakePostfix(EnemyParent __instance, ref float _time)
+        {
+            if (SemiFunc.IsMasterClientOrSingleplayer() && fragmentsParentMap.ContainsKey(__instance))
+            {
+                _time = 0f;
+            }
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(EnemyParent))]
+        [HarmonyPatch(nameof(EnemyParent.Spawn))]
+        static bool EnemyParentSpawnPrefix(EnemyParent __instance)
+        {
+            if (fragmentsParentMap.TryGetValue(__instance, out EnemyParent actualParent) && actualParent.Enemy.HasHealth)
+            {
+                FragmentationProtocolBehaviour fragmentationProtocolBehaviour = actualParent.GetComponent<FragmentationProtocolBehaviour>();
+                RepoMutators.Logger.LogInfo($"In Fragment Window: {fragmentationProtocolBehaviour.IsInFragmentWindow} - {fragmentationProtocolBehaviour.FragmentWindow}");
+                if (fragmentationProtocolBehaviour && !fragmentationProtocolBehaviour.IsInFragmentWindow)
                 {
-                    fragmentation.DespawnedTimer = 0;
-                    enemyParent.Enemy.EnemyTeleported(enemyParent.transform.position);
+                    __instance.DespawnedTimer = RoundDirector.instance.allExtractionPointsCompleted ? 30f : float.MaxValue;
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        private static void MakeBabies(EnemyParent enemyParent, EnemySetup enemySetup, FragmentationProtocolBehaviour fragmentationProtocolBehaviour)
+        {
+            fragmentationProtocolBehaviour.FragmentWindow = 0.5f;
+            if (fragmentationProtocolBehaviour.GetFragmentations().Count == 0)
+            {
+                List<EnemyParent>? enemyParents = REPOLib.Modules.Enemies.SpawnEnemy(enemySetup, enemyParent.Enemy.CenterTransform.position, UnityEngine.Quaternion.identity, false);
+
+                RepoMutators.Logger.LogInfo($"Created {enemyParents?.Count ?? 0} fragments");
+
+                if (enemyParents == null || enemyParents.Count == 0) return;
+
+                foreach (EnemyParent fragment in enemyParents)
+                {
+                    RepoMutators.Logger.LogInfo($"Adding fragment: {fragment.transform.name}");
+                    MutatorsNetworkManager.Instance.SendScaleChange(fragment.photonView.ViewID, 0.6f);
+                    fragmentationProtocolBehaviour.AddFragmentation(fragment);
+                    fragmentsParentMap.Add(fragment, enemyParent);
+
+                    RepoMutators.Logger.LogInfo($"Added fragment: {fragment.transform.name}");
+                }
+            }
+            else
+            {
+                foreach (EnemyParent fragment in fragmentationProtocolBehaviour.GetFragmentations())
+                {
+                    fragment.DespawnedTimer = 0;
+                    fragment.Spawn();
+                    fragment.Enemy.EnemyTeleported(enemyParent.transform.position);
                 }
             }
         }
 
         private static bool IsFragment(EnemyParent enemyParent)
         {
-            return fragments.Contains(enemyParent);
+            return fragmentsParentMap.ContainsKey(enemyParent);
+        }
+
+        static void AfterUnpatchAll()
+        {
+            fragmentsParentMap.Clear();
         }
     }
 }

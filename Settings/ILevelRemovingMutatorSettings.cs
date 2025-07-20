@@ -7,5 +7,6 @@ namespace Mutators.Settings
     internal interface ILevelRemovingMutatorSettings
     {
         bool AllowCustomLevels { get; }
+        IList<string> ExcludedLevels { get; }
     }
 }

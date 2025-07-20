@@ -167,12 +167,17 @@ namespace Mutators.Mutators
 
         protected void TryApplyDeferredMetadata(MutatorsGameState gameState)
         {
-            if (gameState == MutatorsGameState.None || _pendingDeferredMetadata.Count == 0) return;
+            if (gameState != MutatorsGameState.LevelGenerated || _pendingDeferredMetadata.Count == 0) return;
 
             RepoMutators.Logger.LogDebug($"Applying deferred metadata for mutator '{Name}'");
 
-            var toApply = new Dictionary<string, object>(_pendingDeferredMetadata);
-            _pendingDeferredMetadata.Clear();
+            ApplyDeferredMetadata(_pendingDeferredMetadata);
+        }
+
+        protected void ApplyDeferredMetadata(IDictionary<string, object> pendingDeferredMetadata)
+        {
+            var toApply = new Dictionary<string, object>(pendingDeferredMetadata);
+            pendingDeferredMetadata.Clear();
 
             ApplyMetadata(toApply);
         }

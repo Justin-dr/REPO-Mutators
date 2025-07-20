@@ -5,6 +5,7 @@ using Mutators.Network;
 using Mutators.Utility;
 using Photon.Pun;
 using REPOLib.Modules;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -54,6 +55,15 @@ namespace Mutators.Mutators.Patches
             if (SemiFunc.IsMasterClientOrSingleplayer() && SemiFunc.RunIsLevel())
             {
                 int weaponsToSpawn = RoundDirector.instance.physGrabObjects.Count / 2;
+
+                Item[] possibleItems = GetPossibleItems();
+                if (possibleItems.Length == 0)
+                {
+                    RepoMutators.Logger.LogWarning("No eligable weapons found");
+                    RepoMutators.Logger.LogWarning("Valuables will not removed in order to prevent softlocks");
+                    return;
+                }
+
                 // Getting a shallow copy of this list since it seems to be possible for this to be
                 // modified by other mods while we are looping this.
                 foreach (PhysGrabObject physGrabObject in RoundDirector.instance.physGrabObjects.ToList())
@@ -64,14 +74,13 @@ namespace Mutators.Mutators.Patches
                 }
 
                 RepoMutators.Logger.LogDebug($"[{Mutators.HuntingSeasonName}] Spawning {weaponsToSpawn} weapons");
-                Item[] possibleItems = GetPossibleItems();
 
                 IList<LevelPoint> levelPoints = SemiFunc.LevelPointsGetAll();
                 IList<PhotonView> views = [];
                 for (int i = 0; i < weaponsToSpawn; i++)
                 {
-                    LevelPoint levelPoint = levelPoints[Random.Range(0, levelPoints.Count)];
-                    Item item = possibleItems[Random.Range(0, possibleItems.Length)];
+                    LevelPoint levelPoint = levelPoints[UnityEngine.Random.Range(0, levelPoints.Count)];
+                    Item item = possibleItems[UnityEngine.Random.Range(0, possibleItems.Length)];
 
                     Vector3 position = levelPoint.transform.position;
                     position.y += 2;
@@ -157,7 +166,7 @@ namespace Mutators.Mutators.Patches
 
         private static Item[] GetPossibleItems()
         {
-            return Items.AllItems.Where(i => i.itemType == SemiFunc.itemType.melee || i.itemType == SemiFunc.itemType.gun).ToArray();
+            return Items.AllItems.Where(i => !i.prefab.GetComponent<ValuableObject>() && (i.itemType == SemiFunc.itemType.melee || i.itemType == SemiFunc.itemType.gun)).ToArray();
         }
     }
 }

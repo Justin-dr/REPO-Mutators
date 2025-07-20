@@ -13,8 +13,16 @@ namespace Mutators.Patches
             MutatorDescriptionAnnouncingBehaviour mutatorDescriptionAnnouncingBehaviour = MutatorDescriptionAnnouncingBehaviour.Instance;
             if (mutatorDescriptionAnnouncingBehaviour && __instance.Active && RepoMutators.Settings.MutatorDescriptionInMapTool && __instance.PlayerAvatar == PlayerAvatar.instance)
             {
-                
                 mutatorDescriptionAnnouncingBehaviour.Show();
+            }
+
+            if (RepoMutators.Settings.MutatorDisplayToggleType == Settings.ModSettings.MutatorNameToggleType.WithDescription)
+            {
+                MutatorAnnouncingBehaviour mutatorAnnouncingBehaviour = MutatorAnnouncingBehaviour.instance;
+                if (mutatorAnnouncingBehaviour && __instance.Active && RepoMutators.Settings.MutatorDescriptionInMapTool && __instance.PlayerAvatar == PlayerAvatar.instance)
+                {
+                    mutatorAnnouncingBehaviour.Show();
+                }
             }
         }
     }

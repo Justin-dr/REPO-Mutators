@@ -18,6 +18,11 @@
     </RestoreAdditionalProjectSources>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="plugins\**" />
+    <EmbeddedResource Remove="plugins\**" />
+    <None Remove="plugins\**" />
+  </ItemGroup>
+  <ItemGroup>
     <Content Include=".github\CODEOWNERS" />
   </ItemGroup>
 

@@ -68,9 +68,10 @@ namespace Mutators.Managers
                 new Mutator(MutatorSettings.ProtectTheWeak, typeof(ProtectTheWeakPatch), [SemiFunc.IsMultiplayer]),
                 new Mutator(MutatorSettings.FiringMyLaser, typeof(FiringMyLaserPatch), specialActionOverlay: true),
                 new Mutator(MutatorSettings.Voiceover, typeof(VoiceoverPatch), [SemiFunc.IsMultiplayer]),
-                new Mutator(MutatorSettings.TheFloorIsLava, typeof(TheFloorIsLavaPatch))
-                //new Mutator(MutatorSettings.LessIsMore, typeof(LessIsMorePatch)),
+                new Mutator(MutatorSettings.TheFloorIsLava, typeof(TheFloorIsLavaPatch)),
+                new Mutator(MutatorSettings.LessIsMore, typeof(LessIsMorePatch)),
                 //new Mutator(MutatorSettings.FragmentationProtocol, typeof(FragmentationProtocolPatch))
+                new Mutator(MutatorSettings.Amalgam, typeof(AmalgamPatch))
             ];
 
             mutators.ForEach(mutator => _mutators[mutator.Name] = mutator);
@@ -101,6 +102,8 @@ namespace Mutators.Managers
 
         internal void SetActiveMutator(string name, bool applyPatchNow = true)
         {
+            RepoMutators.Logger.LogInfo("SetActiveMutator: " + name);
+
             RegisteredMutators.Values
                 .Where(mutator => mutator.Active)
                 .ForEach(mutator => mutator.Unpatch());

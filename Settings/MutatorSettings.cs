@@ -23,7 +23,8 @@ namespace Mutators.Settings
         public static VoiceoverMutatorSettings Voiceover { get; private set; } = null!;
         public static TheFloorIsLavaMutatorSettings TheFloorIsLava { get; private set; } = null!;
         public static LessIsMoreMutatorSettings LessIsMore { get; private set; } = null!;
-        public static GenericMutatorSettings FragmentationProtocol { get; private set; } = null!;
+        //public static GenericMutatorSettings FragmentationProtocol { get; private set; } = null!;
+        public static AmalgamMutatorSettings Amalgam { get; private set; } = null!;
         public static void Initialize(ConfigFile config)
         {
             NopMutator = new NopMutatorSettings(config);
@@ -43,8 +44,9 @@ namespace Mutators.Settings
             FiringMyLaser = new FiringMyLaserMutatorSettings(Mutators.Mutators.FiringMyLaserName, Mutators.Mutators.FiringMyLaserDescription, config);
             Voiceover = new VoiceoverMutatorSettings(Mutators.Mutators.VoiceoverName, Mutators.Mutators.VoiceoverDescription, config);
             TheFloorIsLava = new TheFloorIsLavaMutatorSettings(Mutators.Mutators.TheFloorIsLavaName, Mutators.Mutators.TheFloorIsLavaDescription, config);
-            //LessIsMore = new LessIsMoreMutatorSettings(Mutators.Mutators.LessIsMoreName, Mutators.Mutators.LessIsMoreDescription, config);
+            LessIsMore = new LessIsMoreMutatorSettings(Mutators.Mutators.LessIsMoreName, Mutators.Mutators.LessIsMoreDescription, config);
             //FragmentationProtocol = new GenericMutatorSettings(Mutators.Mutators.FragmentationProtocolName, Mutators.Mutators.LessIsMoreDescription, config);
+            Amalgam = new AmalgamMutatorSettings(Mutators.Mutators.AmalgamName, Mutators.Mutators.AmalgamDescription, config);
         }
     }
 }

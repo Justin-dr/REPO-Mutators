@@ -9,6 +9,7 @@ namespace Mutators.Mutators.Behaviours.UI
         private TextMeshProUGUI Text;
         internal static MutatorAnnouncingBehaviour instance;
         private bool _isVisible = true;
+        private float _showTimer = IsToggleWithDescription() ? RepoMutators.Settings.MutatorDescriptionInitialDisplayTime : 0f;
 
         public override void Start()
         {
@@ -23,7 +24,25 @@ namespace Mutators.Mutators.Behaviours.UI
         public override void Update()
         {
             base.Update();
-            if (!ChatManager.instance.StateIsActive() && Input.GetKeyDown(RepoMutators.Settings.MutatorDisplayToggleKey))
+            if (RepoMutators.Settings.MutatorDisplayToggleType == Settings.ModSettings.MutatorNameToggleType.WithDescription)
+            {
+                Hide();
+                if (_showTimer > 0f)
+                {
+                    if (!RepoMutators.Settings.MutatorDescriptionPinned)
+                    {
+                        _showTimer -= Time.deltaTime;
+                    }
+
+                    if (MenuPageEsc.instance?.menuPage == null)
+                    {
+                        Show();
+                    }
+                }
+                return;
+            }
+
+            if (!ChatManager.instance.StateIsActive() && RepoMutators.Settings.MutatorDisplayToggleType == Settings.ModSettings.MutatorNameToggleType.Keybind && Input.GetKeyDown(RepoMutators.Settings.MutatorDisplayToggleKey))
             {
                 _isVisible = !_isVisible;
             }
@@ -33,5 +52,9 @@ namespace Mutators.Mutators.Behaviours.UI
             }
         }
 
+        private static bool IsToggleWithDescription()
+        {
+            return RepoMutators.Settings.MutatorDisplayToggleType == Settings.ModSettings.MutatorNameToggleType.WithDescription;
+        }
     }
 }

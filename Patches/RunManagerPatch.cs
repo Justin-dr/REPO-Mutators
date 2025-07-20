@@ -3,7 +3,9 @@ using Mutators.Managers;
 using Mutators.Mutators;
 using Mutators.Network;
 using Mutators.Settings;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Mutators.Patches
@@ -56,10 +58,23 @@ namespace Mutators.Patches
         static void RunManagerChangeLevelPrefix(RunManager __instance, ref Level ___previousRunLevel)
         {
             if (!SemiFunc.IsMasterClientOrSingleplayer()) return;
-            if (MutatorManager.Instance.CurrentMutator.Settings is ILevelRemovingMutatorSettings settings && !settings.AllowCustomLevels)
+            if (MutatorManager.Instance.CurrentMutator.Settings is ILevelRemovingMutatorSettings settings)
             {
-                RepoMutators.Logger.LogInfo("Removing custom levels from selection");
-                __instance.levels.RemoveAll(l => !vanillaLevelNames.Contains(l.name));
+
+                if (!settings.AllowCustomLevels)
+                {
+                    __instance.levels.RemoveAll(l => !vanillaLevelNames.Contains(l.name));
+                }
+
+                if (settings.ExcludedLevels.Count > 0)
+                {
+                    ISet<string> excludedSet = new HashSet<string>(
+                        settings.ExcludedLevels.Select(level => level.StartsWith("level - ", StringComparison.OrdinalIgnoreCase) ? level.ToLowerInvariant(): ("level - " + level).ToLowerInvariant())
+                    );
+
+                    __instance.levels.RemoveAll(level => excludedSet.Contains(level.name.ToLowerInvariant()));
+                }
+
 
                 if (__instance.levels.Count == 1)
                 {
@@ -77,11 +92,15 @@ namespace Mutators.Patches
         private static void ApplyPatch()
         {
             MutatorManager mutatorManager = MutatorManager.Instance;
-            if (IsInShop() && SemiFunc.IsMasterClientOrSingleplayer())
+            if (IsInShop())
             {
-                MutatorsNetworkManager.Instance.ClearBufferedRPCs();
+                mutatorManager.GameState = Enums.MutatorsGameState.Shop;
+                if (SemiFunc.IsMasterClientOrSingleplayer())
+                {
+                    MutatorsNetworkManager.Instance.ClearBufferedRPCs();
 
-                GetAndSendMutator();
+                    GetAndSendMutator();
+                }
             }
             else if (SemiFunc.RunIsLevel())
             {

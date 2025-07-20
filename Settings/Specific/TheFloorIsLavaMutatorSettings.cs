@@ -17,6 +17,8 @@ namespace Mutators.Settings.Specific
         public bool AllowCustomLevels => _allowCustomLevels.Value;
         public bool DisableEnemies => _disableEnemies.Value;
 
+        public IList<string> ExcludedLevels => [];
+
         internal TheFloorIsLavaMutatorSettings(string name, string description, ConfigFile config) : base(name, description, config)
         {
             ConfigEntry<int> _damagePerTick = config.Bind(

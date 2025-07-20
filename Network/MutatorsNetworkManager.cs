@@ -70,9 +70,9 @@ namespace Mutators.Network
             Send(views, componentType.FullName, AddComponentToViewGameObject, RpcTarget.OthersBuffered);
         }
 
-        internal void SendScaleChange(int photonViewId, float scale)
+        internal void SendScaleChange(int photonViewId, float scale, bool buffered = true)
         {
-            Send(photonViewId, scale, SetScale, RpcTarget.OthersBuffered);
+            Send(photonViewId, scale, SetScale, buffered ? RpcTarget.OthersBuffered : RpcTarget.Others);
         }
 
         public void SendMetaToHost(string sender, IDictionary<string, object> meta)

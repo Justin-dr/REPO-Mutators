@@ -6,10 +6,16 @@ namespace Mutators.Settings
 {
     internal class ModSettings
     {
+        internal enum MutatorNameToggleType {
+            Keybind,
+            WithDescription
+        }
+
         // Mutator Name
         private readonly ConfigEntry<float> _mutatorDisplayY;
         private readonly ConfigEntry<float> _mutatorDisplaySize;
         private readonly ConfigEntry<string> _mutatorDisplayToggleKey;
+        private readonly ConfigEntry<string> _mutatorDisplayToggleType;
 
         // Mutator Description
         private readonly ConfigEntry<float> _mutatorDescriptionDisplayY;
@@ -29,6 +35,7 @@ namespace Mutators.Settings
         public float MutatorDisplayY => _mutatorDisplayY.Value;
         public float MutatorDisplaySize => _mutatorDisplaySize.Value;
         public KeyCode MutatorDisplayToggleKey { get; private set; }
+        public MutatorNameToggleType MutatorDisplayToggleType { get; private set; }
 
         // Mutator Description
         public float MutatorDescriptionDisplayY => _mutatorDescriptionDisplayY.Value;
@@ -59,6 +66,16 @@ namespace Mutators.Settings
                     "Size",
                     30f,
                     "The size of the active Mutator overlay"
+            );
+
+            _mutatorDisplayToggleType = config.Bind<string>(
+                    "Mutator Interface",
+                    "Mutator display toggle type",
+                    "Keybind",
+                    new ConfigDescription(
+                        "The method used to toggle the active Mutator overlay",
+                        new AcceptableValueList<string>("Keybind", "With Description")
+                    )
             );
 
             _mutatorDisplayToggleKey = config.Bind(
@@ -133,6 +150,7 @@ namespace Mutators.Settings
         internal void CacheKeys()
         {
             MutatorDisplayToggleKey = Enum.TryParse(typeof(KeyCode), _mutatorDisplayToggleKey.Value, out object toggle) ? (KeyCode)toggle : KeyCode.None;
+            MutatorDisplayToggleType = Enum.TryParse(typeof(MutatorNameToggleType), _mutatorDisplayToggleType.Value.Replace(" ", ""), out object toggleType) ? (MutatorNameToggleType)toggleType : MutatorNameToggleType.Keybind;
             SpecialActionKey = Enum.TryParse(typeof(KeyCode), _specialActionKey.Value, out object specialAction) ? (KeyCode)specialAction : KeyCode.None;
         }
     }
