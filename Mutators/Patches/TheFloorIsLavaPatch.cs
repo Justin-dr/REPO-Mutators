@@ -151,9 +151,6 @@ namespace Mutators.Mutators.Patches
                 metadata.Add(ExtraDescription, extraDescription);
             }
 
-            RepoMutators.Logger.LogInfo("Sending Lava meta:");
-            metadata.ForEach(meta => RepoMutators.Logger.LogInfo($"{meta}"));
-
             return metadata.WithMutator(MutatorSettings.TheFloorIsLava.MutatorName);
         }
 

@@ -73,12 +73,9 @@ namespace Mutators.Mutators.Patches
         {
             if (!SemiFunc.IsMasterClientOrSingleplayer()) return;
 
-            RepoMutators.Logger.LogInfo($"Picked module: {__result.name}");
-
             if (roomParentLevelMap.TryGetValue(__result, out Level level))
             {
                 __instance.Level.ResourcePath = level.ResourcePath;
-                RepoMutators.Logger.LogInfo($"Module belongs to: {level.name}");
             }
             else
             {

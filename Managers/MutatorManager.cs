@@ -102,8 +102,6 @@ namespace Mutators.Managers
 
         internal void SetActiveMutator(string name, bool applyPatchNow = true)
         {
-            RepoMutators.Logger.LogInfo("SetActiveMutator: " + name);
-
             RegisteredMutators.Values
                 .Where(mutator => mutator.Active)
                 .ForEach(mutator => mutator.Unpatch());

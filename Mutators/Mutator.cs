@@ -101,29 +101,6 @@ namespace Mutators.Mutators
             RepoMutators.Logger.LogDebug($"Unpatched mutator: {Name}");
         }
 
-        //public void ConsumeMetadata(IDictionary<string, object> metadata)
-        //{
-        //    if (metadata == null) return;
-        //    if (metadata.TryGetValue(Settings.MutatorName, out object? value) && value is IDictionary<string, object> metaForMe)
-        //    {
-        //        if (metaForMe.Count > 0)
-        //        {
-        //            _metadata = _metadata.DeepMergedWith(metaForMe);
-        //            _onMetadataChangedHooks.ForEach(action => action?.Invoke(_metadata));
-        //        }
-        //    }
-        //    else
-        //    {
-        //        if (metadata.Count > 0)
-        //        {
-        //            _metadata = _metadata.DeepMergedWith(metadata);
-        //            _onMetadataChangedHooks.ForEach(action => action?.Invoke(_metadata));
-        //        }
-        //    }
-        //}
-
-        
-
         public void ConsumeMetadata(IDictionary<string, object> metadata)
         {
             if (metadata == null || metadata.Count == 0) return;

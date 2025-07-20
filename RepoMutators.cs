@@ -107,7 +107,6 @@ public class RepoMutators : BaseUnityPlugin
     internal void Patch()
     {
         var hasSpawnManager = BepInEx.Bootstrap.Chainloader.PluginInfos.Values.Any(x => x.Metadata.GUID == "soundedsquash.spawnmanager");
-        _logger.LogInfo($"HasSpawnManager: {hasSpawnManager}");
 
         Harmony ??= new Harmony(Info.Metadata.GUID);
         Harmony.PatchAll(typeof(RunManagerPatch));
