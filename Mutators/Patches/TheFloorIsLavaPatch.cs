@@ -20,19 +20,26 @@ namespace Mutators.Mutators.Patches
         internal const string UsePercentageDamage = "usePercentageDamage";
         internal const string ExtraDescription = "extraDescription";
         internal const string ImmunePlayers = "immunePlayers";
+        internal const string RevivalImmunityDuration = "reviveImmunityDuration";
+
         internal static readonly System.Collections.Generic.ISet<PlayerAvatar> immunePlayers = new HashSet<PlayerAvatar>();
+        private static float reviveImmunityDuration = MutatorSettings.TheFloorIsLava.ReviveImmunityDuration;
         private static bool initDone = false;
 
         static void OnMetadataChanged(IDictionary<string, object> metadata)
         {
-            if (!SemiFunc.IsMasterClientOrSingleplayer() && MutatorManager.Instance.GameState == Enums.MutatorsGameState.LevelGenerated)
+            if (!SemiFunc.IsMasterClientOrSingleplayer())
             {
-                HandleImmuneLogic(
-                    metadata.GetAsList<string>(ImmunePlayers) ?? [],
-                    metadata.Get<string>(ExtraDescription),
-                    metadata.Get<int>(Damage),
-                    metadata.Get<bool>(UsePercentageDamage)
-                );
+                reviveImmunityDuration = metadata.Get<float>(RevivalImmunityDuration);
+                if (MutatorManager.Instance.GameState == Enums.MutatorsGameState.LevelGenerated)
+                {
+                    HandleImmuneLogic(
+                        metadata.GetAsList<string>(ImmunePlayers) ?? [],
+                        metadata.Get<string>(ExtraDescription),
+                        metadata.Get<int>(Damage),
+                        metadata.Get<bool>(UsePercentageDamage)
+                    );
+                }
             }
         }
 
@@ -89,6 +96,25 @@ namespace Mutators.Mutators.Patches
             if (__instance == PlayerAvatar.instance)
             {
                 __instance.AddComponent<TheFloorIsLavaBehaviour>();
+            }
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(PlayerAvatar))]
+        [HarmonyPatch(nameof(PlayerAvatar.ReviveRPC))]
+        static void PlayerAvatarReviveRPCPostfix(PlayerAvatar __instance)
+        {
+            if (__instance == PlayerAvatar.instance && reviveImmunityDuration > 0)
+            {
+                TheFloorIsLavaBehaviour theFloorIsLavaBehaviour = __instance.GetComponent<TheFloorIsLavaBehaviour>();
+                if (theFloorIsLavaBehaviour != null)
+                {
+                    theFloorIsLavaBehaviour.immunityTimer = reviveImmunityDuration;
+                }
+                else
+                {
+                    RepoMutators.Logger.LogWarning("No TheFloorIsLavaBehaviour found on local player!");
+                }
             }
         }
 

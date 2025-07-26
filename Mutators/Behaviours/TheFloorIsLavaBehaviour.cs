@@ -12,6 +12,7 @@ namespace Mutators.Mutators.Behaviours
         private Transform physObjectStander;
         private LayerMask layerMask = ~LayerMask.GetMask("Player", "CollisionCheck");
 
+        internal float immunityTimer = 0f;
         private float groundedTimer = 0f;
         private float damageCooldownTimer = 0f;
         private readonly float damageCooldown = 1f; // 1 second cooldown between damage
@@ -34,8 +35,16 @@ namespace Mutators.Mutators.Behaviours
 
         void Update()
         {
-            if (!LevelGenerator.Instance.Generated || Immune) return;
+            if (!LevelGenerator.Instance.Generated) return;
             if (playerAvatar.RoomVolumeCheck.inTruck || playerAvatar.RoomVolumeCheck.inExtractionPoint) return;
+
+            if (immunityTimer > 0)
+            {
+                immunityTimer -= Time.deltaTime;
+                return;
+            }
+
+            if (Immune) return;
 
             damageCooldownTimer += Time.deltaTime;
             groundedTimer += Time.deltaTime;

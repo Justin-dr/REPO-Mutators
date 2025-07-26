@@ -162,6 +162,13 @@ namespace Mutators.Mutators
         protected void ApplyMetadata(IDictionary<string, object> metadataToApply)
         {
             _metadata = _metadata.DeepMergedWith(metadataToApply);
+
+            RepoMutators.Logger.LogInfo("DeepMerged: ");
+            foreach (var item in _metadata)
+            {
+                RepoMutators.Logger.LogInfo($"{item.Key}: {item.Value}");
+            }
+
             _onMetadataChangedHooks.ForEach(hook => hook?.Invoke(_metadata));
         }
 

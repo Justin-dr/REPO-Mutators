@@ -118,6 +118,15 @@ namespace Mutators.Network
 
             IDictionary<string, object> metadata = hashtable == null ? new Dictionary<string, object>() : hashtable.FromPhotonHashtable();
 
+            if (metadata.TryGetValue(MutatorSettings.TheFloorIsLava.MutatorName, out object value) && value is IDictionary<string, object> lavameta)
+            {
+                RepoMutators.Logger.LogDebug($"[RPC] Received metadata: {string.Join(", ", lavameta.Select(kvp => $"{kvp.Key}: {kvp.Value}"))}");
+            }
+            else
+            {
+                RepoMutators.Logger.LogDebug($"[RPC] Received metadata: {string.Join(", ", metadata.Select(kvp => $"{kvp.Key}: {kvp.Value}"))}");
+            }
+
             mutatorManager.CurrentMutator.ConsumeMetadata(metadata);
         }
 
