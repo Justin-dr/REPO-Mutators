@@ -1,4 +1,7 @@
 ﻿using BepInEx.Configuration;
+using Mutators.Extensions;
+using Mutators.Mutators.Patches;
+using System.Collections.Generic;
 
 namespace Mutators.Settings.Specific
 {
@@ -14,22 +17,22 @@ namespace Mutators.Settings.Specific
 
         internal LessIsMoreMutatorSettings(string name, string description, ConfigFile config) : base(name, description, config)
         {
-            _strongDivisionFactor = config.Bind(
+            _weakDivisionFactor = config.Bind(
             GetSection(name),
-            "Strong Durability Division Factor",
+            "Weak Durability Division Factor",
             1f,
             new ConfigDescription(
-                $"The amount by which the value of strong durability valuables should be divided when the {name} Mutator is active. Acts as a lower bound.",
+                $"The amount by which the value of weak durability valuables should be divided when the {name} Mutator is active. Acts as an lower bound.",
                 new AcceptableValueRange<float>(1, 5)
                 )
             );
 
-            _weakDivisionFactor = config.Bind(
+            _strongDivisionFactor = config.Bind(
             GetSection(name),
-            "Weak Durability Division Factor",
+            "Strong Durability Division Factor",
             2f,
             new ConfigDescription(
-                $"The amount by which the value of weak durability valuables should be divided when the {name} Mutator is active. Acts as an upper bound.",
+                $"The amount by which the value of strong durability valuables should be divided when the {name} Mutator is active. Acts as a upper bound.",
                 new AcceptableValueRange<float>(1, 5)
                 )
             );
@@ -44,5 +47,17 @@ namespace Mutators.Settings.Specific
                 )
             );
         }
+
+        public override IDictionary<string, object>? AsMetadata()
+        {
+            IDictionary<string, object> metadata = new Dictionary<string, object>
+            {
+                { LessIsMorePatch.ValueGainMultiplier, ValueGainMultiplier }
+            };
+
+            return metadata.WithMutator(MutatorName);
+        }
+
+        
     }
 }

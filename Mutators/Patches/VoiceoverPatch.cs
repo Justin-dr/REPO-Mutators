@@ -96,6 +96,8 @@ namespace Mutators.Mutators.Patches
             {
                 ChangeVoices(playerVoice.Key, playerVoice.Value);
             }
+
+            // MutatorsNetworkManager.Instance.Run(Debug());
         }
 
         public static Dictionary<string, string> DerangeVoices(IDictionary<string, int> originalMap, out Dictionary<string, int> newAssignments)
@@ -155,6 +157,19 @@ namespace Mutators.Mutators.Patches
             if (!SemiFunc.MenuLevel())
             {
                 playerAvatar.voiceChat.ToggleLobby(_toggle: false);
+            }
+        }
+
+        private static IEnumerator Debug()
+        {
+            PlayerVoiceChat playerVoiceChat = PlayerAvatar.instance.voiceChat;
+
+            while (true)
+            {
+                RepoMutators.Logger.LogInfo($"ToggleMute: {playerVoiceChat.toggleMute} - Director: {DataDirector.instance.toggleMute}");
+                RepoMutators.Logger.LogInfo($"Lobby: {playerVoiceChat.audioSource.outputAudioMixerGroup == playerVoiceChat.mixerMicrophoneSpectate} - Game: {playerVoiceChat.audioSource.outputAudioMixerGroup == playerVoiceChat.mixerMicrophoneSound}");
+                RepoMutators.Logger.LogInfo($"Active and Enabled: {playerVoiceChat.isActiveAndEnabled}");
+                yield return new WaitForSeconds(1);
             }
         }
 
