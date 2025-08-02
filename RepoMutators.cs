@@ -6,6 +6,7 @@ using BepInEx;
 using BepInEx.Bootstrap;
 using BepInEx.Logging;
 using HarmonyLib;
+using Mutators.Extensions;
 using Mutators.Managers;
 using Mutators.Mutators;
 using Mutators.Mutators.Behaviours;
@@ -25,8 +26,13 @@ namespace Mutators;
 [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.NAME, MyPluginInfo.PLUGIN_VERSION)]
 public class RepoMutators : BaseUnityPlugin
 {
+    // Assets
     internal const string MainScenePath = "Assets/Scenes/Main/Main.unity";
     internal const string NETWORKMANAGER_NAME = "MutatorsNetworkManager";
+
+    // Meta
+    internal const string MUTATOR_OVERRIDES = "mutatorOverrides";
+
     internal static RepoMutators Instance { get; private set; } = null!;
     internal static ModSettings Settings { get; private set; } = null!;
     internal new static ManualLogSource Logger => Instance._logger;
@@ -36,7 +42,6 @@ public class RepoMutators : BaseUnityPlugin
     private void Awake()
     {
         Instance = this;
-        
         // Prevent the plugin from being deleted
         this.gameObject.transform.parent = null;
         this.gameObject.hideFlags = HideFlags.HideAndDontSave;
@@ -93,11 +98,21 @@ public class RepoMutators : BaseUnityPlugin
             NetworkPrefabs.SpawnNetworkPrefab(prefabRef, Vector3.zero, Quaternion.identity);
 
             MutatorManager mutatorManager = MutatorManager.Instance;
+            RepoMutators.Logger.LogInfo($"{string.Join(", ", mutatorManager.RegisteredMutators.Select(x => $"{x.Key}: {x.Value.Settings.Weight}"))}");
             IMutator mutator = mutatorManager.GetWeightedMutator();
             Logger.LogDebug($"Picked weighted mutator: {mutator.Name}");
 
             mutatorManager.CurrentMutator = mutator;
-            MutatorsNetworkManager.Instance!.SendActiveMutator(mutator.Name, mutator.Settings.AsMetadata());
+
+            if (mutator is IMultiMutator multiMutator)
+            {
+                var formattedMutator = multiMutator.Format();
+                MutatorsNetworkManager.Instance!.SendActiveMutators(formattedMutator.mutators, formattedMutator.meta);
+            }
+            else
+            {
+                MutatorsNetworkManager.Instance!.SendActiveMutator(mutator.Name, mutator.Settings.AsMetadata());
+            }
 
             Logger.LogDebug($"Mutator set: {mutator.Name}");
         };
@@ -110,6 +125,11 @@ public class RepoMutators : BaseUnityPlugin
 
         Logger.LogDebug("Initializing default mutators.");
         MutatorManager.Instance.InitializeDefaultMutators();
+    }
+
+    private void Start()
+    {
+        MutatorManager.Instance.InitializeMultiMutators();
     }
 
     internal void Patch()

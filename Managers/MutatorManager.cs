@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using Mutators.Enums;
 using Mutators.Mutators;
+using Mutators.Mutators.Multi;
 using Mutators.Mutators.Patches;
 using Mutators.Settings;
 using Sirenix.Utilities;
@@ -88,6 +89,13 @@ namespace Mutators.Managers
             _initialized = true;
         }
 
+        internal void InitializeMultiMutators()
+        {
+            IList<IMultiMutator> mutators = MultiMutatorLoader.LoadAll();
+            mutators.ForEach(mutator => _mutators.Add(mutator.Name, mutator));
+            RepoMutators.Logger.LogInfo($"Loaded {mutators.Count} MultiMutator{(mutators.Count == 1 ? "" : "s")}!");
+        }
+
         public void RegisterMutator(IMutator mutator)
         {
             _mutators.Add(mutator.Name, mutator);
@@ -129,6 +137,20 @@ namespace Mutators.Managers
 
             RepoMutators.Logger.LogWarning($"Tried to active unknown mutator: {name}.");
             RepoMutators.Logger.LogWarning($"You might be out of sync if you are not the host!");
+        }
+
+        internal void SetActiveMutator(IMutator mutator, bool applyPatchNow = true)
+        {
+            RegisteredMutators.Values
+                .Where(mutator => mutator.Active)
+                .ForEach(mutator => mutator.Unpatch());
+
+            CurrentMutator = mutator;
+            RepoMutators.Logger.LogDebug($"Mutator {mutator.Name} set as active");
+            if (applyPatchNow)
+            {
+                CurrentMutator.Patch();
+            }
         }
 
         internal IMutator GetWeightedMutator()
