@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Linq;
 using HarmonyLib;
 using Mutators.Enums;
+using Mutators.Extensions;
 using Mutators.Managers;
 using Mutators.Mutators;
 using Mutators.Network;
@@ -80,7 +82,20 @@ namespace Mutators.Patches
         private static void GetAndSendMutator()
         {
             IMutator mutator = MutatorManager.Instance.GetWeightedMutator();
-            MutatorsNetworkManager.Instance.SendActiveMutator(mutator.Name, mutator.Settings.AsMetadata());
+
+            RepoMutators.Logger.LogInfo($"{string.Join(", ", MutatorManager.Instance.RegisteredMutators.Select(x => x.Key))}");
+
+            if (mutator is IMultiMutator multiMutator)
+            {
+                var (mutators, meta) = multiMutator.Format();
+
+                MutatorsNetworkManager.Instance.SendActiveMutators(mutators,meta);
+            }
+            else
+            {
+                MutatorsNetworkManager.Instance.SendActiveMutator(mutator.Name, mutator.Settings.AsMetadata());
+            }
+            
         }
 
         private static bool IsInShop()

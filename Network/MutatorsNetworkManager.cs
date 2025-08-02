@@ -1,5 +1,6 @@
 ﻿using Mutators.Extensions;
 using Mutators.Managers;
+using Mutators.Mutators;
 using Mutators.Network.Meta;
 using Mutators.Settings;
 using Photon.Pun;
@@ -65,6 +66,13 @@ namespace Mutators.Network
             Send(name, hashtable, SetActiveMutator, RpcTarget.OthersBuffered);
         }
 
+        public void SendActiveMutators(IList<string> names, IDictionary<string, object>? metadata = null)
+        {
+            if (!SemiFunc.IsMasterClientOrSingleplayer()) return;
+            ExitGames.Client.Photon.Hashtable? hashtable = metadata?.ToPhotonHashtable();
+            Send(names.ToArray(), hashtable, SetActiveMutators, RpcTarget.OthersBuffered);
+        }
+
         public void SendComponentForViews(int[] views, Type componentType)
         {
             Send(views, componentType.FullName, AddComponentToViewGameObject, RpcTarget.OthersBuffered);
@@ -128,6 +136,59 @@ namespace Mutators.Network
             }
 
             mutatorManager.CurrentMutator.ConsumeMetadata(metadata);
+        }
+
+        [PunRPC]
+        public void SetActiveMutators(IList<string> names, ExitGames.Client.Photon.Hashtable? hashtable) {
+            MutatorManager mutatorManager = MutatorManager.Instance;
+            bool runIsLevel = SemiFunc.RunIsLevel();
+
+            if (names.Count == 0)
+            {
+                RepoMutators.Logger.LogError("Received empty list of active mutators");
+                return;
+            }
+
+            if (names.Count == 1)
+            {
+                SetActiveMutator(names.First(), hashtable);
+                return;
+            }
+
+            if (names.Count > 1)
+            {
+                if (hashtable == null)
+                {
+                    RepoMutators.Logger.LogError("Critical failure during MultiMutator activation: no metadata hashtable found!");
+                    return;
+                }
+
+                IDictionary<string, object> metadata = hashtable.FromPhotonHashtable();
+
+                if (!SemiFunc.IsMasterClientOrSingleplayer())
+                {
+                    // Since we just transfer these over the network the client shouldn't have them
+                    // And even if they do they probably shouldn't use them...
+                    IList<IMutator> mutators = mutatorManager.RegisteredMutators.Where(mutators => names.Contains(mutators.Key)).Select(x => x.Value).ToList();
+
+                    IDictionary<string, object> overrides = metadata.Get<IDictionary<string, object>>(RepoMutators.MUTATOR_OVERRIDES)!;
+
+                    IMutator mutator = new MultiMutator(
+                        new MultiMutatorSettings(overrides.Get<string>("name") ?? "Name", overrides.Get<string>("description") ?? "Description"),
+                        mutators.ToDictionary(k => k, v => (IDictionary<string, object>)new Dictionary<string, object>()) // TODO populate this
+                    );
+
+                    mutatorManager.SetActiveMutator(mutator, runIsLevel);
+                    mutator.ConsumeMetadata(metadata);
+                }
+                else
+                {
+                    RepoMutators.Logger.LogInfo("Meta: " + string.Join(", ", metadata.Keys));
+                    RepoMutators.Logger.LogInfo("Overrides: " + string.Join(", ", metadata.Get<IDictionary<string, object>>(RepoMutators.MUTATOR_OVERRIDES).Keys));
+                    MutatorManager.Instance.CurrentMutator.ConsumeMetadata(metadata);
+                }
+                
+            }
         }
 
         [PunRPC]
