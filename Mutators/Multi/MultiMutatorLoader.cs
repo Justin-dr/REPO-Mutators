@@ -1,4 +1,5 @@
-﻿using Mutators.Managers;
+﻿using BepInEx;
+using Mutators.Managers;
 using Mutators.Settings;
 using Newtonsoft.Json;
 using System;
@@ -12,17 +13,18 @@ namespace Mutators.Mutators.Multi
     {
         public static IList<IMultiMutator> LoadAll()
         {
-            string multiMutatorPath = Path.Combine(RepoMutators.Instance.Config.ConfigFilePath, "..", "MultiMutators");
+            string multiMutatorPath = Path.Combine(Paths.PluginPath, $"Xepos-{MyPluginInfo.NAME}", "MultiMutators");
             string[] files = Directory.GetFiles(multiMutatorPath);
 
             return files.Where(file => Path.GetExtension(file).Equals(".json", StringComparison.OrdinalIgnoreCase))
+                .Select(File.ReadAllText)
                 .Select(JsonConvert.DeserializeObject<JsonMultiMutator>)
-                .Select(yes)
+                .Select(JsonToMultiMutator)
                 .Where(multiMutator => multiMutator is not null)
                 .ToList()!;
         }
 
-        private static IMultiMutator? yes(JsonMultiMutator? jsonMultiMutator)
+        private static IMultiMutator? JsonToMultiMutator(JsonMultiMutator? jsonMultiMutator)
         {
             if (jsonMultiMutator == null) return null;
 

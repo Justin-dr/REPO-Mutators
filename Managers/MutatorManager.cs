@@ -83,6 +83,7 @@ namespace Mutators.Managers
         internal void InitializeMultiMutators()
         {
             IList<IMultiMutator> mutators = MultiMutatorLoader.LoadAll();
+            mutators.ForEach(mutator => _mutators.Add(mutator.Name, mutator));
             RepoMutators.Logger.LogInfo($"Loaded {mutators.Count} MultiMutator{(mutators.Count == 1 ? "" : "s")}!");
         }
 

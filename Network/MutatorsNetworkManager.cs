@@ -70,7 +70,7 @@ namespace Mutators.Network
         {
             if (!SemiFunc.IsMasterClientOrSingleplayer()) return;
             ExitGames.Client.Photon.Hashtable? hashtable = metadata?.ToPhotonHashtable();
-            Send(names, hashtable, SetActiveMutators, RpcTarget.OthersBuffered);
+            Send(names.ToArray(), hashtable, SetActiveMutators, RpcTarget.OthersBuffered);
         }
 
         public void SendComponentForViews(int[] views, Type componentType)

@@ -1,6 +1,7 @@
 ﻿using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
+using Mutators.Extensions;
 using Mutators.Managers;
 using Mutators.Mutators;
 using Mutators.Mutators.Behaviours;
@@ -84,11 +85,21 @@ public class RepoMutators : BaseUnityPlugin
             REPOLib.Modules.NetworkPrefabs.SpawnNetworkPrefab(myPrefabId, Vector3.zero, Quaternion.identity);
 
             MutatorManager mutatorManager = MutatorManager.Instance;
+            RepoMutators.Logger.LogInfo($"{string.Join(", ", mutatorManager.RegisteredMutators.Select(x => $"{x.Key}: {x.Value.Settings.Weight}"))}");
             IMutator mutator = mutatorManager.GetWeightedMutator();
             Logger.LogDebug($"Picked weighted mutator: {mutator.Name}");
 
             mutatorManager.CurrentMutator = mutator;
-            MutatorsNetworkManager.Instance!.SendActiveMutator(mutator.Name, mutator.Settings.AsMetadata());
+
+            if (mutator is IMultiMutator multiMutator)
+            {
+                var formattedMutator = multiMutator.Format();
+                MutatorsNetworkManager.Instance!.SendActiveMutators(formattedMutator.mutators, formattedMutator.meta);
+            }
+            else
+            {
+                MutatorsNetworkManager.Instance!.SendActiveMutator(mutator.Name, mutator.Settings.AsMetadata());
+            }
 
             Logger.LogDebug($"Mutator set: {mutator.Name}");
         };
