@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using Mutators.Extensions;
 using Mutators.Managers;
 using Mutators.Mutators;
 using Mutators.Network;
@@ -125,7 +126,23 @@ namespace Mutators.Patches
         private static void GetAndSendMutator()
         {
             IMutator mutator = MutatorManager.Instance.GetWeightedMutator();
-            MutatorsNetworkManager.Instance.SendActiveMutator(mutator.Name, mutator.Settings.AsMetadata());
+
+            RepoMutators.Logger.LogInfo($"{string.Join(", ", MutatorManager.Instance.RegisteredMutators.Select(x => x.Key))}");
+
+            if (mutator is IMultiMutator multiMutator)
+            {
+                var fromattedMutator = multiMutator.Format();
+
+                MutatorsNetworkManager.Instance.SendActiveMutators(
+                    fromattedMutator.mutators,
+                    fromattedMutator.meta
+                );
+            }
+            else
+            {
+                MutatorsNetworkManager.Instance.SendActiveMutator(mutator.Name, mutator.Settings.AsMetadata());
+            }
+            
         }
 
         private static bool IsInShop()
