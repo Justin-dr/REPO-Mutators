@@ -1,4 +1,5 @@
-﻿using Mutators.Settings;
+﻿using Mutators.Managers;
+using Mutators.Settings;
 using Sirenix.Utilities;
 using System;
 using System.Collections.Generic;
@@ -60,6 +61,11 @@ namespace Mutators.Mutators
         public void Unpatch()
         {
             if (!Active) return;
+
+            if (SemiFunc.IsMultiplayer() && !SemiFunc.IsMasterClient())
+            {
+                MutatorManager.Instance.UnregisterMutator(this);
+            }
 
             foreach (IMutator subMutator in _subMutators)
             {
