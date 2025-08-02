@@ -32,7 +32,6 @@ public class RepoMutators : BaseUnityPlugin
     private void Awake()
     {
         Instance = this;
-        
         // Prevent the plugin from being deleted
         this.gameObject.transform.parent = null;
         this.gameObject.hideFlags = HideFlags.HideAndDontSave;
@@ -102,6 +101,11 @@ public class RepoMutators : BaseUnityPlugin
 
         Logger.LogDebug("Initializing default mutators.");
         MutatorManager.Instance.InitializeDefaultMutators();
+    }
+
+    private void Start()
+    {
+        MutatorManager.Instance.InitializeMultiMutators();
     }
 
     internal void Patch()

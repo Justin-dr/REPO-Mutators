@@ -1,0 +1,52 @@
+﻿using Mutators.Managers;
+using Mutators.Settings;
+using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+
+namespace Mutators.Mutators.Multi
+{
+    internal static class MultiMutatorLoader
+    {
+        public static IList<IMultiMutator> LoadAll()
+        {
+            string multiMutatorPath = Path.Combine(RepoMutators.Instance.Config.ConfigFilePath, "..", "MultiMutators");
+            string[] files = Directory.GetFiles(multiMutatorPath);
+
+            return files.Where(file => Path.GetExtension(file).Equals(".json", StringComparison.OrdinalIgnoreCase))
+                .Select(JsonConvert.DeserializeObject<JsonMultiMutator>)
+                .Select(yes)
+                .Where(multiMutator => multiMutator is not null)
+                .ToList()!;
+        }
+
+        private static IMultiMutator? yes(JsonMultiMutator? jsonMultiMutator)
+        {
+            if (jsonMultiMutator == null) return null;
+
+            IList<IMutator> mutators = [];
+
+            foreach (KeyValuePair<string, IDictionary<string, object>> item in jsonMultiMutator.Mutators)
+            {
+                if (MutatorManager.Instance.RegisteredMutators.TryGetValue(item.Key, out IMutator mutator))
+                {
+                    mutators.Add(mutator);
+                }
+                else
+                {
+                    RepoMutators.Logger.LogError($"Unable to find Mutator with name {item.Key}!");
+                    RepoMutators.Logger.LogError($"Aborting creation of MultiMuator with name {jsonMultiMutator.Name}!");
+                    return null;
+                }
+            }
+
+            return new MultiMutator(
+                new GenericMutatorSettings(jsonMultiMutator.Name, jsonMultiMutator.Description, RepoMutators.Instance.Config),
+                mutators
+            );
+            
+        } 
+    }
+}
