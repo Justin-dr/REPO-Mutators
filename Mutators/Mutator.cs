@@ -7,6 +7,7 @@ using Sirenix.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Reflection;
 
 namespace Mutators.Mutators
@@ -105,6 +106,11 @@ namespace Mutators.Mutators
         {
             if (metadata == null || metadata.Count == 0) return;
 
+            ConsumeNamedMetadata(metadata);
+        }
+
+        protected void ConsumeNamedMetadata(IDictionary<string, object> metadata)
+        {
             IDictionary<string, object> metaToCheck = metadata;
 
             // If metadata is nested under the mutator name, unwrap it
@@ -113,8 +119,36 @@ namespace Mutators.Mutators
                 metaToCheck = metaForMe;
             }
 
-            var immediate = new Dictionary<string, object>();
-            var _immediateKeys = Settings.AsMetadata() ?? new Dictionary<string, object>();
+            RepoMutators.Logger.LogInfo($"[{Name}] Metadata: " + string.Join(",", metadata.Keys));
+            IDictionary<string, object>? overrides = metadata.Get<IDictionary<string, object>>(RepoMutators.MUTATOR_OVERRIDES)?.Get<IDictionary<string, object>>(Settings.MutatorName);
+
+            RepoMutators.Logger.LogInfo($"[{Name}] Overrides: {overrides?.Count.ToString() ?? "null"}");
+            if (overrides != null)
+            {
+                foreach (string key in metaToCheck.Keys.Where(overrides.ContainsKey).ToList())
+                {
+                    object originalMetaValue = metaToCheck[key];
+                    object newValue = overrides[key];
+
+                    Type? origType = originalMetaValue?.GetType();
+                    Type? newType = newValue?.GetType();
+
+                    if (newValue.TryCoerce(origType!, out object? coerced))
+                    {
+                        metaToCheck[key] = coerced!;
+                        RepoMutators.Logger.LogDebug($"[{Name}] Overrode {key} value {originalMetaValue} with {coerced}");
+                    }
+                    else
+                    {
+                        RepoMutators.Logger.LogWarning(
+                            $"[{Name}] Failed to override {key}: original type was {(origType == null ? "null" : origType)} but override type was {(newType == null ? "null" : newType)}"
+                        );
+                    }
+                }
+            }
+
+            IDictionary<string, object> immediate = new Dictionary<string, object>();
+            IDictionary<string, object> _immediateKeys = Settings.AsMetadata() ?? new Dictionary<string, object>();
 
             if (_immediateKeys.TryGetValue(Settings.MutatorName, out object? keysNow) && keysNow is IDictionary<string, object> keysForImmediate)
             {

@@ -12,7 +12,7 @@ namespace Mutators.Mutators
     {
         private readonly IList<Type> _patches;
         private readonly IList<Func<bool>> _conditions;
-        private readonly IList<IMutator> _subMutators;
+        private readonly IDictionary<IMutator, IDictionary<string, object>> _subMutators;
 
         public string Name => Settings.MutatorName;
 
@@ -28,22 +28,22 @@ namespace Mutators.Mutators
 
         public IReadOnlyList<Func<bool>> Conditions => new ReadOnlyCollection<Func<bool>>(_conditions);
 
-        public IReadOnlyList<IMutator> SubMutators => new ReadOnlyCollection<IMutator>(_subMutators);
+        public IReadOnlyDictionary<IMutator, IDictionary<string, object>> SubMutators => new ReadOnlyDictionary<IMutator, IDictionary<string, object>>(_subMutators);
 
-        public MultiMutator(AbstractMutatorSettings settings, IList<IMutator> mutators, IList<Func<bool>> conditions = null!)
+        public MultiMutator(AbstractMutatorSettings settings, IDictionary<IMutator, IDictionary<string, object>> mutators, IList<Func<bool>> conditions = null!)
         {
             Settings = settings;
             _subMutators = mutators;
 
-            HasSpecialAction = _subMutators.Any(mutator => mutator.HasSpecialAction);
+            HasSpecialAction = _subMutators.Any(mutator => mutator.Key.HasSpecialAction);
 
-            _conditions = mutators.SelectMany(mut => mut.Conditions).ToList();
+            _conditions = mutators.SelectMany(mut => mut.Key.Conditions).ToList();
             if (conditions != null)
             {
                 _conditions.AddRange(conditions);
             }
 
-            _patches = mutators.SelectMany(mut => mut.Patches).ToList();
+            _patches = mutators.SelectMany(mut => mut.Key.Patches).ToList();
         }
 
         public void Patch()
@@ -52,7 +52,7 @@ namespace Mutators.Mutators
 
             Active = true;
 
-            foreach (IMutator subMutator in _subMutators)
+            foreach (IMutator subMutator in _subMutators.Keys)
             {
                 subMutator.Patch();
             }
@@ -67,7 +67,7 @@ namespace Mutators.Mutators
                 MutatorManager.Instance.UnregisterMutator(this);
             }
 
-            foreach (IMutator subMutator in _subMutators)
+            foreach (IMutator subMutator in _subMutators.Keys)
             {
                 subMutator.Unpatch();
             }
@@ -77,7 +77,7 @@ namespace Mutators.Mutators
 
         public void ConsumeMetadata(IDictionary<string, object> metadata)
         {
-            foreach (IMutator subMutator in _subMutators)
+            foreach (IMutator subMutator in _subMutators.Keys)
             {
                 subMutator.ConsumeMetadata(metadata);
             }

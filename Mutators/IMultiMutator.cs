@@ -4,6 +4,6 @@ namespace Mutators.Mutators
 {
     public interface IMultiMutator : IMutator
     {
-        IReadOnlyList<IMutator> SubMutators { get; }
+        IReadOnlyDictionary<IMutator, IDictionary<string, object>> SubMutators { get; }
     }
 }

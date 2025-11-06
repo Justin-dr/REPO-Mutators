@@ -28,13 +28,13 @@ namespace Mutators.Mutators.Multi
         {
             if (jsonMultiMutator == null) return null;
 
-            IList<IMutator> mutators = [];
+            IDictionary<IMutator, IDictionary<string, object>> mutators = new Dictionary<IMutator, IDictionary<string, object>>();
 
             foreach (KeyValuePair<string, IDictionary<string, object>> item in jsonMultiMutator.Mutators)
             {
                 if (MutatorManager.Instance.RegisteredMutators.TryGetValue(item.Key, out IMutator mutator))
                 {
-                    mutators.Add(mutator);
+                    mutators.Add(mutator, item.Value);
                 }
                 else
                 {

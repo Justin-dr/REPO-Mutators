@@ -24,22 +24,26 @@ namespace Mutators.Mutators.Patches
 
         internal static readonly System.Collections.Generic.ISet<PlayerAvatar> immunePlayers = new HashSet<PlayerAvatar>();
         private static float reviveImmunityDuration = MutatorSettings.TheFloorIsLava.ReviveImmunityDuration;
+        private static int damage = MutatorSettings.TheFloorIsLava.DamagePerTick;
+
         private static bool initDone = false;
 
         static void OnMetadataChanged(IDictionary<string, object> metadata)
         {
-            if (!SemiFunc.IsMasterClientOrSingleplayer())
+            reviveImmunityDuration = metadata.Get<float>(RevivalImmunityDuration);
+            damage = metadata.Get<int>(Damage);
+
+            RepoMutators.Logger.LogInfo($"[The Floor Is Lava] Damage: {damage} - State {MutatorManager.Instance.GameState}");
+
+            if (!initDone && MutatorManager.Instance.GameState == Enums.MutatorsGameState.LevelGenerated)
             {
-                reviveImmunityDuration = metadata.Get<float>(RevivalImmunityDuration);
-                if (MutatorManager.Instance.GameState == Enums.MutatorsGameState.LevelGenerated)
-                {
-                    HandleImmuneLogic(
-                        metadata.GetAsList<string>(ImmunePlayers) ?? [],
-                        metadata.Get<string>(ExtraDescription),
-                        metadata.Get<int>(Damage),
-                        metadata.Get<bool>(UsePercentageDamage)
-                    );
-                }
+                RepoMutators.Logger.LogInfo($"[The Floor Is Lava] Damage: {damage}");
+                HandleImmuneLogic(
+                    metadata.GetAsList<string>(ImmunePlayers) ?? [],
+                    metadata.Get<string>(ExtraDescription),
+                    damage,
+                    metadata.Get<bool>(UsePercentageDamage)
+                );
             }
         }
 
@@ -82,7 +86,7 @@ namespace Mutators.Mutators.Patches
                         immunePlayers.Add(chosenPlayer);
                     }
                 }
-
+            
                 SendMetadata();
             }
         }
@@ -161,13 +165,9 @@ namespace Mutators.Mutators.Patches
             }
         }
 
-        private static IDictionary<string, object> BuildMeta()
+        private static void SendMetadata()
         {
-            IDictionary<string, object> metadata = new Dictionary<string, object>()
-            {
-                { Damage, MutatorSettings.TheFloorIsLava.DamagePerTick },
-                { UsePercentageDamage, MutatorSettings.TheFloorIsLava.UsePercentageDamage }
-            };
+            IDictionary<string, object> metadata = new Dictionary<string, object>();
 
             if (immunePlayers.Count > 0)
             {
@@ -175,25 +175,18 @@ namespace Mutators.Mutators.Patches
 
                 string extraDescription = $"{JoinWithAnd(immunePlayers.Select(p => p.playerName).ToList())} {(immunePlayers.Count == 1 ? "is" : "are")} immune to lava damage!";
                 metadata.Add(ExtraDescription, extraDescription);
+
+                MutatorsNetworkManager.Instance.SendMetadata(metadata.WithMutator(MutatorSettings.TheFloorIsLava.MutatorName));
             }
 
-            return metadata.WithMutator(MutatorSettings.TheFloorIsLava.MutatorName);
-        }
-
-        private static void SendMetadata()
-        {
-            IDictionary<string, object> metadata = BuildMeta();
-
-            MutatorsNetworkManager.Instance.SendMetadata(metadata);
-
             ApplyImmunity(MutatorSettings.TheFloorIsLava.DamagePerTick, MutatorSettings.TheFloorIsLava.UsePercentageDamage);
-            HandleDescription(metadata.Get<string>(ExtraDescription));
         }
 
         static void AfterUnpatchAll()
         {
             immunePlayers.Clear();
             initDone = false;
+            damage = MutatorSettings.TheFloorIsLava.DamagePerTick;
         }
 
         private static string JoinWithAnd(IList<string> items)

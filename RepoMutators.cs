@@ -22,8 +22,13 @@ namespace Mutators;
 [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.NAME, MyPluginInfo.PLUGIN_VERSION)]
 public class RepoMutators : BaseUnityPlugin
 {
+    // Assets
     internal const string MainScenePath = "Assets/Scenes/Main/Main.unity";
     internal const string NETWORKMANAGER_NAME = "MutatorsNetworkManager";
+
+    // Meta
+    internal const string MUTATOR_OVERRIDES = "mutatorOverrides";
+
     internal static RepoMutators Instance { get; private set; } = null!;
     internal static ModSettings Settings { get; private set; } = null!;
     internal new static ManualLogSource Logger => Instance._logger;
