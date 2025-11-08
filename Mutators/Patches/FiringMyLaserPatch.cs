@@ -46,8 +46,15 @@ namespace Mutators.Mutators.Patches
         {
             if (!SemiFunc.IsMasterClientOrSingleplayer()) return;
 
+            string prefabId = $"{MyPluginInfo.PLUGIN_GUID}/FiringMyLaser";
+            if (!REPOLib.Modules.NetworkPrefabs.TryGetNetworkPrefabRef(prefabId, out PrefabRef? prefabRef))
+            {
+                RepoMutators.Logger.LogError("Unable to instantiate laser: Could not find PrefabRef with id " + prefabId);
+                return;
+            }
+
             GameObject? laser = REPOLib.Modules.NetworkPrefabs.SpawnNetworkPrefab(
-                $"{MyPluginInfo.PLUGIN_GUID}/FiringMyLaser", Vector3.zero, Quaternion.identity,
+                prefabRef, Vector3.zero, Quaternion.identity,
                 data: [__instance.steamID, MutatorSettings.FiringMyLaser.LaserActionCooldown, MutatorSettings.FiringMyLaser.LaserActionEnemyDamage, MutatorSettings.FiringMyLaser.LaserActionEnabled]
             );
 

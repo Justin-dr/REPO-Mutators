@@ -29,7 +29,7 @@ namespace Mutators.Patches
             if (___enemyList.Count == 0)
             {
                 var emptyEnemySetup = ScriptableObject.CreateInstance<EnemySetup>();
-                emptyEnemySetup.spawnObjects = new List<GameObject>();
+                emptyEnemySetup.spawnObjects = new List<PrefabRef>();
                 ___enemyList.Add(emptyEnemySetup);
             }
 

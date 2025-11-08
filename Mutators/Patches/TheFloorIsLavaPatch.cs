@@ -54,7 +54,7 @@ namespace Mutators.Mutators.Patches
                 ___enemyList.Clear();
 
                 var emptyEnemySetup = ScriptableObject.CreateInstance<EnemySetup>();
-                emptyEnemySetup.spawnObjects = new List<GameObject>();
+                emptyEnemySetup.spawnObjects = new List<PrefabRef>();
                 ___enemyList.Add(emptyEnemySetup);
 
                 while (___enemyList.Count < ___enemyListIndex + 1)

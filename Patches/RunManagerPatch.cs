@@ -33,7 +33,12 @@ namespace Mutators.Patches
             {
                 RepoMutators.Logger.LogDebug($"Spawning singleplayer NetworkManager");
                 string myPrefabId = $"{MyPluginInfo.PLUGIN_GUID}/{RepoMutators.NETWORKMANAGER_NAME}";
-                GameObject? gameObject = REPOLib.Modules.NetworkPrefabs.SpawnNetworkPrefab(myPrefabId, Vector3.zero, Quaternion.identity);
+                if (!REPOLib.Modules.NetworkPrefabs.TryGetNetworkPrefabRef(myPrefabId, out PrefabRef? prefabRef))
+                {
+                    throw new System.Exception("Unable to establish Mutators NetworkManager: Could not find PrefabRef with id: " + myPrefabId);
+                }
+
+                GameObject? gameObject = REPOLib.Modules.NetworkPrefabs.SpawnNetworkPrefab(prefabRef, Vector3.zero, Quaternion.identity);
                 gameObject?.SetActive(true);
 
                 GetAndSendMutator();

@@ -18,7 +18,7 @@ namespace Mutators.Extensions
                     (condition?.Invoke(setup) ?? false) ||
                     setup.spawnObjects.Any(so =>
                         enemyDisablingMutatorSettings.ExcludedEnemies.Any(excluded =>
-                            excluded.Equals(so.GetComponent<EnemyParent>()?.enemyName, StringComparison.OrdinalIgnoreCase)));
+                            excluded.Equals(so.Prefab.GetComponent<EnemyParent>()?.enemyName, StringComparison.OrdinalIgnoreCase)));
             }
             else
             {

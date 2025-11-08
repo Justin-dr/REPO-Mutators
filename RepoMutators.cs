@@ -82,7 +82,11 @@ public class RepoMutators : BaseUnityPlugin
             if (!SemiFunc.RunIsLobbyMenu()) return;
 
             Logger.LogDebug("Reviving network manager");
-            REPOLib.Modules.NetworkPrefabs.SpawnNetworkPrefab(myPrefabId, Vector3.zero, Quaternion.identity);
+            if (!REPOLib.Modules.NetworkPrefabs.TryGetNetworkPrefabRef(myPrefabId, out PrefabRef? prefabRef))
+            {
+                throw new System.Exception("Unable to establish Mutators NetworkManager: Could not find PrefabRef with id: " + myPrefabId);
+            } 
+            REPOLib.Modules.NetworkPrefabs.SpawnNetworkPrefab(prefabRef, Vector3.zero, Quaternion.identity);
 
             MutatorManager mutatorManager = MutatorManager.Instance;
             IMutator mutator = mutatorManager.GetWeightedMutator();

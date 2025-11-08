@@ -45,9 +45,9 @@ namespace Mutators.Mutators.Patches
                     .Concat(enemyDirector.enemiesDifficulty2)
                     .Concat(enemyDirector.enemiesDifficulty3)
                     .Where(setup => setup.spawnObjects.Count == 1 && !setup.spawnObjects.Any(so => {
-                        EnemyParent? enemyParent = so.GetComponent<EnemyParent>();
+                        EnemyParent? enemyParent = so.Prefab.GetComponent<EnemyParent>();
 
-                        if (enemyParent == null || !(so.GetComponentInChildren<EnemyHealth>()?.spawnValuable ?? false))
+                        if (enemyParent == null || !(so.Prefab.GetComponentInChildren<EnemyHealth>()?.spawnValuable ?? false))
                         {
                             return true;
                         }
