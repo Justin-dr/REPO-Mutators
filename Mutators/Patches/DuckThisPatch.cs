@@ -25,7 +25,7 @@ namespace Mutators.Mutators.Patches
 
             if (hasApexPredator) return;
 
-            EnemySetup? duckSetup = REPOLib.Modules.Enemies.AllEnemies.Where(x => Ducky.Equals(x.name, System.StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
+            EnemySetup? duckSetup = REPOLib.Modules.Enemies.AllEnemies.Where(enemySetup => enemySetup.name == "Enemy - Duck").FirstOrDefault();
             if (duckSetup)
             {
                 IList<EnemySetup> setups = enemyList.Where(setup =>

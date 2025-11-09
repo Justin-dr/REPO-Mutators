@@ -110,7 +110,7 @@ namespace Mutators.Mutators.Patches
             if (damage < 1 || __instance.playerAvatar.deadSet || LaserBlocked) return;
 
             LaserFiringBehaviour laserFiringBehaviour = __instance.playerAvatar.GetComponentInChildren<LaserFiringBehaviour>();
-            if (laserFiringBehaviour && !laserFiringBehaviour.IsActive())
+            if (laserFiringBehaviour && !laserFiringBehaviour.IsActive() && !laserFiringBehaviour.IsReviveLockout())
             {
                 laserFiringBehaviour.FireLaser(2.5f);
             }
@@ -128,13 +128,26 @@ namespace Mutators.Mutators.Patches
         [HarmonyPostfix]
         [HarmonyPatch(typeof(PlayerAvatar))]
         [HarmonyPatch(nameof(PlayerAvatar.PlayerDeath))]
-        static void PlayerAvatarReviveRPCPostfix(PlayerAvatar __instance)
+        static void PlayerAvatarDeathPostfix(PlayerAvatar __instance)
         {
             LaserFiringBehaviour laserFiringBehaviour = __instance.GetComponentInChildren<LaserFiringBehaviour>(true);
 
             if (laserFiringBehaviour)
             {
                 laserFiringBehaviour.StopLaser(true);
+            }
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(PlayerAvatar))]
+        [HarmonyPatch(nameof(PlayerAvatar.Revive))]
+        static void PlayerAvatarReviveRPCPostfix(PlayerAvatar __instance)
+        {
+            LaserFiringBehaviour laserFiringBehaviour = __instance.GetComponentInChildren<LaserFiringBehaviour>(true);
+
+            if (laserFiringBehaviour)
+            {
+                laserFiringBehaviour.ActivateReviveLockout();
             }
         }
 

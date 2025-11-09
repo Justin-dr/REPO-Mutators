@@ -250,7 +250,8 @@ namespace Mutators.Mutators.Patches
             PlayerAvatar bodyguard = PickBodyguardPlayer(excludedId);
             RepoMutators.Logger.LogDebug($"Picked {bodyguard.playerName} as the bodyguard!");
 
-            Item? tranq = Items.AllItems.Where(x => "Tranq gun".Equals(x.name)).FirstOrDefault();
+            Item? tranq = Items.AllItems.Where(x => "Tranq Gun".Equals(x.itemName)).FirstOrDefault();
+
             if (tranq)
             {
                 GameObject? spawnedItem = Items.SpawnItem(tranq, bodyguard.transform.position, UnityEngine.Quaternion.identity);

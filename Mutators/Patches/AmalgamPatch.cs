@@ -11,7 +11,7 @@ namespace Mutators.Mutators.Patches
     {
         private static bool initDone = false;
         private static Level actualLevel = null!;
-        private static readonly IDictionary<GameObject, Level> roomParentLevelMap = new Dictionary<GameObject, Level>();
+        private static readonly IDictionary<PrefabRef, Level> roomParentLevelMap = new Dictionary<PrefabRef, Level>();
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(LevelGenerator))]
@@ -24,21 +24,21 @@ namespace Mutators.Mutators.Patches
                 actualLevel = __instance.Level;
                 __instance.Level = new Level();
 
-                actualLevel.ModulesNormal1.ForEach(module => roomParentLevelMap[module.Prefab] = actualLevel);
-                actualLevel.ModulesNormal2.ForEach(module => roomParentLevelMap[module.Prefab] = actualLevel);
-                actualLevel.ModulesNormal3.ForEach(module => roomParentLevelMap[module.Prefab] = actualLevel);
+                actualLevel.ModulesNormal1.ForEach(module => roomParentLevelMap[module] = actualLevel);
+                actualLevel.ModulesNormal2.ForEach(module => roomParentLevelMap[module] = actualLevel);
+                actualLevel.ModulesNormal3.ForEach(module => roomParentLevelMap[module] = actualLevel);
 
-                actualLevel.ModulesPassage1.ForEach(module => roomParentLevelMap[module.Prefab] = actualLevel);
-                actualLevel.ModulesPassage2.ForEach(module => roomParentLevelMap[module.Prefab] = actualLevel);
-                actualLevel.ModulesPassage3.ForEach(module => roomParentLevelMap[module.Prefab] = actualLevel);
+                actualLevel.ModulesPassage1.ForEach(module => roomParentLevelMap[module] = actualLevel);
+                actualLevel.ModulesPassage2.ForEach(module => roomParentLevelMap[module] = actualLevel);
+                actualLevel.ModulesPassage3.ForEach(module => roomParentLevelMap[module] = actualLevel);
 
-                actualLevel.ModulesDeadEnd1.ForEach(module => roomParentLevelMap[module.Prefab] = actualLevel);
-                actualLevel.ModulesDeadEnd2.ForEach(module => roomParentLevelMap[module.Prefab] = actualLevel);
-                actualLevel.ModulesDeadEnd3.ForEach(module => roomParentLevelMap[module.Prefab] = actualLevel);
+                actualLevel.ModulesDeadEnd1.ForEach(module => roomParentLevelMap[module] = actualLevel);
+                actualLevel.ModulesDeadEnd2.ForEach(module => roomParentLevelMap[module] = actualLevel);
+                actualLevel.ModulesDeadEnd3.ForEach(module => roomParentLevelMap[module] = actualLevel);
 
-                actualLevel.ModulesExtraction1.ForEach(module => roomParentLevelMap[module.Prefab] = actualLevel);
-                actualLevel.ModulesExtraction2.ForEach(module => roomParentLevelMap[module.Prefab] = actualLevel);
-                actualLevel.ModulesExtraction3.ForEach(module => roomParentLevelMap[module.Prefab] = actualLevel);
+                actualLevel.ModulesExtraction1.ForEach(module => roomParentLevelMap[module] = actualLevel);
+                actualLevel.ModulesExtraction2.ForEach(module => roomParentLevelMap[module] = actualLevel);
+                actualLevel.ModulesExtraction3.ForEach(module => roomParentLevelMap[module] = actualLevel);
 
                 RepoMutators.Logger.LogInfo("[Amalgam] Building level from the following available levels:");
                 foreach (Level level in GetAllEligibleLevels())
@@ -69,7 +69,7 @@ namespace Mutators.Mutators.Patches
         [HarmonyPostfix]
         [HarmonyPatch(typeof(LevelGenerator))]
         [HarmonyPatch(nameof(LevelGenerator.PickModule))]
-        static void LevelGeneratorPickModulePrefix(LevelGenerator __instance, ref GameObject __result)
+        static void LevelGeneratorPickModulePrefix(LevelGenerator __instance, ref PrefabRef __result)
         {
             if (!SemiFunc.IsMasterClientOrSingleplayer()) return;
 
@@ -79,7 +79,7 @@ namespace Mutators.Mutators.Patches
             }
             else
             {
-                RepoMutators.Logger.LogError($"Failed to determine to which level module {__result.name} belongs!");
+                RepoMutators.Logger.LogError($"Failed to determine to which level module {__result?.PrefabName ?? "null"} belongs!");
             }
         }
 
@@ -93,9 +93,9 @@ namespace Mutators.Mutators.Patches
             levelGenerator.ModulesNormalShuffled_2.Shuffle();
             levelGenerator.ModulesNormalShuffled_3.Shuffle();
 
-            level.ModulesNormal1.ForEach(module => roomParentLevelMap[module.Prefab] = level);
-            level.ModulesNormal2.ForEach(module => roomParentLevelMap[module.Prefab] = level);
-            level.ModulesNormal3.ForEach(module => roomParentLevelMap[module.Prefab] = level);
+            level.ModulesNormal1.ForEach(module => roomParentLevelMap[module] = level);
+            level.ModulesNormal2.ForEach(module => roomParentLevelMap[module] = level);
+            level.ModulesNormal3.ForEach(module => roomParentLevelMap[module] = level);
         }
 
         static void AddPassageModules(LevelGenerator levelGenerator, Level level)
@@ -108,9 +108,9 @@ namespace Mutators.Mutators.Patches
             levelGenerator.ModulesPassageShuffled_2.Shuffle();
             levelGenerator.ModulesPassageShuffled_3.Shuffle();
 
-            level.ModulesPassage1.ForEach(module => roomParentLevelMap[module.Prefab] = level);
-            level.ModulesPassage2.ForEach(module => roomParentLevelMap[module.Prefab] = level);
-            level.ModulesPassage3.ForEach(module => roomParentLevelMap[module.Prefab] = level);
+            level.ModulesPassage1.ForEach(module => roomParentLevelMap[module] = level);
+            level.ModulesPassage2.ForEach(module => roomParentLevelMap[module] = level);
+            level.ModulesPassage3.ForEach(module => roomParentLevelMap[module] = level);
         }
 
         static void AddDeadEndModules(LevelGenerator levelGenerator, Level level)
@@ -123,9 +123,9 @@ namespace Mutators.Mutators.Patches
             levelGenerator.ModulesDeadEndShuffled_2.Shuffle();
             levelGenerator.ModulesDeadEndShuffled_3.Shuffle();
 
-            level.ModulesDeadEnd1.ForEach(module => roomParentLevelMap[module.Prefab] = level);
-            level.ModulesDeadEnd2.ForEach(module => roomParentLevelMap[module.Prefab] = level);
-            level.ModulesDeadEnd3.ForEach(module => roomParentLevelMap[module.Prefab] = level);
+            level.ModulesDeadEnd1.ForEach(module => roomParentLevelMap[module] = level);
+            level.ModulesDeadEnd2.ForEach(module => roomParentLevelMap[module] = level);
+            level.ModulesDeadEnd3.ForEach(module => roomParentLevelMap[module] = level);
         }
 
         static void AddExtractionModules(LevelGenerator levelGenerator, Level level)
@@ -138,9 +138,9 @@ namespace Mutators.Mutators.Patches
             levelGenerator.ModulesExtractionShuffled_2.Shuffle();
             levelGenerator.ModulesExtractionShuffled_3.Shuffle();
 
-            level.ModulesExtraction1.ForEach(module => roomParentLevelMap[module.Prefab] = level);
-            level.ModulesExtraction2.ForEach(module => roomParentLevelMap[module.Prefab] = level);
-            level.ModulesExtraction3.ForEach(module => roomParentLevelMap[module.Prefab] = level);
+            level.ModulesExtraction1.ForEach(module => roomParentLevelMap[module] = level);
+            level.ModulesExtraction2.ForEach(module => roomParentLevelMap[module] = level);
+            level.ModulesExtraction3.ForEach(module => roomParentLevelMap[module] = level);
         }
 
         private static IList<Level> GetAllEligibleLevels()
