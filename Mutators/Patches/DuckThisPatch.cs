@@ -21,16 +21,17 @@ namespace Mutators.Mutators.Patches
             if (!SemiFunc.IsMasterClientOrSingleplayer()) return;
 
             IList<EnemySetup> enemyList = __instance.enemyList;
-            bool hasApexPredator = enemyList.Any(setup => setup.spawnObjects.Select(so => so.GetComponent<EnemyParent>()).Any(ep => ep != null && ep.enemyName == Ducky));
+            bool hasApexPredator = enemyList.Any(setup => setup.spawnObjects.Select(so => so.Prefab.GetComponent<EnemyParent>()).Any(ep => ep != null && ep.enemyName == Ducky));
 
             if (hasApexPredator) return;
 
-            if (REPOLib.Modules.Enemies.TryGetEnemyByName(Ducky, out EnemySetup? duck))
+            EnemySetup? duckSetup = REPOLib.Modules.Enemies.AllEnemies.Where(enemySetup => enemySetup.name == "Enemy - Duck").FirstOrDefault();
+            if (duckSetup)
             {
                 IList<EnemySetup> setups = enemyList.Where(setup =>
                 {
                     IEnumerable<EnemyParent> enemyParents = setup.spawnObjects
-                        .Select(so => so.GetComponent<EnemyParent>())
+                        .Select(so => so.Prefab.GetComponent<EnemyParent>())
                         .Where(ep => ep != null);
 
                     return enemyParents.All(ep => ep.difficulty == EnemyParent.Difficulty.Difficulty1) && enemyParents.All(ep => ep.enemyName != Ducky);
@@ -46,7 +47,7 @@ namespace Mutators.Mutators.Patches
                 if (!enemyList.Remove(setupToRemove)) return;
 
                 RepoMutators.Logger.LogDebug($"[{MutatorSettings.DuckThis.MutatorName}] {setupToRemove.name} was removed in favor of {Ducky}");
-                enemyList.Add(duck);
+                enemyList.Add(duckSetup);
             }
         }
 

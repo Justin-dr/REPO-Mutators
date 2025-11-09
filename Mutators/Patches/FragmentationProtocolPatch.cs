@@ -2,6 +2,7 @@
 using Mutators.Mutators.Behaviours;
 using Mutators.Network;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine.Events;
 
@@ -24,7 +25,8 @@ namespace Mutators.Mutators.Patches
 
             RepoMutators.Logger.LogInfo($"Enemy was not a fragment");
 
-            if (REPOLib.Modules.Enemies.TryGetEnemyByName(__instance.EnemyParent.enemyName, out EnemySetup? enemySetup))
+            EnemySetup? enemySetup = REPOLib.Modules.Enemies.AllEnemies.Where(x => __instance.EnemyParent.enemyName.Equals(x.name, System.StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
+            if (enemySetup)
             {
                 FragmentationProtocolBehaviour fragmentationProtocolBehaviour = __instance.EnemyParent.GetOrAddComponent<FragmentationProtocolBehaviour>();
 

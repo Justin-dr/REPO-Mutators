@@ -46,8 +46,15 @@ namespace Mutators.Mutators.Patches
         {
             if (!SemiFunc.IsMasterClientOrSingleplayer()) return;
 
+            string prefabId = $"{MyPluginInfo.PLUGIN_GUID}/FiringMyLaser";
+            if (!REPOLib.Modules.NetworkPrefabs.TryGetNetworkPrefabRef(prefabId, out PrefabRef? prefabRef))
+            {
+                RepoMutators.Logger.LogError("Unable to instantiate laser: Could not find PrefabRef with id " + prefabId);
+                return;
+            }
+
             GameObject? laser = REPOLib.Modules.NetworkPrefabs.SpawnNetworkPrefab(
-                $"{MyPluginInfo.PLUGIN_GUID}/FiringMyLaser", Vector3.zero, Quaternion.identity,
+                prefabRef, Vector3.zero, Quaternion.identity,
                 data: [__instance.steamID, MutatorSettings.FiringMyLaser.LaserActionCooldown, MutatorSettings.FiringMyLaser.LaserActionEnemyDamage, MutatorSettings.FiringMyLaser.LaserActionEnabled]
             );
 
@@ -103,7 +110,7 @@ namespace Mutators.Mutators.Patches
             if (damage < 1 || __instance.playerAvatar.deadSet || LaserBlocked) return;
 
             LaserFiringBehaviour laserFiringBehaviour = __instance.playerAvatar.GetComponentInChildren<LaserFiringBehaviour>();
-            if (laserFiringBehaviour && !laserFiringBehaviour.IsActive())
+            if (laserFiringBehaviour && !laserFiringBehaviour.IsActive() && !laserFiringBehaviour.IsReviveLockout())
             {
                 laserFiringBehaviour.FireLaser(2.5f);
             }
@@ -121,13 +128,26 @@ namespace Mutators.Mutators.Patches
         [HarmonyPostfix]
         [HarmonyPatch(typeof(PlayerAvatar))]
         [HarmonyPatch(nameof(PlayerAvatar.PlayerDeath))]
-        static void PlayerAvatarReviveRPCPostfix(PlayerAvatar __instance)
+        static void PlayerAvatarDeathPostfix(PlayerAvatar __instance)
         {
             LaserFiringBehaviour laserFiringBehaviour = __instance.GetComponentInChildren<LaserFiringBehaviour>(true);
 
             if (laserFiringBehaviour)
             {
                 laserFiringBehaviour.StopLaser(true);
+            }
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(PlayerAvatar))]
+        [HarmonyPatch(nameof(PlayerAvatar.Revive))]
+        static void PlayerAvatarReviveRPCPostfix(PlayerAvatar __instance)
+        {
+            LaserFiringBehaviour laserFiringBehaviour = __instance.GetComponentInChildren<LaserFiringBehaviour>(true);
+
+            if (laserFiringBehaviour)
+            {
+                laserFiringBehaviour.ActivateReviveLockout();
             }
         }
 

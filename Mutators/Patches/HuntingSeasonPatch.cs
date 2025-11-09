@@ -23,7 +23,7 @@ namespace Mutators.Mutators.Patches
             if (!SemiFunc.IsMasterClientOrSingleplayer()) return;
 
             __instance.DisableEnemies(setup => setup.spawnObjects.All(so => {
-                EnemyParent? enemyParent = so.GetComponent<EnemyParent>();
+                EnemyParent? enemyParent = so.Prefab.GetComponent<EnemyParent>();
 
                 if (enemyParent == null)
                 {
@@ -32,7 +32,7 @@ namespace Mutators.Mutators.Patches
 
                 bool isPeeper = enemyParent.enemyName == "Peeper";
 
-                return isPeeper || (!so.GetComponentInChildren<EnemyHealth>()?.spawnValuable ?? false);
+                return isPeeper || (!so.Prefab.GetComponentInChildren<EnemyHealth>()?.spawnValuable ?? false);
             }));
         }
 
@@ -166,7 +166,7 @@ namespace Mutators.Mutators.Patches
 
         private static Item[] GetPossibleItems()
         {
-            return Items.AllItems.Where(i => !i.prefab.GetComponent<ValuableObject>() && (i.itemType == SemiFunc.itemType.melee || i.itemType == SemiFunc.itemType.gun)).ToArray();
+            return Items.AllItems.Where(i => !i.prefab.Prefab.GetComponent<ValuableObject>() && (i.itemType == SemiFunc.itemType.melee || i.itemType == SemiFunc.itemType.gun)).ToArray();
         }
     }
 }

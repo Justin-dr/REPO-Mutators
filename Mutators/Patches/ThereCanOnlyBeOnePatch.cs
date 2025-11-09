@@ -26,7 +26,7 @@ namespace Mutators.Mutators.Patches
                 .Concat(__instance.enemiesDifficulty2)
                 .Concat(__instance.enemiesDifficulty3)
                 .Where(setup => groupsAllowed || !setup.name.StartsWith(EnemyGroupPrefix))
-                .Where(setup => setup.spawnObjects.All(so =>!excludedEnemies.Any(excluded => excluded.Equals(so.GetComponent<EnemyParent>()?.enemyName, StringComparison.OrdinalIgnoreCase))))
+                .Where(setup => setup.spawnObjects.All(so =>!excludedEnemies.Any(excluded => excluded.Equals(so.Prefab.GetComponent<EnemyParent>()?.enemyName, StringComparison.OrdinalIgnoreCase))))
                 .ToList();
 
 

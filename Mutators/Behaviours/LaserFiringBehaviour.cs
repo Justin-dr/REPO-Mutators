@@ -15,6 +15,9 @@ namespace Mutators.Mutators.Behaviours
         private Transform visionTransform;
         private float laserTimer;
 
+        internal float laserReviveLockout = 5f;
+        internal float laserReviveLockoutTimer = 5f;
+
         internal float laserCooldown = 100f;
         internal float laserCooldownTimer = 100f;
 
@@ -42,6 +45,11 @@ namespace Mutators.Mutators.Behaviours
                 if (laserCooldownTimer < laserCooldown)
                 {
                     laserCooldownTimer += Time.deltaTime;
+                }
+
+                if (laserReviveLockoutTimer > 0)
+                {
+                    laserReviveLockoutTimer -= Time.deltaTime;
                 }
 
                 if (manualActionEnabled && laserCooldownTimer >= laserCooldown && !ChatManager.instance.StateIsActive() && Input.GetKeyDown(RepoMutators.Settings.SpecialActionKey))
@@ -115,6 +123,16 @@ namespace Mutators.Mutators.Behaviours
         public bool IsActive()
         {
             return laserTimer > 0;
+        }
+
+        public bool IsReviveLockout()
+        {
+            return laserReviveLockoutTimer > 0;
+        }
+
+        public void ActivateReviveLockout()
+        {
+            laserReviveLockoutTimer = laserReviveLockout;
         }
 
         public void OnPhotonInstantiate(PhotonMessageInfo info)

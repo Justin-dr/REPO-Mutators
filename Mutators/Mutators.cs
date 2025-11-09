@@ -34,7 +34,7 @@
         public const string OneShotOneKillDescription = "Any damage taken by a player is lethal";
         public const string RustyServosDescription = "Players cannot jump\n+3 Grab Range";
         public const string HandleWithCareDescription = "Valuables are worth more but break on any impact";
-        public const string HuntingSeasonDescription = "No valuables spawn, weapons spawn instead\nEnemy respawn time reduced to 10 seconds\nOrb drop cap is removed";
+        public const string HuntingSeasonDescription = "No valuables spawn, weapons spawn instead\nEnemy respawn time reduced to 10 seconds";
         public const string ThereCanOnlyBeOneDescription = "All monster spawns are of the same type";
         public const string VolatileCargoDescription = "Valuables explode on destruction\nExplosion radius and strength based on value";
         public const string SealedAwayDescription = "Breaking valuables has a chance to spawn monsters";

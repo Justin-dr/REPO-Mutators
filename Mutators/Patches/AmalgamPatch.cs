@@ -11,7 +11,7 @@ namespace Mutators.Mutators.Patches
     {
         private static bool initDone = false;
         private static Level actualLevel = null!;
-        private static readonly IDictionary<GameObject, Level> roomParentLevelMap = new Dictionary<GameObject, Level>();
+        private static readonly IDictionary<PrefabRef, Level> roomParentLevelMap = new Dictionary<PrefabRef, Level>();
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(LevelGenerator))]
@@ -69,7 +69,7 @@ namespace Mutators.Mutators.Patches
         [HarmonyPostfix]
         [HarmonyPatch(typeof(LevelGenerator))]
         [HarmonyPatch(nameof(LevelGenerator.PickModule))]
-        static void LevelGeneratorPickModulePrefix(LevelGenerator __instance, ref GameObject __result)
+        static void LevelGeneratorPickModulePrefix(LevelGenerator __instance, ref PrefabRef __result)
         {
             if (!SemiFunc.IsMasterClientOrSingleplayer()) return;
 
@@ -79,7 +79,7 @@ namespace Mutators.Mutators.Patches
             }
             else
             {
-                RepoMutators.Logger.LogError($"Failed to determine to which level module {__result.name} belongs!");
+                RepoMutators.Logger.LogError($"Failed to determine to which level module {__result?.PrefabName ?? "null"} belongs!");
             }
         }
 
