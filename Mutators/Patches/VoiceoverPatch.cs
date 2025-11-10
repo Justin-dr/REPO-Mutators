@@ -156,7 +156,7 @@ namespace Mutators.Mutators.Patches
             }
             if (!SemiFunc.MenuLevel())
             {
-                playerAvatar.voiceChat.ToggleMixer(_lobby: true);
+                playerAvatar.voiceChat.ToggleMixer(_lobby: false);
             }
         }
 
