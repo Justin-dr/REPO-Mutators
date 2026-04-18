@@ -1,13 +1,14 @@
-﻿using Mutators.Enums;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using Mutators.Enums;
 using Mutators.Mutators;
 using Mutators.Mutators.Patches;
 using Mutators.Settings;
 using Sirenix.Utilities;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace Mutators.Managers
 {
@@ -75,6 +76,15 @@ namespace Mutators.Managers
             ];
 
             mutators.ForEach(mutator => _mutators[mutator.Name] = mutator);
+
+            GameStateChanged += gameState =>
+            {
+                if (gameState == MutatorsGameState.LevelGenerated)
+                {
+                    LevelManager.Instance.RestoreLevels();
+                }
+            };
+
             _initialized = true;
         }
 
@@ -149,7 +159,7 @@ namespace Mutators.Managers
                 return _nopMutator;
             }
 
-            float randomValue = UnityEngine.Random.Range(0f, totalWeight);
+            float randomValue = Random.Range(0f, totalWeight);
 
             float currentSum = 0f;
             foreach (IMutator mutator in eligibleMutators)

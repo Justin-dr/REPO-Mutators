@@ -1,11 +1,10 @@
-﻿using HarmonyLib;
+﻿using System;
+using HarmonyLib;
+using Mutators.Enums;
 using Mutators.Managers;
 using Mutators.Mutators;
 using Mutators.Network;
-using Mutators.Settings;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using REPOLib.Modules;
 using UnityEngine;
 
 namespace Mutators.Patches
@@ -13,14 +12,6 @@ namespace Mutators.Patches
     [HarmonyPatch(typeof(RunManager))]
     internal class RunManagerPatch
     {
-        private static readonly ISet<string> vanillaLevelNames = new HashSet<string>()
-        {
-            { "Level - Artic" },
-            { "Level - Manor" },
-            { "Level - Wizard" },
-            { "Level - Museum" }
-        };
-
         [HarmonyPostfix]
         [HarmonyPatch(nameof(RunManager.ChangeLevel))]
         static void RunManagerChangeLevelPostfix()
@@ -33,12 +24,12 @@ namespace Mutators.Patches
             {
                 RepoMutators.Logger.LogDebug($"Spawning singleplayer NetworkManager");
                 string myPrefabId = $"{MyPluginInfo.PLUGIN_GUID}/{RepoMutators.NETWORKMANAGER_NAME}";
-                if (!REPOLib.Modules.NetworkPrefabs.TryGetNetworkPrefabRef(myPrefabId, out PrefabRef? prefabRef))
+                if (!NetworkPrefabs.TryGetNetworkPrefabRef(myPrefabId, out PrefabRef? prefabRef))
                 {
-                    throw new System.Exception("Unable to establish Mutators NetworkManager: Could not find PrefabRef with id: " + myPrefabId);
+                    throw new Exception("Unable to establish Mutators NetworkManager: Could not find PrefabRef with id: " + myPrefabId);
                 }
 
-                GameObject? gameObject = REPOLib.Modules.NetworkPrefabs.SpawnNetworkPrefab(prefabRef, Vector3.zero, Quaternion.identity);
+                GameObject? gameObject = NetworkPrefabs.SpawnNetworkPrefab(prefabRef, Vector3.zero, Quaternion.identity);
                 gameObject?.SetActive(true);
 
                 GetAndSendMutator();
@@ -58,48 +49,12 @@ namespace Mutators.Patches
             ApplyPatch();
         }
 
-        [HarmonyPrefix]
-        [HarmonyPatch(nameof(RunManager.SetRunLevel))]
-        static void RunManagerChangeLevelPrefix(RunManager __instance, ref Level ___previousRunLevel)
-        {
-            if (!SemiFunc.IsMasterClientOrSingleplayer()) return;
-            if (MutatorManager.Instance.CurrentMutator.Settings is ILevelRemovingMutatorSettings settings)
-            {
-
-                if (!settings.AllowCustomLevels)
-                {
-                    __instance.levels.RemoveAll(l => !vanillaLevelNames.Contains(l.name));
-                }
-
-                if (settings.ExcludedLevels.Count > 0)
-                {
-                    ISet<string> excludedSet = new HashSet<string>(
-                        settings.ExcludedLevels.Select(level => level.StartsWith("level - ", StringComparison.OrdinalIgnoreCase) ? level.ToLowerInvariant(): ("level - " + level).ToLowerInvariant())
-                    );
-
-                    __instance.levels.RemoveAll(level => excludedSet.Contains(level.name.ToLowerInvariant()));
-                }
-
-
-                if (__instance.levels.Count == 1)
-                {
-                    ___previousRunLevel = null!;
-                }
-                else if (__instance.levels.Count == 0)
-                {
-                    ___previousRunLevel = null!;
-                    RepoMutators.Logger.LogError("Attempted to start a run with 0 available levels, please revisit your mod settings!");
-                    RepoMutators.Logger.LogError("There must be at least one level available to choose from!");
-                }
-            }
-        }
-
         private static void ApplyPatch()
         {
             MutatorManager mutatorManager = MutatorManager.Instance;
             if (IsInShop())
             {
-                mutatorManager.GameState = Enums.MutatorsGameState.Shop;
+                mutatorManager.GameState = MutatorsGameState.Shop;
                 if (SemiFunc.IsMasterClientOrSingleplayer())
                 {
                     MutatorsNetworkManager.Instance.ClearBufferedRPCs();
@@ -114,7 +69,7 @@ namespace Mutators.Patches
             }
             else
             {
-                mutatorManager.GameState = Enums.MutatorsGameState.None;
+                mutatorManager.GameState = MutatorsGameState.None;
                 if (SemiFunc.RunIsArena())
                 {
                     mutatorManager.SetActiveMutator(Mutators.Mutators.NopMutatorName);

@@ -1,4 +1,9 @@
-﻿using BepInEx;
+﻿using System;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using BepInEx;
+using BepInEx.Bootstrap;
 using BepInEx.Logging;
 using HarmonyLib;
 using Mutators.Managers;
@@ -9,11 +14,10 @@ using Mutators.Patches;
 using Mutators.Settings;
 using Photon.Pun;
 using REPOLib;
-using System.IO;
-using System.Linq;
-using System.Reflection;
+using REPOLib.Modules;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Object = UnityEngine.Object;
 
 namespace Mutators;
 
@@ -48,7 +52,7 @@ public class RepoMutators : BaseUnityPlugin
             firingMyLaser.AddComponent<PhotonView>();
             firingMyLaser.AddComponent<LaserFiringBehaviour>();
 
-            REPOLib.Modules.NetworkPrefabs.RegisterNetworkPrefab($"{MyPluginInfo.PLUGIN_GUID}/FiringMyLaser", firingMyLaser);
+            NetworkPrefabs.RegisterNetworkPrefab($"{MyPluginInfo.PLUGIN_GUID}/FiringMyLaser", firingMyLaser);
 
             _logger.LogInfo($"Loaded {MyPluginInfo.NAME} asset bundle");
         });
@@ -65,7 +69,7 @@ public class RepoMutators : BaseUnityPlugin
         myPrefab.AddComponent<MutatorsNetworkManager>();
 
         string myPrefabId = $"{MyPluginInfo.PLUGIN_GUID}/{NETWORKMANAGER_NAME}";
-        REPOLib.Modules.NetworkPrefabs.RegisterNetworkPrefab(myPrefabId, myPrefab);
+        NetworkPrefabs.RegisterNetworkPrefab(myPrefabId, myPrefab);
 
         SceneManager.sceneLoaded += (scene, loadSceneMode) => {
             if (scene.path != MainScenePath) return;
@@ -74,7 +78,7 @@ public class RepoMutators : BaseUnityPlugin
             {
                 if (MutatorsNetworkManager.Instance != null && MutatorsNetworkManager.Instance.gameObject != null)
                 {
-                    Object.Destroy(MutatorsNetworkManager.Instance.gameObject);
+                    Destroy(MutatorsNetworkManager.Instance.gameObject);
                 }
                 return;
             }
@@ -82,11 +86,11 @@ public class RepoMutators : BaseUnityPlugin
             if (!SemiFunc.RunIsLobbyMenu()) return;
 
             Logger.LogDebug("Reviving network manager");
-            if (!REPOLib.Modules.NetworkPrefabs.TryGetNetworkPrefabRef(myPrefabId, out PrefabRef? prefabRef))
+            if (!NetworkPrefabs.TryGetNetworkPrefabRef(myPrefabId, out PrefabRef? prefabRef))
             {
-                throw new System.Exception("Unable to establish Mutators NetworkManager: Could not find PrefabRef with id: " + myPrefabId);
+                throw new Exception("Unable to establish Mutators NetworkManager: Could not find PrefabRef with id: " + myPrefabId);
             } 
-            REPOLib.Modules.NetworkPrefabs.SpawnNetworkPrefab(prefabRef, Vector3.zero, Quaternion.identity);
+            NetworkPrefabs.SpawnNetworkPrefab(prefabRef, Vector3.zero, Quaternion.identity);
 
             MutatorManager mutatorManager = MutatorManager.Instance;
             IMutator mutator = mutatorManager.GetWeightedMutator();
@@ -110,7 +114,7 @@ public class RepoMutators : BaseUnityPlugin
 
     internal void Patch()
     {
-        var hasSpawnManager = BepInEx.Bootstrap.Chainloader.PluginInfos.Values.Any(x => x.Metadata.GUID == "soundedsquash.spawnmanager");
+        var hasSpawnManager = Chainloader.PluginInfos.Values.Any(x => x.Metadata.GUID == "soundedsquash.spawnmanager");
 
         Harmony ??= new Harmony(Info.Metadata.GUID);
         Harmony.PatchAll(typeof(RunManagerPatch));
@@ -120,6 +124,8 @@ public class RepoMutators : BaseUnityPlugin
         Harmony.PatchAll(typeof(MenuPagePatch));
         Harmony.PatchAll(typeof(SpectateCameraPatch));
         Harmony.PatchAll(typeof(LevelGeneratorPatch));
+        Harmony.PatchAll(typeof(MenuManagerPatch));
+        Harmony.PatchAll(typeof(HealthUIPatch));
 
         if (!hasSpawnManager)
         {
