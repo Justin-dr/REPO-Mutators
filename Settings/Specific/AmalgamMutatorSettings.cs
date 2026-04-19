@@ -38,6 +38,11 @@ namespace Mutators.Settings.Specific
             {
                 excluded.Add("Backrooms");
             }
+            
+            if (!excluded.Contains("PeachCastle"))
+            {
+                excluded.Add("PeachCastle");
+            }
 
             return excluded;
         }

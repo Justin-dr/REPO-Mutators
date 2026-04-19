@@ -13,13 +13,27 @@ namespace Mutators.Mutators.Patches
     internal class FiringMyLaserPatch
     {
         private const string LaserActionEnabled = "laserActionEnabled";
+        private const string LaserOnHurtEnabled = "laserOnHurtEnabled";
         private static bool LaserBlocked = false;
+        private static bool LaserOnHurt = true;
 
         static void OnMetadataChanged(IDictionary<string, object> metadata)
         {
-            if (!metadata.Get<bool>(LaserActionEnabled))
+            LaserOnHurt = metadata.Get<bool>(LaserOnHurtEnabled);
+            bool laserOnAction = metadata.Get<bool>(LaserActionEnabled);
+
+            if (!laserOnAction && !laserOnAction)
+            {
+                MutatorsNetworkManager.Instance.Run(DescriptionUtils.LateUpdateDescription("Laser module not installed..."));
+                return;
+            }
+
+            if (!laserOnAction)
             {
                 MutatorsNetworkManager.Instance.Run(DescriptionUtils.LateUpdateDescription(Mutators.FiringMyLaserDescription.Split("\n")[1]));
+            } else if (!LaserOnHurt)
+            {
+                MutatorsNetworkManager.Instance.Run(DescriptionUtils.LateUpdateDescription(Mutators.FiringMyLaserDescription.Split("\n")[0]));
             }
         }
 
@@ -32,7 +46,8 @@ namespace Mutators.Mutators.Patches
             {
                 IDictionary<string, object> metadata = new Dictionary<string, object>()
                 {
-                    { LaserActionEnabled, MutatorSettings.FiringMyLaser.LaserActionEnabled }
+                    { LaserActionEnabled, MutatorSettings.FiringMyLaser.LaserActionEnabled },
+                    { LaserOnHurtEnabled, MutatorSettings.FiringMyLaser.LaserOnHurtEnabled }
                 };
 
                 MutatorsNetworkManager.Instance.SendMetadata(metadata);
@@ -107,7 +122,7 @@ namespace Mutators.Mutators.Patches
         [HarmonyPatch(nameof(PlayerHealth.Hurt))]
         static void PlayerHealthHurtPostfix(PlayerHealth __instance, int damage)
         {
-            if (damage < 1 || __instance.playerAvatar.deadSet || LaserBlocked) return;
+            if (!LaserOnHurt || damage < 1 || __instance.playerAvatar.deadSet || LaserBlocked) return;
 
             LaserFiringBehaviour laserFiringBehaviour = __instance.playerAvatar.GetComponentInChildren<LaserFiringBehaviour>();
             if (laserFiringBehaviour && !laserFiringBehaviour.IsActive() && !laserFiringBehaviour.IsReviveLockout())
@@ -154,6 +169,7 @@ namespace Mutators.Mutators.Patches
         private static void BeforeUnpatchAll()
         {
             LaserBlocked = false;
+            LaserOnHurt = true;
         }
     }
 }

@@ -79,7 +79,7 @@ namespace Mutators.Managers
 
             GameStateChanged += gameState =>
             {
-                if (gameState == MutatorsGameState.LevelGenerated)
+                if (gameState == MutatorsGameState.LevelReady)
                 {
                     LevelManager.Instance.RestoreLevels();
                 }

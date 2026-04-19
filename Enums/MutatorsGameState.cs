@@ -4,6 +4,7 @@
     {
         None = 0,
         Shop = 5,
+        LevelReady = 29,
         LevelGenerated = 30
     }
 }

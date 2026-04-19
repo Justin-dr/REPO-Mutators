@@ -13,6 +13,17 @@ namespace Mutators.Patches
         {
             if (SemiFunc.RunIsLevel())
             {
+                MutatorManager.Instance.GameState = Enums.MutatorsGameState.LevelReady;
+            }
+        }
+        
+        [HarmonyPostfix]
+        [HarmonyPriority(Priority.Last)]
+        [HarmonyPatch(nameof(LevelGenerator.GenerateDone))]
+        static void LevelGeneratorGenerateDonePostfix()
+        {
+            if (SemiFunc.RunIsLevel())
+            {
                 MutatorManager.Instance.GameState = Enums.MutatorsGameState.LevelGenerated;
             }
         }

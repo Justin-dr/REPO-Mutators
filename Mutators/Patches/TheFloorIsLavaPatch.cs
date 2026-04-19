@@ -31,7 +31,7 @@ namespace Mutators.Mutators.Patches
             if (!SemiFunc.IsMasterClientOrSingleplayer())
             {
                 reviveImmunityDuration = metadata.Get<float>(RevivalImmunityDuration);
-                if (MutatorManager.Instance.GameState == Enums.MutatorsGameState.LevelGenerated)
+                if (MutatorManager.Instance.GameState == Enums.MutatorsGameState.LevelReady)
                 {
                     HandleImmuneLogic(
                         metadata.GetAsList<string>(ImmunePlayers) ?? [],

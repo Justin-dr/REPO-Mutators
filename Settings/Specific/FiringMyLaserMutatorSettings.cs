@@ -9,9 +9,11 @@ namespace Mutators.Settings.Specific
         private readonly ConfigEntry<int> _laserActionCooldown;
         private readonly ConfigEntry<int> _laserActionEnemyDamage;
         private readonly ConfigEntry<bool> _laserActionEnabled;
+        private readonly ConfigEntry<bool> _laserOnHurtEnabled;
         public int LaserActionCooldown => _laserActionCooldown.Value;
         public int LaserActionEnemyDamage => _laserActionEnemyDamage.Value;
         public bool LaserActionEnabled => _laserActionEnabled.Value;
+        public bool LaserOnHurtEnabled => _laserOnHurtEnabled.Value;
 
         internal FiringMyLaserMutatorSettings(string name, string description, ConfigFile config) : base(name, description, config)
         {
@@ -19,7 +21,14 @@ namespace Mutators.Settings.Specific
             GetSection(name),
             "Allow manual laser action",
             true,
-            $"If true, players can manually use their laser action while the cooldown is over. Otherwise, only use the laser when getting hit"
+            "If true, players can manually use their laser action while the cooldown is over. Otherwise, only use the laser when getting hit"
+            );
+            
+            _laserOnHurtEnabled = config.Bind(
+                GetSection(name),
+                "Fire laser on hurt",
+                true,
+                "If true, players will automatically fire their laser when getting hurt."
             );
 
             _laserActionCooldown = config.Bind(
@@ -45,7 +54,8 @@ namespace Mutators.Settings.Specific
         {
             IDictionary<string, object> metadata = new Dictionary<string, object>
             {
-                { "laserActionEnabled", LaserActionEnabled }
+                { "laserActionEnabled", LaserActionEnabled },
+                { "laserOnHurtEnabled", LaserOnHurtEnabled }
             };
 
             return metadata.WithMutator(MutatorName);

@@ -144,7 +144,7 @@ namespace Mutators.Mutators
 
         protected void TryApplyDeferredMetadata(MutatorsGameState gameState)
         {
-            if (gameState != MutatorsGameState.LevelGenerated || _pendingDeferredMetadata.Count == 0) return;
+            if (gameState != MutatorsGameState.LevelReady || _pendingDeferredMetadata.Count == 0) return;
 
             RepoMutators.Logger.LogDebug($"Applying deferred metadata for mutator '{Name}'");
 
@@ -163,10 +163,10 @@ namespace Mutators.Mutators
         {
             _metadata = _metadata.DeepMergedWith(metadataToApply);
 
-            RepoMutators.Logger.LogInfo("DeepMerged: ");
+            RepoMutators.Logger.LogDebug("DeepMerged: ");
             foreach (var item in _metadata)
             {
-                RepoMutators.Logger.LogInfo($"{item.Key}: {item.Value}");
+                RepoMutators.Logger.LogDebug($"{item.Key}: {item.Value}");
             }
 
             _onMetadataChangedHooks.ForEach(hook => hook?.Invoke(_metadata));

@@ -1,8 +1,12 @@
 ﻿using HarmonyLib;
 using Mutators.Settings;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Mutators.Enums;
+using Mutators.Managers;
+using Mutators.Network;
 using UnityEngine;
 
 namespace Mutators.Mutators.Patches
@@ -12,6 +16,45 @@ namespace Mutators.Mutators.Patches
         private static bool initDone = false;
         private static Level actualLevel = null!;
         private static readonly IDictionary<PrefabRef, Level> roomParentLevelMap = new Dictionary<PrefabRef, Level>();
+        
+        static void BeforePatchAll()
+        {
+            if (!SemiFunc.IsMasterClientOrSingleplayer()) return;
+            MutatorManager.Instance.GameStateChanged += RemoveBrokenDoors;
+        }
+
+        private static void RemoveBrokenDoors(MutatorsGameState gameState)
+        {
+            if (gameState == MutatorsGameState.LevelGenerated)
+            {
+                MutatorsNetworkManager.Instance.Run(ScheduleRemoveBrokenDoors());
+            }
+        }
+
+        private static IEnumerator ScheduleRemoveBrokenDoors()
+        {
+            yield return new WaitForSeconds(1);
+
+            foreach (DirtFinderMapDoor door in UnityEngine.Object.FindObjectsByType<DirtFinderMapDoor>(FindObjectsSortMode.None))
+            {
+                if (!door) continue;
+
+                PhysGrabHinge hinge = door.GetComponent<PhysGrabHinge>();
+                
+                if (!hinge || !hinge.broken) continue;
+                    
+                PhysGrabObjectImpactDetector impact = door.GetComponent<PhysGrabObjectImpactDetector>();
+                if (impact)
+                {
+                    RepoMutators.Logger.LogDebug($"[Amalgam] removing broken door {door.transform.name}");
+                    impact.DestroyObject(false);
+                }
+                else
+                {
+                    RepoMutators.Logger.LogWarning($"[Amalgam] unable to find impactDetector on {door.transform.name}");
+                }
+            }
+        }
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(LevelGenerator))]
@@ -157,6 +200,11 @@ namespace Mutators.Mutators.Patches
 
         static void AfterUnpatchAll()
         {
+            if (SemiFunc.IsMasterClientOrSingleplayer())
+            {
+                MutatorManager.Instance.GameStateChanged -= RemoveBrokenDoors;
+            }
+
             roomParentLevelMap.Clear();
             initDone = false;
             actualLevel = null!;
