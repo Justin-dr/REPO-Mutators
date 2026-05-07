@@ -118,6 +118,15 @@ namespace Mutators.Managers
             UnregisterMutator(mutator);
         }
 
+        public bool HasCurrentMutator(string name)
+        {
+            if (CurrentMutator is IMultiMutator multiMutator)
+            {
+                return multiMutator.SubMutators.Select(kv => kv.Key).Any(subMutator => subMutator.Name == name);
+            }
+            return CurrentMutator.Name == name;
+        }
+
         internal void SetActiveMutator(string name, bool applyPatchNow = true)
         {
             RegisteredMutators.Values
