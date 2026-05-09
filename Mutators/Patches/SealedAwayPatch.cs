@@ -6,6 +6,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Mutators.Mutators.Behaviours.Marker;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -25,7 +27,11 @@ namespace Mutators.Mutators.Patches
             PhysGrabObjectImpactDetector impactDetector = __instance.GetComponent<PhysGrabObjectImpactDetector>();
             if (impactDetector != null)
             {
+                SealedAwayMarkerBehaviour? markerBehaviour = impactDetector.GetComponent<SealedAwayMarkerBehaviour>();
+                if (markerBehaviour != null) return;
+                
                 impactDetector.onDestroy.AddListener(new UnityAction(() => Spawn(__instance)));
+                impactDetector.AddComponent<SealedAwayMarkerBehaviour>();
             }
             else
             {

@@ -82,6 +82,7 @@ namespace Mutators.Mutators.Patches
         private static void BeforeUnpatchAll()
         {
             SetupDone = false;
+            valuableObjects.Clear();
         }
     }
 }

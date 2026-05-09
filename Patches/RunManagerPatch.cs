@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using HarmonyLib;
 using Mutators.Enums;
 using Mutators.Managers;
@@ -86,7 +87,7 @@ namespace Mutators.Patches
         private static bool IsInShop()
         {
             RunManager runManager = RunManager.instance;
-            return runManager.levelCurrent.name == runManager.levelShop.name;
+            return runManager.levelShop.Any(level => level.name == runManager.levelCurrent.name);
         }
     }
 }

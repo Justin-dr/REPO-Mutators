@@ -31,10 +31,8 @@ namespace Mutators.Mutators.Patches
         {
             if (SemiFunc.IsMasterClientOrSingleplayer())
             {
-                if (__instance.gameObject.name.StartsWith(SurplusValuable))
-                {
-                    return;
-                }
+                if (__instance.gameObject.name.StartsWith(SurplusValuable)) return;
+                if (__instance.GetComponent<LessIsMoreBehaviour>() != null) return;
 
                 float t = Mathf.InverseLerp(100f, 30f, __instance.durabilityPreset.fragility);
                 float divisor = Mathf.Lerp(MutatorSettings.LessIsMore.StrongDivisionFactor, MutatorSettings.LessIsMore.WeakDivisionFactor, t);

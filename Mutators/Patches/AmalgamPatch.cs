@@ -15,7 +15,6 @@ namespace Mutators.Mutators.Patches
     {
         private static bool initDone = false;
         private static Level actualLevel = null!;
-        private static readonly IDictionary<PrefabRef, Level> roomParentLevelMap = new Dictionary<PrefabRef, Level>();
         
         static void BeforePatchAll()
         {
@@ -66,22 +65,9 @@ namespace Mutators.Mutators.Patches
             {
                 actualLevel = __instance.Level;
                 __instance.Level = new Level();
-
-                actualLevel.ModulesNormal1.ForEach(module => roomParentLevelMap[module] = actualLevel);
-                actualLevel.ModulesNormal2.ForEach(module => roomParentLevelMap[module] = actualLevel);
-                actualLevel.ModulesNormal3.ForEach(module => roomParentLevelMap[module] = actualLevel);
-
-                actualLevel.ModulesPassage1.ForEach(module => roomParentLevelMap[module] = actualLevel);
-                actualLevel.ModulesPassage2.ForEach(module => roomParentLevelMap[module] = actualLevel);
-                actualLevel.ModulesPassage3.ForEach(module => roomParentLevelMap[module] = actualLevel);
-
-                actualLevel.ModulesDeadEnd1.ForEach(module => roomParentLevelMap[module] = actualLevel);
-                actualLevel.ModulesDeadEnd2.ForEach(module => roomParentLevelMap[module] = actualLevel);
-                actualLevel.ModulesDeadEnd3.ForEach(module => roomParentLevelMap[module] = actualLevel);
-
-                actualLevel.ModulesExtraction1.ForEach(module => roomParentLevelMap[module] = actualLevel);
-                actualLevel.ModulesExtraction2.ForEach(module => roomParentLevelMap[module] = actualLevel);
-                actualLevel.ModulesExtraction3.ForEach(module => roomParentLevelMap[module] = actualLevel);
+                __instance.Level.BlockObject = actualLevel.BlockObject;
+                __instance.Level.MusicPreset = actualLevel.MusicPreset;
+                __instance.Level.ConstantMusicPreset = actualLevel.ConstantMusicPreset;
 
                 RepoMutators.Logger.LogInfo("[Amalgam] Building level from the following available levels:");
                 foreach (Level level in GetAllEligibleLevels())
@@ -105,28 +91,10 @@ namespace Mutators.Mutators.Patches
             if (SemiFunc.IsMasterClientOrSingleplayer() && actualLevel != null)
             {
                 LevelGenerator.Instance.Level = actualLevel;
-                roomParentLevelMap.Clear();
             }
         }
 
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(LevelGenerator))]
-        [HarmonyPatch(nameof(LevelGenerator.PickModule))]
-        static void LevelGeneratorPickModulePrefix(LevelGenerator __instance, ref PrefabRef __result)
-        {
-            if (!SemiFunc.IsMasterClientOrSingleplayer()) return;
-
-            if (roomParentLevelMap.TryGetValue(__result, out Level level))
-            {
-                __instance.Level.ResourcePath = level.ResourcePath;
-            }
-            else
-            {
-                RepoMutators.Logger.LogError($"Failed to determine to which level module {__result?.PrefabName ?? "null"} belongs!");
-            }
-        }
-
-        static void AddNormalModules(LevelGenerator levelGenerator, Level level)
+        private static void AddNormalModules(LevelGenerator levelGenerator, Level level)
         {
             levelGenerator.ModulesNormalShuffled_1.AddRange(level.ModulesNormal1);
             levelGenerator.ModulesNormalShuffled_2.AddRange(level.ModulesNormal2);
@@ -135,13 +103,9 @@ namespace Mutators.Mutators.Patches
             levelGenerator.ModulesNormalShuffled_1.Shuffle();
             levelGenerator.ModulesNormalShuffled_2.Shuffle();
             levelGenerator.ModulesNormalShuffled_3.Shuffle();
-
-            level.ModulesNormal1.ForEach(module => roomParentLevelMap[module] = level);
-            level.ModulesNormal2.ForEach(module => roomParentLevelMap[module] = level);
-            level.ModulesNormal3.ForEach(module => roomParentLevelMap[module] = level);
         }
 
-        static void AddPassageModules(LevelGenerator levelGenerator, Level level)
+        private static void AddPassageModules(LevelGenerator levelGenerator, Level level)
         {
             levelGenerator.ModulesPassageShuffled_1.AddRange(level.ModulesPassage1);
             levelGenerator.ModulesPassageShuffled_2.AddRange(level.ModulesPassage2);
@@ -150,13 +114,9 @@ namespace Mutators.Mutators.Patches
             levelGenerator.ModulesPassageShuffled_1.Shuffle();
             levelGenerator.ModulesPassageShuffled_2.Shuffle();
             levelGenerator.ModulesPassageShuffled_3.Shuffle();
-
-            level.ModulesPassage1.ForEach(module => roomParentLevelMap[module] = level);
-            level.ModulesPassage2.ForEach(module => roomParentLevelMap[module] = level);
-            level.ModulesPassage3.ForEach(module => roomParentLevelMap[module] = level);
         }
 
-        static void AddDeadEndModules(LevelGenerator levelGenerator, Level level)
+        private static void AddDeadEndModules(LevelGenerator levelGenerator, Level level)
         {
             levelGenerator.ModulesDeadEndShuffled_1.AddRange(level.ModulesDeadEnd1);
             levelGenerator.ModulesDeadEndShuffled_2.AddRange(level.ModulesDeadEnd2);
@@ -165,13 +125,9 @@ namespace Mutators.Mutators.Patches
             levelGenerator.ModulesDeadEndShuffled_1.Shuffle();
             levelGenerator.ModulesDeadEndShuffled_2.Shuffle();
             levelGenerator.ModulesDeadEndShuffled_3.Shuffle();
-
-            level.ModulesDeadEnd1.ForEach(module => roomParentLevelMap[module] = level);
-            level.ModulesDeadEnd2.ForEach(module => roomParentLevelMap[module] = level);
-            level.ModulesDeadEnd3.ForEach(module => roomParentLevelMap[module] = level);
         }
 
-        static void AddExtractionModules(LevelGenerator levelGenerator, Level level)
+        private static void AddExtractionModules(LevelGenerator levelGenerator, Level level)
         {
             levelGenerator.ModulesExtractionShuffled_1.AddRange(level.ModulesExtraction1);
             levelGenerator.ModulesExtractionShuffled_2.AddRange(level.ModulesExtraction2);
@@ -180,10 +136,6 @@ namespace Mutators.Mutators.Patches
             levelGenerator.ModulesExtractionShuffled_1.Shuffle();
             levelGenerator.ModulesExtractionShuffled_2.Shuffle();
             levelGenerator.ModulesExtractionShuffled_3.Shuffle();
-
-            level.ModulesExtraction1.ForEach(module => roomParentLevelMap[module] = level);
-            level.ModulesExtraction2.ForEach(module => roomParentLevelMap[module] = level);
-            level.ModulesExtraction3.ForEach(module => roomParentLevelMap[module] = level);
         }
 
         private static IList<Level> GetAllEligibleLevels()
@@ -204,8 +156,7 @@ namespace Mutators.Mutators.Patches
             {
                 MutatorManager.Instance.GameStateChanged -= RemoveBrokenDoors;
             }
-
-            roomParentLevelMap.Clear();
+            
             initDone = false;
             actualLevel = null!;
         }

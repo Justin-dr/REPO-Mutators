@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using System;
+using Mutators.Mutators.Behaviours.Marker;
 using Unity.VisualScripting;
 using UnityEngine.Events;
 
@@ -14,6 +15,7 @@ namespace Mutators.Mutators.Patches
         [HarmonyPatch(nameof(ValuableObject.DollarValueSetLogic))]
         static void ValuableObjectDollarValueSetLogicPostfix(ValuableObject __instance)
         {
+            if (__instance.GetComponent<VolatileCargoMarkerBehaviour>() != null) return;
             AddExplosion(__instance, __instance.dollarValueOriginal);
         }
 
@@ -22,6 +24,7 @@ namespace Mutators.Mutators.Patches
         [HarmonyPatch(nameof(ValuableObject.DollarValueSetRPC))]
         static void ValuableObjectDollarValueSetRPCPostfix(ValuableObject __instance, float value)
         {
+            if (__instance.GetComponent<VolatileCargoMarkerBehaviour>() != null) return;
             AddExplosion(__instance, value);
         }
 
@@ -52,6 +55,7 @@ namespace Mutators.Mutators.Patches
             if (impactDetector != null)
             {
                 impactDetector.onDestroy.AddListener(new UnityAction(() => Explode(__instance, particleScriptExplosion, size, damage)));
+                __instance.AddComponent<VolatileCargoMarkerBehaviour>();
             }
             else
             {
