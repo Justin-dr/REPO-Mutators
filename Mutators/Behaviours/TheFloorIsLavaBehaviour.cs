@@ -15,7 +15,7 @@ namespace Mutators.Mutators.Behaviours
         internal float immunityTimer = 0f;
         private float groundedTimer = 0f;
         private float damageCooldownTimer = 0f;
-        private readonly float damageCooldown = 1f; // 1 second cooldown between damage
+        private readonly float damageCooldown = 1f;
         private readonly float damageInterval = 1f;
         private readonly float raycastDistance = 0.5f;
 
@@ -67,20 +67,18 @@ namespace Mutators.Mutators.Behaviours
                 // RepoMutators.Logger.LogDebug($"I'm standing on {hit.collider.tag}, Layer: {LayerMask.LayerToName(hit.collider.gameObject.layer)}, Type: {playerAvatar.MaterialTrigger.LastMaterialType}");
             }
 
-            if (onDamagingGround)
+            if (!onDamagingGround) return;
+            if (groundedTimer >= damageInterval && damageCooldownTimer >= damageCooldown)
             {
-                if (groundedTimer >= damageInterval && damageCooldownTimer >= damageCooldown)
+                int damage = damagePerTick;
+                if (usePercentageDamage)
                 {
-                    int damage = damagePerTick;
-                    if (usePercentageDamage)
-                    {
-                        damage = (int)MathF.Ceiling(playerAvatar.playerHealth.maxHealth * (damage / 100f));
-                    }
-
-                    playerAvatar.playerHealth.Hurt(damage, false);
-                    groundedTimer = 0f;
-                    damageCooldownTimer = 0f;
+                    damage = (int)MathF.Ceiling(playerAvatar.playerHealth.maxHealth * (damage / 100f));
                 }
+
+                playerAvatar.playerHealth.Hurt(damage, false);
+                groundedTimer = 0f;
+                damageCooldownTimer = 0f;
             }
         }
     }

@@ -18,14 +18,34 @@ namespace Mutators.Mutators.Patches
 
         private static void OnMetadataChanged(IDictionary<string, object> metadata)
         {
-            IDictionary<string, int> originals = metadata.Get<IDictionary<string, int>>("originalVoices");
-            IDictionary<string, string> ownership = metadata.Get<IDictionary<string, string>>("voiceOwnership");
+            IDictionary<string, int>? originals = metadata.Get<IDictionary<string, int>>("originalVoices");
+            IDictionary<string, string>? ownership = metadata.Get<IDictionary<string, string>>("voiceOwnership");
+
+            if (originals == null)
+            {
+                RepoMutators.Logger.LogError("[Voiceover] Metadata is missing required field 'originalVoices'.");
+                return;
+            }
+
+            if (ownership == null)
+            {
+                RepoMutators.Logger.LogError("[Voiceover] Metadata is missing required field 'voiceOwnership'.");
+                return;
+            }
+
             if (originalVoiceChats.Count == 0 && originals?.Count > 0 && ownership.Count > 0)
             {
                 originalVoiceChats = originals;
                 voiceOwnership = ownership;
 
-                IDictionary<string, int> voices = metadata.Get<IDictionary<string, int>>("voices");
+                IDictionary<string, int>? voices = metadata.Get<IDictionary<string, int>>("voices");
+
+                if (voices == null)
+                {
+                    RepoMutators.Logger.LogError("[Voiceover] Metadata is missing required field 'voices'.");
+                    return;
+                }
+
                 foreach (KeyValuePair<string, int> playerVoice in voices)
                 {
                     ChangeVoices(playerVoice.Key, playerVoice.Value);
@@ -73,6 +93,38 @@ namespace Mutators.Mutators.Patches
             originalVoiceChats.Remove(leavingPlayerId);
             voiceOwnership.Remove(leavingPlayerId);
         }
+        
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(PlayerVoiceChat))]
+        [HarmonyPatch(nameof(PlayerVoiceChat.Update))]
+        private static void PlayerVoiceChatUpdatePostfix(PlayerVoiceChat __instance)
+        {
+            if (!__instance.photonView || !__instance.photonView.IsMine) return;
+            
+            if (__instance.playerAvatar && __instance.playerAvatar.isLocal) return;
+            if (!__instance.TTSinstantiated) return;
+            if (__instance.recorder == null) return;
+
+            bool canTransmit = __instance.microphoneEnabled
+                               && !DataDirector.instance.toggleMute
+                               && (!AudioManager.instance.pushToTalk || SemiFunc.InputHold(InputKey.PushToTalk));
+
+            if (__instance.toggleMute != DataDirector.instance.toggleMute)
+            {
+                __instance.toggleMute = DataDirector.instance.toggleMute;
+
+                PhotonNetwork.RemoveBufferedRPCs(
+                    __instance.photonView.ViewID,
+                    nameof(PlayerVoiceChat.ToggleMuteRPC));
+
+                __instance.photonView.RPC(
+                    nameof(PlayerVoiceChat.ToggleMuteRPC),
+                    RpcTarget.OthersBuffered,
+                    __instance.toggleMute);
+            }
+
+            __instance.recorder.TransmitEnabled = canTransmit;
+        }
 
         private static IEnumerator WaitForVoiceChats(IList<PlayerAvatar> playerAvatars)
         {
@@ -84,14 +136,17 @@ namespace Mutators.Mutators.Patches
             originalVoiceChats = playerAvatars.ToDictionary(a => a.steamID, a => a.voiceChat.photonView.ViewID);
             voiceOwnership = DerangeVoices(originalVoiceChats, out Dictionary<string, int> newAssignments);
 
-            IDictionary<string, object> metadata = new Dictionary<string, object>() {
+            IDictionary<string, object> metadata = new Dictionary<string, object>()
+            {
                 { "voices", newAssignments },
-                { "voiceOwnership", voiceOwnership},
-                { "originalVoices", originalVoiceChats}
+                { "voiceOwnership", voiceOwnership },
+                { "originalVoices", originalVoiceChats }
             };
             MutatorsNetworkManager.Instance.SendMetadata(metadata);
 
-            voiceOwnership.ForEach(kvp => RepoMutators.Logger.LogDebug($"Gave voice of {SemiFunc.PlayerAvatarGetFromSteamID(kvp.Value)?.playerName} to {SemiFunc.PlayerAvatarGetFromSteamID(kvp.Key)?.playerName}"));
+            voiceOwnership.ForEach(kvp =>
+                RepoMutators.Logger.LogDebug(
+                    $"Gave voice of {SemiFunc.PlayerAvatarGetFromSteamID(kvp.Value)?.playerName} to {SemiFunc.PlayerAvatarGetFromSteamID(kvp.Key)?.playerName}"));
             foreach (KeyValuePair<string, int> playerVoice in newAssignments)
             {
                 ChangeVoices(playerVoice.Key, playerVoice.Value);
@@ -100,7 +155,8 @@ namespace Mutators.Mutators.Patches
             // MutatorsNetworkManager.Instance.Run(Debug());
         }
 
-        public static Dictionary<string, string> DerangeVoices(IDictionary<string, int> originalMap, out Dictionary<string, int> newAssignments)
+        private static Dictionary<string, string> DerangeVoices(IDictionary<string, int> originalMap,
+            out Dictionary<string, int> newAssignments)
         {
             var userIds = new List<string>(originalMap.Keys);
             var voices = new List<int>(originalMap.Values);
@@ -154,6 +210,7 @@ namespace Mutators.Mutators.Patches
             {
                 playerAvatar.voiceChat.ttsVoice.playerAvatar = playerAvatar;
             }
+
             if (!SemiFunc.MenuLevel())
             {
                 playerAvatar.voiceChat.ToggleMixer(_lobby: false);
@@ -166,8 +223,10 @@ namespace Mutators.Mutators.Patches
 
             while (true)
             {
-                RepoMutators.Logger.LogInfo($"ToggleMute: {playerVoiceChat.toggleMute} - Director: {DataDirector.instance.toggleMute}");
-                RepoMutators.Logger.LogInfo($"Lobby: {playerVoiceChat.audioSource.outputAudioMixerGroup == playerVoiceChat.mixerMicrophoneSpectate} - Game: {playerVoiceChat.audioSource.outputAudioMixerGroup == playerVoiceChat.mixerMicrophoneSound}");
+                RepoMutators.Logger.LogInfo(
+                    $"ToggleMute: {playerVoiceChat.toggleMute} - Director: {DataDirector.instance.toggleMute}");
+                RepoMutators.Logger.LogInfo(
+                    $"Lobby: {playerVoiceChat.audioSource.outputAudioMixerGroup == playerVoiceChat.mixerMicrophoneSpectate} - Game: {playerVoiceChat.audioSource.outputAudioMixerGroup == playerVoiceChat.mixerMicrophoneSound}");
                 RepoMutators.Logger.LogInfo($"Active and Enabled: {playerVoiceChat.isActiveAndEnabled}");
                 yield return new WaitForSeconds(1);
             }
