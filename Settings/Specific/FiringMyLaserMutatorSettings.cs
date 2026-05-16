@@ -6,12 +6,15 @@ namespace Mutators.Settings.Specific
 {
     public class FiringMyLaserMutatorSettings : GenericMutatorSettings
     {
+        public const string LaserActionCooldownKey = "laserActionCooldown";
+        public const string LaserActionEnemyDamageKey = "laserActionEnemyDamage";
+
         private readonly ConfigEntry<int> _laserActionCooldown;
         private readonly ConfigEntry<int> _laserActionEnemyDamage;
         private readonly ConfigEntry<bool> _laserActionEnabled;
         private readonly ConfigEntry<bool> _laserOnHurtEnabled;
-        public int LaserActionCooldown => _laserActionCooldown.Value;
-        public int LaserActionEnemyDamage => _laserActionEnemyDamage.Value;
+        public int LaserActionCooldown => GetRuntimeOverride(LaserActionCooldownKey, _laserActionCooldown.Value);
+        public int LaserActionEnemyDamage => GetRuntimeOverride(LaserActionEnemyDamageKey, _laserActionEnemyDamage.Value);
         public bool LaserActionEnabled => _laserActionEnabled.Value;
         public bool LaserOnHurtEnabled => _laserOnHurtEnabled.Value;
 

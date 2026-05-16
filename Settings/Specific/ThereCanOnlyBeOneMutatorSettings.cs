@@ -4,8 +4,11 @@ namespace Mutators.Settings.Specific
 {
     public class ThereCanOnlyBeOneMutatorSettings : EnemyDisablingMutatorSettings
     {
+        public const string GroupSpawnsThresholdKey = "groupSpawnsThreshold";
+
         private readonly ConfigEntry<uint> _groupSpawnsThreshold;
-        public uint GroupSpawnsThreshold => _groupSpawnsThreshold.Value;
+        public uint GroupSpawnsThreshold => GetRuntimeOverride(GroupSpawnsThresholdKey, _groupSpawnsThreshold.Value);
+
         internal ThereCanOnlyBeOneMutatorSettings(string name, string description, ConfigFile config) : base(name, description, config)
         {
             _groupSpawnsThreshold = config.Bind<uint>(

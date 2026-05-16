@@ -6,8 +6,13 @@ namespace Mutators.Settings
 {
     public class EnemyDisablingMutatorSettings : GenericMutatorSettings
     {
+        public const string ExcludedEnemiesKey = "excludedEnemies";
+
         private readonly ConfigEntry<string> _excludedEnemies;
-        public IList<string> ExcludedEnemies { get; private set; } = [];
+        private IList<string> _excludedEnemiesList = [];
+
+        public IList<string> ExcludedEnemies => GetRuntimeOverrideList(ExcludedEnemiesKey, _excludedEnemiesList);
+
         public EnemyDisablingMutatorSettings(string name, string description, ConfigFile config, params string[] defaultDisabledEnemies) : base(name, description, config)
         {
             _excludedEnemies = config.Bind(
@@ -22,7 +27,7 @@ namespace Mutators.Settings
 
         internal void CacheEnemies()
         {
-            ExcludedEnemies = _excludedEnemies.Value.Split(",")
+            _excludedEnemiesList = _excludedEnemies.Value.Split(",")
                 .Select(value => value.Trim()).ToList();
         }
     }

@@ -6,11 +6,14 @@ namespace Mutators.Settings.Specific
 {
     public class ApolloElevenMutatorSettings : GenericMutatorSettings
     {
+        public const string ApplyToEnemiesKey = "applyToEnemies";
+        public const string ApplyInCartKey = "applyInCart";
+
         private readonly ConfigEntry<bool> _applyToEnemies;
         private readonly ConfigEntry<bool> _applyInCart;
         private readonly ConfigEntry<string> _downwardsKey;
-        public bool ApplyToEnemies => _applyToEnemies.Value;
-        public bool ApplyInCart => _applyInCart.Value;
+        public bool ApplyToEnemies => GetRuntimeOverride(ApplyToEnemiesKey, _applyToEnemies.Value);
+        public bool ApplyInCart => GetRuntimeOverride(ApplyInCartKey, _applyInCart.Value);
         public KeyCode DownwardsKey { get; private set; }
         internal ApolloElevenMutatorSettings(string name, string description, ConfigFile config) : base(name, description, config)
         {

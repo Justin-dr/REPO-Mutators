@@ -8,15 +8,20 @@ namespace Mutators.Settings.Specific
 {
     public class TheFloorIsLavaMutatorSettings : GenericMutatorSettings, ILevelRemovingMutatorSettings
     {
+        public const string ImmunePlayerCountKey = "immunePlayerCount";
+        public const string AllowCustomLevelsKey = "allowCustomLevels";
+        public const string DisableEnemiesKey = "disableEnemies";
+
+        private readonly ConfigEntry<int> _immunePlayerCount;
         private readonly ConfigEntry<bool> _usePercentageDamage;
         private readonly ConfigEntry<bool> _allowCustomLevels;
         private readonly ConfigEntry<bool> _disableEnemies;
         private readonly ConfigEntry<float> _reviveImmunityDuration;
         public int DamagePerTick { get; private set; }
-        public int ImmunePlayerCount { get; private set; }
+        public int ImmunePlayerCount => GetRuntimeOverride(ImmunePlayerCountKey, Math.Clamp(_immunePlayerCount.Value, 0, int.MaxValue));
         public bool UsePercentageDamage => _usePercentageDamage.Value;
-        public bool AllowCustomLevels => _allowCustomLevels.Value;
-        public bool DisableEnemies => _disableEnemies.Value;
+        public bool AllowCustomLevels => GetRuntimeOverride(AllowCustomLevelsKey, _allowCustomLevels.Value);
+        public bool DisableEnemies => GetRuntimeOverride(DisableEnemiesKey, _disableEnemies.Value);
         public float ReviveImmunityDuration => _reviveImmunityDuration.Value;
 
         public IList<string> ExcludedLevels => [];
@@ -37,7 +42,7 @@ namespace Mutators.Settings.Specific
                 $"If true, players will receive percentage max health damage instead of a flat amount."
             );
 
-            ConfigEntry<int>  _immunePlayerCount = config.Bind(
+            _immunePlayerCount = config.Bind(
                 GetSection(name),
                 "Immune player count",
                 0,
@@ -72,7 +77,6 @@ namespace Mutators.Settings.Specific
             );
 
             DamagePerTick = Math.Clamp(_damagePerTick.Value, 1, int.MaxValue);
-            ImmunePlayerCount = Math.Clamp(_immunePlayerCount.Value, 0, int.MaxValue);
         }
 
         public override IDictionary<string, object>? AsMetadata()

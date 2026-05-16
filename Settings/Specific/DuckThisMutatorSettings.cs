@@ -4,9 +4,10 @@ namespace Mutators.Settings.Specific
 {
     public class DuckThisMutatorSettings : GenericMutatorSettings
     {
+        public const string AggroCooldownKey = "aggroCooldown";
 
         private readonly ConfigEntry<float> _duckAggroCooldown;
-        public float AggroCooldown => GetRuntimeOverride("aggroCooldown", _duckAggroCooldown.Value);
+        public float AggroCooldown => GetRuntimeOverride(AggroCooldownKey, _duckAggroCooldown.Value);
 
         internal DuckThisMutatorSettings(string name, string description, ConfigFile config) : base(name, description, config)
         {

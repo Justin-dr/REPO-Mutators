@@ -64,7 +64,8 @@ namespace Mutators.Mutators.Multi
                     jsonMultiMutator.MinimumLevel,
                     jsonMultiMutator.MaximumLevel
                 ),
-                mutators
+                mutators,
+                isCustom: true
             );
             
         }

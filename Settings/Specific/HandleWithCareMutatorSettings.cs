@@ -4,12 +4,16 @@ namespace Mutators.Settings.Specific
 {
     public class HandleWithCareMutatorSettings : GenericMutatorSettings
     {
+        public const string ValueMultiplierKey = "valueMultiplier";
+        public const string InstantlyDestroySurplusKey = "instantlyDestroySurplus";
+        public const string MultiplySurplusValueKey = "multiplySurplusValue";
+
         private readonly ConfigEntry<float> _valueMultiplier;
         private readonly ConfigEntry<bool> _instaDestroySurplus;
         private readonly ConfigEntry<bool> _multiplySurplus;
-        public float ValueMultiplier => _valueMultiplier.Value;
-        public bool InstantlyDestroySurplus => _instaDestroySurplus.Value;
-        public bool MultiplySurplusValue => _multiplySurplus.Value;
+        public float ValueMultiplier => GetRuntimeOverride(ValueMultiplierKey, _valueMultiplier.Value);
+        public bool InstantlyDestroySurplus => GetRuntimeOverride(InstantlyDestroySurplusKey, _instaDestroySurplus.Value);
+        public bool MultiplySurplusValue => GetRuntimeOverride(MultiplySurplusValueKey, _multiplySurplus.Value);
 
         internal HandleWithCareMutatorSettings(string name, string description, ConfigFile config) : base(name, description, config)
         {

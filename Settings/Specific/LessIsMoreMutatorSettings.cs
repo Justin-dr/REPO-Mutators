@@ -7,12 +7,15 @@ namespace Mutators.Settings.Specific
 {
     public class LessIsMoreMutatorSettings : GenericMutatorSettings
     {
+        public const string StrongDivisionFactorKey = "strongDivisionFactor";
+        public const string WeakDivisionFactorKey = "weakDivisionFactor";
+
         private readonly ConfigEntry<float> _strongDivisionFactor;
         private readonly ConfigEntry<float> _weakDivisionFactor;
         private readonly ConfigEntry<float> _valueGainMultiplier;
 
-        public float StrongDivisionFactor => _strongDivisionFactor.Value;
-        public float WeakDivisionFactor => _weakDivisionFactor.Value;
+        public float StrongDivisionFactor => GetRuntimeOverride(StrongDivisionFactorKey, _strongDivisionFactor.Value);
+        public float WeakDivisionFactor => GetRuntimeOverride(WeakDivisionFactorKey, _weakDivisionFactor.Value);
         public float ValueGainMultiplier => _valueGainMultiplier.Value;
 
         internal LessIsMoreMutatorSettings(string name, string description, ConfigFile config) : base(name, description, config)

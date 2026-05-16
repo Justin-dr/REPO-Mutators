@@ -18,6 +18,8 @@ namespace Mutators.Mutators
 
         public string Description => Settings.MutatorDescription;
 
+        public bool IsCustom { get; internal set; } = false;
+
         public bool Active { get; private set; }
 
         public bool HasSpecialAction { get; private set; }
@@ -29,10 +31,15 @@ namespace Mutators.Mutators
         public IReadOnlyList<Func<bool>> Conditions => new ReadOnlyCollection<Func<bool>>(_conditions);
 
         public IReadOnlyDictionary<IMutator, IDictionary<string, object>> SubMutators => new ReadOnlyDictionary<IMutator, IDictionary<string, object>>(_subMutators);
-
-        public MultiMutator(AbstractMutatorSettings settings, IDictionary<IMutator, IDictionary<string, object>> mutators, IList<Func<bool>> conditions = null!)
+        
+        /// <param name="settings">The settings for the Mutator.</param>
+        /// <param name="mutators">The submutators the current MultiMutator consists of.</param>
+        /// <param name="conditions">The conditions under which the current MultiMutator can be activated, must all be true to pass.</param>
+        /// <param name="isCustom">True if the MultiMutator was loaded from a config file. False if created purely in-memory.</param>
+        public MultiMutator(AbstractMutatorSettings settings, IDictionary<IMutator, IDictionary<string, object>> mutators, IList<Func<bool>> conditions = null!, bool isCustom = false)
         {
             Settings = settings;
+            IsCustom = isCustom;
             _subMutators = mutators;
 
             HasSpecialAction = _subMutators.Any(mutator => mutator.Key.HasSpecialAction);

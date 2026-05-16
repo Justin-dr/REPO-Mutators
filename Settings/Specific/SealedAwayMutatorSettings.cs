@@ -4,10 +4,14 @@ namespace Mutators.Settings.Specific
 {
     public class SealedAwayMutatorSettings : EnemyDisablingMutatorSettings
     {
+        public const string MaximumMonsterSpawnsKey = "maximumMonsterSpawns";
+        public const string MonsterSpawnChanceKey = "monsterSpawnChance";
+
         private readonly ConfigEntry<int> _maximumMonsterSpawns;
         private readonly ConfigEntry<float> _monsterSpawnChance;
-        public int MaximumMonsterSpawns => _maximumMonsterSpawns.Value;
-        public float MonsterSpawnChance => _monsterSpawnChance.Value;
+        public int MaximumMonsterSpawns => GetRuntimeOverride(MaximumMonsterSpawnsKey, _maximumMonsterSpawns.Value);
+        public float MonsterSpawnChance => GetRuntimeOverride(MonsterSpawnChanceKey, _monsterSpawnChance.Value);
+
         internal SealedAwayMutatorSettings(string name, string description, ConfigFile config) : base(name, description, config, "Voodoo", "Shadow Child")
         {
             _maximumMonsterSpawns = config.Bind(

@@ -1,7 +1,9 @@
 ﻿using Sirenix.Utilities;
 using Mutators.Extensions;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace Mutators.Settings
 {
@@ -46,6 +48,46 @@ namespace Mutators.Settings
             if (!_runtimeOverrides.TryGetValue(key, out object value)) return fallback;
 
             return value.TryCoerce(typeof(T), out object? coerced) && coerced is T typed ? typed : fallback;
+        }
+
+        protected IList<T> GetRuntimeOverrideList<T>(string key, IList<T> fallback)
+        {
+            if (!_runtimeOverrides.TryGetValue(key, out object value)) return fallback;
+
+            if (value is IList<T> list) return list;
+            if (value is IEnumerable<T> typedValues) return typedValues.ToList();
+
+            if (value is string stringValue && typeof(T) == typeof(string))
+            {
+                return stringValue.Split(",")
+                    .Select(item => item.Trim())
+                    .Where(item => item.Length > 0)
+                    .Cast<T>()
+                    .ToList();
+            }
+
+            if (value is IEnumerable<object> values)
+            {
+                IList<T> converted = new List<T>();
+
+                foreach (object item in values)
+                {
+                    if (item.TryCoerce(typeof(T), out object? coerced) && coerced is T typed)
+                    {
+                        converted.Add(typed);
+                    }
+                    else
+                    {
+                        return fallback;
+                    }
+                }
+
+                return converted;
+            }
+
+            return value.TryCoerce(typeof(T), out object? single) && single is T singleTyped
+                ? [singleTyped]
+                : fallback;
         }
 
         public virtual bool IsEligibleForSelection()

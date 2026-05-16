@@ -7,11 +7,17 @@ namespace Mutators.Settings.Specific
 {
     public class AmalgamMutatorSettings : GenericMutatorSettings, ILevelRemovingMutatorSettings
     {
+        public const string ExcludedLevelsKey = "excludedLevels";
+
         private readonly ConfigEntry<string> _excludedLevels;
+        private IList<string> _excludedLevelsList;
 
         public bool AllowCustomLevels => true;
 
-        public IList<string> ExcludedLevels { get; private set; }
+        public IList<string> ExcludedLevels => ExcludedLevelsWithRequiredLevels(
+            GetRuntimeOverrideList(ExcludedLevelsKey, _excludedLevelsList)
+        );
+
         internal AmalgamMutatorSettings(string name, string description, ConfigFile config) : base(name, description, config)
         {
             _excludedLevels = config.Bind<string>(
@@ -21,30 +27,35 @@ namespace Mutators.Settings.Specific
                 $"Levels that should be excluded from the {name} Mutator. These can neither be picked as a base, nor will their rooms be used in the level generation"
             );
 
-            ExcludedLevels = ExcludedLevelsAsList();
+            _excludedLevelsList = ExcludedLevelsAsList();
             _excludedLevels.SettingChanged += SettingChanged;
         }
 
         private void SettingChanged(object sender, EventArgs e)
         {
-            ExcludedLevels = ExcludedLevelsAsList();
+            _excludedLevelsList = ExcludedLevelsAsList();
         }
 
         private IList<string> ExcludedLevelsAsList()
         {
-            IList<string> excluded = _excludedLevels.Value.Split(",").Select(value => value.Trim()).ToList();
+            return _excludedLevels.Value.Split(",").Select(value => value.Trim()).ToList();
+        }
 
-            if (!excluded.Contains("Backrooms"))
+        private static IList<string> ExcludedLevelsWithRequiredLevels(IList<string> excluded)
+        {
+            IList<string> levels = excluded.ToList();
+
+            if (!levels.Contains("Backrooms"))
             {
-                excluded.Add("Backrooms");
+                levels.Add("Backrooms");
             }
             
-            if (!excluded.Contains("PeachCastle"))
+            if (!levels.Contains("PeachCastle"))
             {
-                excluded.Add("PeachCastle");
+                levels.Add("PeachCastle");
             }
 
-            return excluded;
+            return levels;
         }
     }
 }
