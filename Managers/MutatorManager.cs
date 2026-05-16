@@ -122,7 +122,7 @@ namespace Mutators.Managers
         {
             if (CurrentMutator is IMultiMutator multiMutator)
             {
-                return multiMutator.SubMutators.Select(kv => kv.Key).Any(subMutator => subMutator.Name == name);
+                return CurrentMutator.Name == name || multiMutator.SubMutators.Select(kv => kv.Key).Any(subMutator => subMutator.Name == name);
             }
             return CurrentMutator.Name == name;
         }

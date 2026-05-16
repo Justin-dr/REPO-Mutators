@@ -45,16 +45,59 @@ namespace Mutators.Mutators.Multi
                 else
                 {
                     RepoMutators.Logger.LogError($"Unable to find Mutator with name {item.Key}!");
-                    RepoMutators.Logger.LogError($"Aborting creation of MultiMuator with name {jsonMultiMutator.Name}!");
+                    LogAbortCreation(jsonMultiMutator);
                     return null;
                 }
             }
+            
+            if (!ValidateAndIsValid(jsonMultiMutator))
+            {
+                LogAbortCreation(jsonMultiMutator);
+                return null;
+            }
 
             return new MultiMutator(
-                new GenericMutatorSettings(jsonMultiMutator.Name, jsonMultiMutator.Description, RepoMutators.Instance.Config),
+                new MultiMutatorSettings(
+                    jsonMultiMutator.Name,
+                    jsonMultiMutator.Description,
+                    jsonMultiMutator.Weight,
+                    jsonMultiMutator.MinimumLevel,
+                    jsonMultiMutator.MaximumLevel
+                ),
                 mutators
             );
             
-        } 
+        }
+
+        private static bool ValidateAndIsValid(JsonMultiMutator jsonMultiMutator)
+        {
+            List<string> invalidMutatorProperties = [];
+            
+            if (string.IsNullOrWhiteSpace(jsonMultiMutator.Name))
+            {
+                invalidMutatorProperties.Add("Name");
+            }
+            
+            if (string.IsNullOrWhiteSpace(jsonMultiMutator.Description))
+            {
+                invalidMutatorProperties.Add("Description");
+            }
+
+            if (jsonMultiMutator.Weight == 0)
+            {
+                RepoMutators.Logger.LogInfo($"MultiMutator {jsonMultiMutator.Name} configured with weight: 0");
+            }
+
+            if (invalidMutatorProperties.Count <= 0) return true;
+            
+            RepoMutators.Logger.LogError($"Invalid MultiMutator properties: {string.Join(", ", invalidMutatorProperties)}");
+            return false;
+
+        }
+
+        private static void LogAbortCreation(JsonMultiMutator jsonMultiMutator)
+        {
+            RepoMutators.Logger.LogError($"Aborting creation of MultiMutator with name {jsonMultiMutator.Name ?? "<Missing Name>"}!");
+        }
     }
 }

@@ -37,22 +37,21 @@ namespace Mutators.Mutators.Patches
             }
         }
 
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(LevelGenerator))]
-        [HarmonyPatch(nameof(LevelGenerator.GenerateDone))]
-        static void LevelGeneratorGenerateDonePostfix()
-        {
-            if (SemiFunc.IsMasterClientOrSingleplayer())
-            {
-                IDictionary<string, object> metadata = new Dictionary<string, object>()
-                {
-                    { LaserActionEnabled, MutatorSettings.FiringMyLaser.LaserActionEnabled },
-                    { LaserOnHurtEnabled, MutatorSettings.FiringMyLaser.LaserOnHurtEnabled }
-                };
-
-                MutatorsNetworkManager.Instance.SendMetadata(metadata);
-            }
-        }
+        // [HarmonyPostfix]
+        // [HarmonyPatch(typeof(LevelGenerator))]
+        // [HarmonyPatch(nameof(LevelGenerator.GenerateDone))]
+        // static void LevelGeneratorGenerateDonePostfix()
+        // {
+        //     if (!SemiFunc.IsMasterClientOrSingleplayer()) return;
+        //     
+        //     IDictionary<string, object> metadata = new Dictionary<string, object>
+        //     {
+        //         { LaserActionEnabled, MutatorSettings.FiringMyLaser.LaserActionEnabled },
+        //         { LaserOnHurtEnabled, MutatorSettings.FiringMyLaser.LaserOnHurtEnabled }
+        //     };
+        //
+        //     MutatorsNetworkManager.Instance.SendMetadata(metadata);
+        // }
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(PlayerAvatar))]

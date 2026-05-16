@@ -52,6 +52,15 @@ namespace Mutators.Mutators
 
             Active = true;
 
+            if (SemiFunc.IsMasterClientOrSingleplayer())
+            {
+                foreach (KeyValuePair<IMutator, IDictionary<string, object>> subMutator in _subMutators)
+                {
+                    subMutator.Key.Settings.ClearRuntimeOverrides();
+                    subMutator.Key.Settings.ApplyRuntimeOverrides(subMutator.Value);
+                }
+            }
+
             foreach (IMutator subMutator in _subMutators.Keys)
             {
                 subMutator.Patch();
@@ -70,6 +79,7 @@ namespace Mutators.Mutators
             foreach (IMutator subMutator in _subMutators.Keys)
             {
                 subMutator.Unpatch();
+                subMutator.Settings.ClearRuntimeOverrides();
             }
 
             Active = false;

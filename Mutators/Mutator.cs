@@ -99,6 +99,7 @@ namespace Mutators.Mutators
             Active = false;
 
             _afterUnpatchAllHooks.ForEach(action => action?.Invoke());
+            Settings.ClearRuntimeOverrides(); // Also cleared in Multi but better safe than sorry in this case.
             RepoMutators.Logger.LogDebug($"Unpatched mutator: {Name}");
         }
 

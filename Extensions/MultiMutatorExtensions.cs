@@ -13,7 +13,7 @@ namespace Mutators.Extensions
             IEnumerable<IMutator> subMutators = multiMutator.SubMutators.Keys;
 
             IDictionary<string, object> metadata = subMutators.Select(mutator => mutator.Settings.AsMetadata())
-                .SelectMany(dict => dict)
+                .SelectMany(dict => dict ?? new Dictionary<string, object>())
                 .ToDictionary(pair => pair.Key, pair => pair.Value);
 
             metadata.Add(RepoMutators.MUTATOR_OVERRIDES, CreateOverrides(multiMutator));

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using HarmonyLib;
 using Mutators.Enums;
@@ -87,7 +88,7 @@ namespace Mutators.Patches
 
             if (mutator is IMultiMutator multiMutator)
             {
-                var (mutators, meta) = multiMutator.Format();
+                (IList<string> mutators, IDictionary<string, object> meta) = multiMutator.Format();
 
                 MutatorsNetworkManager.Instance.SendActiveMutators(mutators,meta);
             }

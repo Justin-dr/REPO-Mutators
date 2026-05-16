@@ -3,6 +3,7 @@ using Mutators.Mutators.Behaviours;
 using Mutators.Settings;
 using System.Collections.Generic;
 using System.Linq;
+using REPOLib.Modules;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -25,7 +26,7 @@ namespace Mutators.Mutators.Patches
 
             if (hasApexPredator) return;
 
-            EnemySetup? duckSetup = REPOLib.Modules.Enemies.AllEnemies.Where(enemySetup => enemySetup.name == "Enemy - Duck").FirstOrDefault();
+            EnemySetup? duckSetup = Enemies.AllEnemies.FirstOrDefault(enemySetup => enemySetup.name == "Enemy - Duck");
             if (duckSetup)
             {
                 IList<EnemySetup> setups = enemyList.Where(setup =>
@@ -49,6 +50,7 @@ namespace Mutators.Mutators.Patches
                 RepoMutators.Logger.LogDebug($"[{MutatorSettings.DuckThis.MutatorName}] {setupToRemove.name} was removed in favor of {Ducky}");
                 enemyList.Add(duckSetup);
             }
+            RepoMutators.Logger.LogInfo($"Duck cooldown: {MutatorSettings.DuckThis.AggroCooldown}");
         }
 
         [HarmonyPrefix]
