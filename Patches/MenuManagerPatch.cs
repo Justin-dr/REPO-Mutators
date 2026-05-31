@@ -3,27 +3,28 @@ using Mutators.Extensions;
 using Mutators.Managers;
 using Mutators.Settings;
 
-namespace Mutators.Patches;
-
-[HarmonyPatch(typeof(MenuManager))]
-internal class MenuManagerPatch
+namespace Mutators.Patches
 {
-    [HarmonyPostfix]
-    [HarmonyPriority(Priority.High)]
-    [HarmonyPatch(nameof(MenuManager.PageOpen))]
-    private static void PageOpenPostfix(MenuPageIndex menuPageIndex)
+    [HarmonyPatch(typeof(MenuManager))]
+    internal class MenuManagerPatch
     {
-        if (menuPageIndex == MenuPageIndex.Lobby && SemiFunc.IsMasterClient())
+        [HarmonyPostfix]
+        [HarmonyPriority(Priority.High)]
+        [HarmonyPatch(nameof(MenuManager.PageOpen))]
+        private static void PageOpenPostfix(MenuPageIndex menuPageIndex)
         {
-            if (MutatorManager.Instance.CurrentMutator.Settings is ILevelRemovingMutatorSettings settings)
+            if (menuPageIndex == MenuPageIndex.Lobby && SemiFunc.IsMasterClient())
             {
-                settings.RemoveLevels(true);
+                if (MutatorManager.Instance.CurrentMutator.Settings is ILevelRemovingMutatorSettings settings)
+                {
+                    settings.RemoveLevels(true);
+                }
             }
-        }
 
-        if (menuPageIndex == MenuPageIndex.Main)
-        {
-            LevelManager.Instance.RestoreLevels();
+            if (menuPageIndex == MenuPageIndex.Main)
+            {
+                LevelManager.Instance.RestoreLevels();
+            }
         }
     }
 }

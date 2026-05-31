@@ -23,7 +23,7 @@ namespace Mutators.Settings.Specific
             _monsterSpawnChance = config.Bind<float>(
             GetSection(name),
             "Monster spawn chance",
-            10,
+            65,
             new ConfigDescription(
                 $"The chance that a monster is spawned when breaking a valuable when the {name} Mutator is active.",
                 new AcceptableValueRange<float>(0, 100)

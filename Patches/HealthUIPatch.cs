@@ -3,20 +3,21 @@ using Mutators.Extensions;
 using Mutators.Managers;
 using Mutators.Settings;
 
-namespace Mutators.Patches;
-
-[HarmonyPatch(typeof(HealthUI))]
-public class HealthUIPatch
+namespace Mutators.Patches
 {
-    [HarmonyPostfix]
-    [HarmonyPriority(Priority.High)]
-    [HarmonyPatch(nameof(HealthUI.Start))]
-    static void HealthUIStartPostfix()
+    [HarmonyPatch(typeof(HealthUI))]
+    internal class HealthUIPatch
     {
-        if (!SemiFunc.IsMasterClientOrSingleplayer()) return;
-        if (MutatorManager.Instance.CurrentMutator.Settings is ILevelRemovingMutatorSettings settings)
+        [HarmonyPostfix]
+        [HarmonyPriority(Priority.High)]
+        [HarmonyPatch(nameof(HealthUI.Start))]
+        static void HealthUIStartPostfix()
         {
-            settings.RemoveLevels();
+            if (!SemiFunc.IsMasterClientOrSingleplayer()) return;
+            if (MutatorManager.Instance.CurrentMutator.Settings is ILevelRemovingMutatorSettings settings)
+            {
+                settings.RemoveLevels();
+            }
         }
     }
 }

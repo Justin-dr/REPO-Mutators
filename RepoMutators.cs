@@ -114,7 +114,7 @@ public class RepoMutators : BaseUnityPlugin
 
     internal void Patch()
     {
-        var hasSpawnManager = Chainloader.PluginInfos.Values.Any(x => x.Metadata.GUID == "soundedsquash.spawnmanager");
+        bool hasSpawnManager = Chainloader.PluginInfos.Values.Any(x => x.Metadata.GUID == "soundedsquash.spawnmanager");
 
         Harmony ??= new Harmony(Info.Metadata.GUID);
         Harmony.PatchAll(typeof(RunManagerPatch));
@@ -126,6 +126,7 @@ public class RepoMutators : BaseUnityPlugin
         Harmony.PatchAll(typeof(LevelGeneratorPatch));
         Harmony.PatchAll(typeof(MenuManagerPatch));
         Harmony.PatchAll(typeof(HealthUIPatch));
+        Harmony.PatchAll(typeof(MapBacktrackPatch));
 
         if (!hasSpawnManager)
         {

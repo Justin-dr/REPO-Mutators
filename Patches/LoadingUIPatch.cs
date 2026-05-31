@@ -1,7 +1,6 @@
 ﻿using HarmonyLib;
 using Mutators.Managers;
 using Mutators.Mutators.Behaviours.UI;
-using Mutators.Settings;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;

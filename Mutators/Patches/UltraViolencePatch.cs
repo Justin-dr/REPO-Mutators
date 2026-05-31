@@ -1,21 +1,13 @@
 ﻿using HarmonyLib;
 using Mutators.Extensions;
-using Mutators.Managers;
 using Mutators.Network;
 using Mutators.Settings;
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq.Expressions;
 
 namespace Mutators.Mutators.Patches
 {
     internal class UltraViolencePatch
     {
-        private static readonly Func<RoundDirector, int> _getExtractionPoints = CreateFieldGetter<RoundDirector, int>("extractionPoints");
-        private static readonly Func<RoundDirector, int> _getExtractionPointsCompleted = CreateFieldGetter<RoundDirector, int>("extractionPointsCompleted");
-        private static readonly Action<RoundDirector, int> _setExtractionPointsCompleted = CreateFieldSetter<RoundDirector, int>("extractionPointsCompleted");
-
         private static bool _keepLightsOn = MutatorSettings.UltraViolence.KeepOnLight;
 
         private static void OnMetadataChanged(IDictionary<string, object> metadata)
@@ -30,7 +22,7 @@ namespace Mutators.Mutators.Patches
         {
             if (SemiFunc.IsMasterClientOrSingleplayer())
             {
-                MutatorsNetworkManager.Instance.SendMetadata(new Dictionary<string, object>() { { "keepLightsOn", MutatorSettings.UltraViolence.KeepOnLight } });
+                MutatorsNetworkManager.Instance.SendMetadata(new Dictionary<string, object> { { "keepLightsOn", MutatorSettings.UltraViolence.KeepOnLight } });
             }
         }
 
@@ -50,35 +42,37 @@ namespace Mutators.Mutators.Patches
         [HarmonyPatch(nameof(ExtractionPoint.ActivateTheFirstExtractionPointAutomaticallyWhenAPlayerLeaveTruck))]
         static void ExtractionPointActivateTheFirstExtractionPointAutomaticallyWhenAPlayerLeaveTruckPostfix()
         {
-            int extractionPoints = _getExtractionPoints(RoundDirector.instance);
-            _setExtractionPointsCompleted(RoundDirector.instance, extractionPoints);
+            RoundDirector roundDirector = RoundDirector.instance;
 
-            RoundDirector.instance.ExtractionCompletedAllCheck();
+            int extractionPoints = roundDirector.extractionPoints;
+            roundDirector.extractionPointsCompleted = extractionPoints;
 
-            _setExtractionPointsCompleted(RoundDirector.instance, 0);
+            roundDirector.ExtractionCompletedAllCheck();
 
-            if (_keepLightsOn)
-            {
-                RoundDirector.instance.allExtractionPointsCompleted = false;
-            }
-            else
-            {
-                MutatorsNetworkManager.Instance.Run(TurnOffLightsLate());
-            }
-
-            
+            roundDirector.extractionPointsCompleted = 0;
         }
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(LightManager))]
-        [HarmonyPatch(nameof(LightManager.TurnOffLights))]
-        static bool LightManagerTurnOffLightsPrefix()
+        [HarmonyPatch(nameof(LightManager.Update))]
+        static void LightManagerUpdatePrefix(out bool __state)
         {
-            if (_keepLightsOn)
+            __state = ShouldHideFakeFinalStateFromLightManager();
+            if (__state)
             {
-                return RoundDirector.instance.allExtractionPointsCompleted;
+                RoundDirector.instance.allExtractionPointsCompleted = false;
             }
-            return true;
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(LightManager))]
+        [HarmonyPatch(nameof(LightManager.Update))]
+        static void LightManagerUpdatePostfix(bool __state)
+        {
+            if (__state)
+            {
+                RoundDirector.instance.allExtractionPointsCompleted = true;
+            }
         }
 
         [HarmonyPrefix]
@@ -86,9 +80,8 @@ namespace Mutators.Mutators.Patches
         [HarmonyPatch(nameof(PlayerAvatar.FinalHeal))]
         static bool PlayerAvatarFinalHealPrefix() // Disabled truck heal until all extraction points have been completed
         {
-            int extractionPoints = _getExtractionPoints(RoundDirector.instance);
-            int extractionPointsCompleted = _getExtractionPointsCompleted(RoundDirector.instance);
-            return extractionPointsCompleted >= extractionPoints;
+            RoundDirector roundDirector = RoundDirector.instance;
+            return roundDirector.extractionPointsCompleted >= roundDirector.extractionPoints;
         }
 
         [HarmonyPrefix]
@@ -96,39 +89,36 @@ namespace Mutators.Mutators.Patches
         [HarmonyPatch(nameof(TruckHealer.StateUpdate))]
         static bool TruckHealerStateUpdatePrefixPrefix() // Disable truck healing light
         {
-            int extractionPoints = _getExtractionPoints(RoundDirector.instance);
-            int extractionPointsCompleted = _getExtractionPointsCompleted(RoundDirector.instance);
-            return extractionPointsCompleted >= extractionPoints;
+            RoundDirector roundDirector = RoundDirector.instance;
+            return roundDirector.extractionPointsCompleted >= roundDirector.extractionPoints;
         }
 
-        private static Func<T, R> CreateFieldGetter<T, R>(string fieldName)
+        private static bool ShouldHideFakeFinalStateFromLightManager()
         {
-            var field = AccessTools.Field(typeof(T), fieldName) ?? throw new Exception($"Field {fieldName} not found on {typeof(T)}");
-
-            var param = Expression.Parameter(typeof(T), "instance");
-            var fieldAccess = Expression.Field(param, field);
-            var lambda = Expression.Lambda<Func<T, R>>(fieldAccess, param);
-            return lambda.Compile();
+            return _keepLightsOn && ShouldHideFakeFinalState();
         }
 
-        private static Action<T, V> CreateFieldSetter<T, V>(string fieldName)
+        internal static bool ShouldHideFakeFinalState()
         {
-            var field = AccessTools.Field(typeof(T), fieldName) ?? throw new Exception($"Field {fieldName} not found on {typeof(T)}");
+            RoundDirector roundDirector = RoundDirector.instance;
+            if (!roundDirector || !roundDirector.allExtractionPointsCompleted)
+            {
+                return false;
+            }
 
-            var targetExp = Expression.Parameter(typeof(T), "instance");
-            var valueExp = Expression.Parameter(typeof(V), "value");
+            int extractionPoints = roundDirector.extractionPoints;
+            int extractionPointsCompleted = roundDirector.extractionPointsCompleted;
 
-            var fieldExp = Expression.Field(targetExp, field);
-            var assignExp = Expression.Assign(fieldExp, valueExp);
+            if (!roundDirector.extractionPointCurrent)
+            {
+                return extractionPointsCompleted < extractionPoints;
+            }
 
-            var lambda = Expression.Lambda<Action<T, V>>(assignExp, targetExp, valueExp);
-            return lambda.Compile();
-        }
+            bool finalExtractionStarted = extractionPointsCompleted >= extractionPoints - 1;
+            ExtractionPoint.State currentState = roundDirector.extractionPointCurrent.currentState;
 
-        private static IEnumerator TurnOffLightsLate()
-        {
-            yield return null;
-            RoundDirector.instance.allExtractionPointsCompleted = false;
+            return !finalExtractionStarted ||
+                   (currentState != ExtractionPoint.State.Extracting && currentState != ExtractionPoint.State.Complete);
         }
 
         private static void BeforeUnpatchAll()

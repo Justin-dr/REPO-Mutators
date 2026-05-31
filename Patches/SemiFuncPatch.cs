@@ -7,7 +7,6 @@ namespace Mutators.Patches
     internal class SemiFuncPatch
     {
         [HarmonyPostfix]
-        
         [HarmonyPriority(Priority.First)]
         [HarmonyPatch(nameof(SemiFunc.OnSceneSwitch))]
         static void SemiFuncOnSceneSwitchPostfix(bool _gameOver, bool _leaveGame)
