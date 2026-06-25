@@ -1,0 +1,56 @@
+name: Publish to NuGet
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+"
+
+permissions:
+  contents: read
+
+jobs:
+  build-test-pack-publish:
+    name: Build, test, pack, and publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore
+        run: dotnet restore REPO-Mutators.sln
+
+      - name: Build
+        run: dotnet build REPO-Mutators.sln --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test REPO-Mutators.sln --configuration Release --no-build --verbosity normal
+
+      - name: Pack
+        run: dotnet pack src/Mutators/Mutators.csproj --configuration Release --no-restore --output artifacts
+
+      - name: Upload package artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-package
+          path: artifacts/Xepos.Mutators.*.nupkg
+
+      - name: NuGet login
+        uses: NuGet/login@v1
+        id: login
+        with:
+          user: ${{ secrets.NUGET_USER }}
+
+      - name: NuGet push
+        run: dotnet nuget push artifacts/Xepos.Mutators.*.nupkg --api-key ${{ steps.login.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
