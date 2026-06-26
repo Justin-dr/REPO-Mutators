@@ -232,12 +232,12 @@ namespace Mutators.Mutators
                 metaToCheck = new Dictionary<string, object>();
             }
 
-            RepoMutators.Logger.LogInfo($"[{Name}] Metadata: " + string.Join(",", metadata.Keys));
+            RepoMutators.Logger.LogDebug($"[{Name}] Metadata: " + string.Join(",", metadata.Keys));
             IDictionary<string, object>? overrides = metadata
                 .Get<IDictionary<string, object>>(RepoMutators.MUTATOR_OVERRIDES)?
                 .Get<IDictionary<string, object>>(Settings.NamespacedName);
 
-            RepoMutators.Logger.LogInfo($"[{Name}] Overrides: {overrides?.Count.ToString() ?? "null"}");
+            RepoMutators.Logger.LogDebug($"[{Name}] Overrides: {overrides?.Count.ToString() ?? "null"}");
             if (overrides != null)
             {
                 foreach (string key in metaToCheck.Keys.Where(overrides.ContainsKey).ToList())

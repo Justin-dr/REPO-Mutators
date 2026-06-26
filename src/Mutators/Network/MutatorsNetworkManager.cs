@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Mutators.Enums;
 using Mutators.Extensions;
 using Mutators.Managers;
 using Mutators.Mutators;
@@ -214,13 +215,22 @@ namespace Mutators.Network
 
                     IMutator mutator = new MultiMutator(
                         new MultiMutatorSettings(MyPluginInfo.PLUGIN_GUID, overrides.Get<string>("name") ?? "Name", overrides.Get<string>("description") ?? "Description"),
-                        mutators.ToDictionary(k => k, IDictionary<string, object> (_) => new Dictionary<string, object>())
+                        mutators.ToDictionary(k => k, IDictionary<string, object> (_) => new Dictionary<string, object>()),
+                        source: GetSource(overrides)
                     );
 
                     mutatorManager.SetActiveMutator(mutator, runIsLevel);
                     mutator.ConsumeMetadata(metadata);
                 }
             }
+        }
+
+        private static MutatorSource GetSource(IDictionary<string, object> overrides)
+        {
+            string? source = overrides.Get<string>("source");
+            return Enum.TryParse(source, true, out MutatorSource result)
+                ? result
+                : MutatorSource.Mod;
         }
 
         private void SetActiveMutatorsHost(IMultiMutator mutator, IDictionary<string, object>? metadata)

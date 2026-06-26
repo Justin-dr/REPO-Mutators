@@ -1,6 +1,5 @@
 using System.Reflection;
 using BepInEx.Configuration;
-using Mutators.Enums;
 using Mutators.Mutators;
 using Mutators.Rules.Registries;
 using Mutators.Services.Selection;
@@ -182,20 +181,20 @@ namespace Mutators.Tests.Services.Selection
             return service;
         }
 
-        protected static SelectionTestMutator Mutator(
+        protected static TestMutator Mutator(
             string name,
             int weight,
             bool eligible = true,
             IReadOnlyList<Func<bool>>? conditions = null
         )
         {
-            return new SelectionTestMutator(name, weight, eligible, conditions: conditions);
+            return new TestMutator(name, weight, eligible, conditions: conditions);
         }
 
         protected static SelectionTestMultiMutator MultiMutator(string name, int weight, int subMutatorCount, bool eligible = true)
         {
             Dictionary<IMutator, IDictionary<string, object>> subMutators = Enumerable.Range(0, subMutatorCount)
-                .Select(IMutator (index) => new SelectionTestMutator($"{name} Sub {index + 1}", 1))
+                .Select(IMutator (index) => new TestMutator($"{name} Sub {index + 1}", 1))
                 .ToDictionary(mutator => mutator, IDictionary<string, object> (_) => new Dictionary<string, object>());
 
             return new SelectionTestMultiMutator(name, weight, subMutators, eligible);
@@ -227,53 +226,7 @@ namespace Mutators.Tests.Services.Selection
         }
     }
 
-    internal class SelectionTestMutator : IMutator
-    {
-        private static readonly IReadOnlyList<Type> EmptyPatches = [];
-        private static readonly IReadOnlyList<Func<bool>> EmptyConditions = [];
-
-        private readonly IReadOnlyList<Func<bool>> _conditions;
-
-        public SelectionTestMutator(
-            string name,
-            int weight,
-            bool eligible = true,
-            MutatorDifficulty difficulty = MutatorDifficulty.Normal,
-            IReadOnlyList<Func<bool>>? conditions = null
-        )
-        {
-            Settings = new SelectionTestMutatorSettings(name, weight, eligible);
-            Difficulty = difficulty;
-            _conditions = conditions ?? EmptyConditions;
-        }
-
-        public string NamespacedName => Settings.NamespacedName;
-        public string Name => Settings.MutatorName;
-        public string Description => Settings.MutatorDescription;
-        public MutatorDifficulty Difficulty { get; }
-        public MutatorSource Source => MutatorSource.Mod;
-        public bool Active { get; private set; }
-        public bool HasSpecialAction => false;
-        public AbstractMutatorSettings Settings { get; }
-        public IReadOnlyList<Type> Patches => EmptyPatches;
-        public IReadOnlyList<Func<bool>> Conditions => _conditions;
-
-        public void Patch()
-        {
-            Active = true;
-        }
-
-        public void Unpatch()
-        {
-            Active = false;
-        }
-
-        public void ConsumeMetadata(IDictionary<string, object> metadata)
-        {
-        }
-    }
-
-    internal sealed class SelectionTestMultiMutator : SelectionTestMutator, IMultiMutator
+    internal sealed class SelectionTestMultiMutator : TestMutator, IMultiMutator
     {
         public SelectionTestMultiMutator(
             string name,
@@ -286,26 +239,5 @@ namespace Mutators.Tests.Services.Selection
         }
 
         public IReadOnlyDictionary<IMutator, IDictionary<string, object>> SubMutators { get; }
-    }
-
-    internal sealed class SelectionTestMutatorSettings : AbstractMutatorSettings
-    {
-        private readonly bool _eligible;
-
-        public SelectionTestMutatorSettings(string name, int weight, bool eligible = true)
-            : base(MyPluginInfo.PLUGIN_GUID, name, $"{name} Description")
-        {
-            Weight = weight;
-            _eligible = eligible;
-        }
-
-        public override int Weight { get; }
-        public override int MinimumLevel => 0;
-        public override int MaximumLevel => 1000;
-
-        public override bool IsEligibleForSelection()
-        {
-            return _eligible;
-        }
     }
 }

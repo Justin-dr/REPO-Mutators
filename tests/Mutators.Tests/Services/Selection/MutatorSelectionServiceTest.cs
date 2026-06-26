@@ -12,8 +12,8 @@ namespace Mutators.Tests.Services.Selection
         [Test]
         public void GetWeightedMutator_UsesConfiguredStrategyAndPassesNonNopMutators()
         {
-            SelectionTestMutator expected = Mutator("Expected", 1);
-            SelectionTestMutator registered = Mutator("Registered", 1);
+            TestMutator expected = Mutator("Expected", 1);
+            TestMutator registered = Mutator("Registered", 1);
             CapturingStrategy noneStrategy = new(MultiMutatorSelectionRulesRegistry, SingleMutatorSelectionRulesRegistry, RepeatSelectionTracker, RandomProvider, NopMutator, NopMutator);
             CapturingStrategy randomStrategy = new(MultiMutatorSelectionRulesRegistry, SingleMutatorSelectionRulesRegistry, RepeatSelectionTracker, RandomProvider, NopMutator, expected);
             MutatorSelectionService service = CreateSelectionService(new Dictionary<ModSettings.MultiMutatorScalingType, MutatorSelectionStrategy>
@@ -38,7 +38,7 @@ namespace Mutators.Tests.Services.Selection
         [Test]
         public void GetWeightedMutator_WhenNopChanceSucceeds_ReturnsNopWithoutExecutingStrategy()
         {
-            SelectionTestMutator registered = Mutator("Registered", 1);
+            TestMutator registered = Mutator("Registered", 1);
             CapturingStrategy strategy = new(MultiMutatorSelectionRulesRegistry, SingleMutatorSelectionRulesRegistry, RepeatSelectionTracker, RandomProvider, NopMutator, registered);
             MutatorSelectionService service = CreateSelectionService(new Dictionary<ModSettings.MultiMutatorScalingType, MutatorSelectionStrategy>
             {

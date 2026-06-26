@@ -7,9 +7,9 @@ namespace Mutators.Tests.Services.Selection.Strategies
         [Test]
         public void Execute_FiltersIneligibleMutatorsAndMultiMutatorsWithMoreThanOneSubMutator()
         {
-            SelectionTestMutator ineligible = Mutator("Ineligible", 1_000, false);
+            TestMutator ineligible = Mutator("Ineligible", 1_000, false);
             SelectionTestMultiMutator excludedMulti = MultiMutator("Excluded Multi", 1_000, 2);
-            SelectionTestMutator expected = Mutator("Expected", 1);
+            TestMutator expected = Mutator("Expected", 1);
 
             RandomProvider.QueueFloat(0.5f);
 
@@ -25,8 +25,8 @@ namespace Mutators.Tests.Services.Selection.Strategies
         [Test]
         public void Execute_FiltersMutatorsWithFailingConditions()
         {
-            SelectionTestMutator conditionBlocked = Mutator("Condition Blocked", 1_000, conditions: [() => false]);
-            SelectionTestMutator expected = Mutator("Expected", 1);
+            TestMutator conditionBlocked = Mutator("Condition Blocked", 1_000, conditions: [() => false]);
+            TestMutator expected = Mutator("Expected", 1);
 
             RandomProvider.QueueFloat(0.5f);
 
@@ -42,7 +42,7 @@ namespace Mutators.Tests.Services.Selection.Strategies
         [Test]
         public void Execute_IncludesOneSubMutatorMultiMutatorInSingleSelectionPool()
         {
-            SelectionTestMutator regular = Mutator("Regular", 1);
+            TestMutator regular = Mutator("Regular", 1);
             SelectionTestMultiMutator expected = MultiMutator("One Sub Multi", 9, 1);
 
             RandomProvider.QueueFloat(1.01f);

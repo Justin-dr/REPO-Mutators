@@ -12,9 +12,9 @@ namespace Mutators.Tests.Services.Selection.Strategies
         [Test]
         public void PickGeneratedMultiMutator_AppliesGenerationRulesAndAvoidsDuplicates()
         {
-            SelectionTestMutator first = Mutator("First", 1);
-            SelectionTestMutator excluded = Mutator("Excluded", 1_000);
-            SelectionTestMutator alternative = Mutator("Alternative", 1);
+            TestMutator first = Mutator("First", 1);
+            TestMutator excluded = Mutator("Excluded", 1_000);
+            TestMutator alternative = Mutator("Alternative", 1);
             ExposedStrategy strategy = new(MultiMutatorSelectionRulesRegistry, SingleMutatorSelectionRulesRegistry, RepeatSelectionTracker, RandomProvider, NopMutator);
 
             MultiMutatorSelectionRulesRegistry.Register(
@@ -63,8 +63,8 @@ namespace Mutators.Tests.Services.Selection.Strategies
         {
             SelectionTestMultiMutator ineligible = MultiMutator("Ineligible Match", 1_000, 2, false);
             SelectionTestMultiMutator wrongCount = MultiMutator("Wrong Count", 1_000, 3);
-            SelectionTestMutator first = Mutator("First", 1);
-            SelectionTestMutator second = Mutator("Second", 1);
+            TestMutator first = Mutator("First", 1);
+            TestMutator second = Mutator("Second", 1);
             ExposedStrategy strategy = new(MultiMutatorSelectionRulesRegistry, SingleMutatorSelectionRulesRegistry, RepeatSelectionTracker, RandomProvider, NopMutator);
 
             RandomProvider.QueueFloat(0.5f);

@@ -27,7 +27,8 @@ namespace Mutators.Extensions
             {
                 { "namespacedName", multiMutator.NamespacedName },
                 { "name", multiMutator.Name },
-                { "description", multiMutator.Description }
+                { "description", multiMutator.Description },
+                { "source", multiMutator.Source.ToString()}
             };
 
             multiMutator.SubMutators.ForEach(mutator => mutatorOverrides.Add(mutator.Key.NamespacedName, mutator.Value));

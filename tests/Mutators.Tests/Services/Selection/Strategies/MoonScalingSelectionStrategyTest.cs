@@ -8,7 +8,7 @@ namespace Mutators.Tests.Services.Selection.Strategies
         public void Execute_UsesInjectedMoonProviderForAmountAndGeneratedChance()
         {
             const int moonLevel = 4;
-            SelectionTestMutator regular = Mutator("Regular", 1_000);
+            TestMutator regular = Mutator("Regular", 1_000);
             SelectionTestMultiMutator expected = MultiMutator("Expected Multi", 10, 2);
 
             ConfigureMoonRange(moonLevel, 2, 2, 20);
@@ -33,8 +33,8 @@ namespace Mutators.Tests.Services.Selection.Strategies
         {
             const int moonLevel = 4;
             SelectionTestMultiMutator wrongCount = MultiMutator("Wrong Count", 1_000, 3);
-            SelectionTestMutator first = Mutator("First", 1);
-            SelectionTestMutator second = Mutator("Second", 1);
+            TestMutator first = Mutator("First", 1);
+            TestMutator second = Mutator("Second", 1);
 
             ConfigureMoonRange(moonLevel, 2, 2, 20);
             SemiFuncProvider.QueueMoonLevel(moonLevel);
@@ -61,7 +61,7 @@ namespace Mutators.Tests.Services.Selection.Strategies
         public void Execute_WhenMoonRangePicksOne_PicksFromSingleMutatorPool()
         {
             const int moonLevel = 2;
-            SelectionTestMutator regular = Mutator("Regular", 1);
+            TestMutator regular = Mutator("Regular", 1);
             SelectionTestMultiMutator expected = MultiMutator("One Sub Multi", 9, 1);
 
             ConfigureMoonRange(moonLevel, 1, 1, 100);
@@ -84,8 +84,8 @@ namespace Mutators.Tests.Services.Selection.Strategies
         {
             const int moonLevel = 5;
             SelectionTestMultiMutator existingMulti = MultiMutator("Existing Multi", 1_000, 2);
-            SelectionTestMutator first = Mutator("First", 1);
-            SelectionTestMutator second = Mutator("Second", 1);
+            TestMutator first = Mutator("First", 1);
+            TestMutator second = Mutator("Second", 1);
 
             ConfigureMoonRange(moonLevel, 2, 2, 100);
             SemiFuncProvider.QueueMoonLevel(moonLevel);

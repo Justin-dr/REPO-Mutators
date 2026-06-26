@@ -54,7 +54,11 @@ namespace Mutators.Announcements
                         ? currentMutator.Description
                         : mut.Description;
                 
-                MutatorAnnouncement announcement = new MutatorAnnouncement(displayName, description);
+                MutatorAnnouncement announcement = new MutatorAnnouncement(
+                    displayName,
+                    description,
+                    !isMultiMutator || string.IsNullOrWhiteSpace(currentMutator.Description)
+                );
                 announcement.Changed += HandleAnnouncementChanged;
 
                 _announcements[i] = announcement;

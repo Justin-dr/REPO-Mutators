@@ -23,13 +23,19 @@ namespace Mutators.Announcements
         /// The base description of the mutator. Can be added upon using <see cref="AddSegment(MutatorAnnouncementDescriptionSegment)"/>.
         /// </summary>
         public MutatorAnnouncementDescriptionSegment DescriptionBase { get; }
+        
+        /// <summary>
+        /// Whether it is possible to update the base description of the mutator. Segments may still be added or removed regardless.
+        /// </summary>
+        public bool IsUpdatingBaseDescriptionAllowed { get; }
 
         internal event Action<MutatorAnnouncement>? Changed;
 
-        internal MutatorAnnouncement(string name, string description)
+        internal MutatorAnnouncement(string name, string description, bool allowEditBaseDescription)
         {
             _name = name;
             DescriptionBase = new MutatorAnnouncementDescriptionSegment("description".ToSlug(name), 0, description);
+            IsUpdatingBaseDescriptionAllowed = allowEditBaseDescription;
             _descriptionSegments = [];
             
             BuildDescription();
@@ -72,7 +78,7 @@ namespace Mutators.Announcements
         /// <param name="description">The new base description value</param>
         public void UpdateBaseDescription(string description)
         {
-            if (DescriptionBase.Value == description) return;
+            if (!IsUpdatingBaseDescriptionAllowed || DescriptionBase.Value == description) return;
             
             DescriptionBase.Value = description;
             NotifyChanged();

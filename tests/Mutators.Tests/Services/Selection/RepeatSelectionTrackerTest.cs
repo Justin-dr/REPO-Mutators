@@ -7,8 +7,8 @@ namespace Mutators.Tests.Services.Selection
         [Test]
         public void TrackSelectedMutator_UpdatesPreviousMutator()
         {
-            SelectionTestMutator first = Mutator("First", 1);
-            SelectionTestMutator second = Mutator("Second", 1);
+            TestMutator first = Mutator("First", 1);
+            TestMutator second = Mutator("Second", 1);
             RepeatSelectionTracker tracker = new();
 
             tracker.TrackSelectedMutator(first);
@@ -20,7 +20,7 @@ namespace Mutators.Tests.Services.Selection
         [Test]
         public void ShouldBlockRepeat_WhenRepeatProbabilityFallsBelowThreshold_ReturnsTrue()
         {
-            SelectionTestMutator mutator = Mutator("Repeated", 1);
+            TestMutator mutator = Mutator("Repeated", 1);
             RepeatSelectionTracker tracker = new();
 
             tracker.TrackSelectedMutator(mutator);
@@ -31,8 +31,8 @@ namespace Mutators.Tests.Services.Selection
         [Test]
         public void ShouldBlockRepeat_ForDifferentMutator_ReturnsFalse()
         {
-            SelectionTestMutator previous = Mutator("Previous", 1);
-            SelectionTestMutator current = Mutator("Current", 1);
+            TestMutator previous = Mutator("Previous", 1);
+            TestMutator current = Mutator("Current", 1);
             RepeatSelectionTracker tracker = new();
 
             tracker.TrackSelectedMutator(previous);

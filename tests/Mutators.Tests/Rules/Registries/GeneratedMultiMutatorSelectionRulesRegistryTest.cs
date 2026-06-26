@@ -1,7 +1,5 @@
-using Mutators.Enums;
 using Mutators.Mutators;
 using Mutators.Rules.Registries;
-using Mutators.Settings;
 
 namespace Mutators.Tests.Rules.Registries
 {
@@ -82,44 +80,6 @@ namespace Mutators.Tests.Rules.Registries
             registry.Register("FailingRule", (IReadOnlyCollection<IMutator> _, IMutator _) => false);
 
             Assert.That(registry.RunRules(new List<IMutator>(), current), Is.False);
-        }
-
-        private sealed class TestMutator : IMutator
-        {
-            private static readonly IReadOnlyList<Type> EmptyPatches = [];
-            private static readonly IReadOnlyList<Func<bool>> EmptyConditions = [];
-
-            public TestMutator(string name, MutatorDifficulty difficulty = MutatorDifficulty.Easy)
-            {
-                Name = name;
-                NamespacedName = $"test:{name.ToLowerInvariant()}";
-                Description = $"{name} Description";
-                
-                Difficulty = difficulty;
-            }
-
-            public string NamespacedName { get; }
-            public string Name { get; }
-            public string Description { get; }
-            public MutatorDifficulty Difficulty { get; }
-            public MutatorSource Source => MutatorSource.Mod;
-            public bool Active => false;
-            public bool HasSpecialAction => false;
-            public AbstractMutatorSettings Settings => null!;
-            public IReadOnlyList<Type> Patches => EmptyPatches;
-            public IReadOnlyList<Func<bool>> Conditions => EmptyConditions;
-
-            public void Patch()
-            {
-            }
-
-            public void Unpatch()
-            {
-            }
-
-            public void ConsumeMetadata(IDictionary<string, object> metadata)
-            {
-            }
         }
     }
 }

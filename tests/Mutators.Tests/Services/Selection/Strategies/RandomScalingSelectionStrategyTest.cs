@@ -8,7 +8,7 @@ namespace Mutators.Tests.Services.Selection.Strategies
         [Test]
         public void Execute_WhenConfiguredAmountIsOne_PicksFromSingleMutatorPool()
         {
-            SelectionTestMutator regular = Mutator("Regular", 1);
+            TestMutator regular = Mutator("Regular", 1);
             SelectionTestMultiMutator expected = MultiMutator("One Sub Multi", 9, 1);
 
             ConfigureRandomAmountRange(1, 1);
@@ -30,7 +30,7 @@ namespace Mutators.Tests.Services.Selection.Strategies
         [Test]
         public void Execute_WhenGenerationChanceFails_PicksMatchingRegisteredMultiMutator()
         {
-            SelectionTestMutator regular = Mutator("Regular", 1_000);
+            TestMutator regular = Mutator("Regular", 1_000);
             SelectionTestMultiMutator expected = MultiMutator("Expected Multi", 10, 2);
 
             ConfigureRandomAmountRange(2, 2);
@@ -55,8 +55,8 @@ namespace Mutators.Tests.Services.Selection.Strategies
         public void Execute_WhenGenerationChanceFailsAndNoMatchingRegisteredMultiMutatorExists_BuildsGeneratedMultiMutator()
         {
             SelectionTestMultiMutator wrongCount = MultiMutator("Wrong Count", 1_000, 3);
-            SelectionTestMutator first = Mutator("First", 1);
-            SelectionTestMutator second = Mutator("Second", 1);
+            TestMutator first = Mutator("First", 1);
+            TestMutator second = Mutator("Second", 1);
 
             ConfigureRandomAmountRange(2, 2);
             SetAllRandomAmountWeights(0);
@@ -84,8 +84,8 @@ namespace Mutators.Tests.Services.Selection.Strategies
         public void Execute_WhenGenerationChanceSucceeds_BuildsGeneratedMultiFromRegularMutators()
         {
             SelectionTestMultiMutator existingMulti = MultiMutator("Existing Multi", 1_000, 2);
-            SelectionTestMutator first = Mutator("First", 1);
-            SelectionTestMutator second = Mutator("Second", 1);
+            TestMutator first = Mutator("First", 1);
+            TestMutator second = Mutator("Second", 1);
 
             ConfigureRandomAmountRange(2, 2);
             SetAllRandomAmountWeights(0);

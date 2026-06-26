@@ -9,7 +9,13 @@ namespace Mutators.Tests.Settings.Specific
             Weight = weight;
             selectable = isEligibleForSelection;
         }
-            
+
+        public TestMutatorSettings(string name, string description, int weight, bool isEligibleForSelection = true) : base(MyPluginInfo.PLUGIN_GUID, name, description)
+        {
+            Weight = weight;
+            selectable = isEligibleForSelection;
+        }
+
         public override int Weight { get; }
         public override int MinimumLevel => 0;
         public override int MaximumLevel => 1000;
