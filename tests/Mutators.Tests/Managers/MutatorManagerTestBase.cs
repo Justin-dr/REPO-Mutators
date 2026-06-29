@@ -20,7 +20,7 @@ namespace Mutators.Tests.Managers
     {
         private const string RandomSection = "Multi-Mutators - Random";
 
-        private static readonly Dictionary<byte, MoonConfigEntries> MoonConfigEntriesByLevel = new();
+        private static readonly Dictionary<int, MoonConfigEntries> MoonConfigEntriesByLevel = new();
         private static readonly Dictionary<byte, RandomAmountConfigEntries> RandomAmountConfigEntriesByAmount = new();
         private static bool _settingsInitialized;
         private static ConfigFile _config = null!;
@@ -190,7 +190,7 @@ namespace Mutators.Tests.Managers
         {
             InitializeSharedSettings();
 
-            byte moon = (byte)moonLevel;
+            int moon = moonLevel;
             MoonConfigEntries entries = GetOrCreateMoonConfigEntries(moon);
             entries.Minimum.Value = minimumMutators;
             entries.Maximum.Value = maximumMutators;
@@ -208,7 +208,7 @@ namespace Mutators.Tests.Managers
             if (moonRangesField.GetValue(settings) is not IDictionary ranges)
             {
                 Type rangesType = typeof(Dictionary<,>).MakeGenericType(
-                    typeof(byte),
+                    typeof(int),
                     typeof(ModSettings.MoonSetting)
                 );
                 ranges = (IDictionary)Activator.CreateInstance(rangesType)!;
@@ -218,6 +218,7 @@ namespace Mutators.Tests.Managers
             }
             
             ranges[moon] = moonSettings;
+            SetConfiguredMoonCount(Math.Max(GetConfiguredMoonCount(), moon));
         }
 
         protected static void ConfigureRandomAmountRange(int minimumMutators, int maximumMutators)
@@ -335,7 +336,27 @@ namespace Mutators.Tests.Managers
             repoSettingsField.SetValue(null, settings);
         }
 
-        private static MoonConfigEntries GetOrCreateMoonConfigEntries(byte moon)
+        private static int GetConfiguredMoonCount()
+        {
+            FieldInfo moonCountField = typeof(ModSettings.MoonSettings).GetField(
+                "_moonCount",
+                BindingFlags.Instance | BindingFlags.NonPublic
+            )!;
+
+            return (int)moonCountField.GetValue(RepoMutators.Settings.MoonMutatorSettings)!;
+        }
+
+        private static void SetConfiguredMoonCount(int moonCount)
+        {
+            FieldInfo moonCountField = typeof(ModSettings.MoonSettings).GetField(
+                "_moonCount",
+                BindingFlags.Instance | BindingFlags.NonPublic
+            )!;
+
+            moonCountField.SetValue(RepoMutators.Settings.MoonMutatorSettings, moonCount);
+        }
+
+        private static MoonConfigEntries GetOrCreateMoonConfigEntries(int moon)
         {
             if (MoonConfigEntriesByLevel.TryGetValue(moon, out MoonConfigEntries? entries))
             {

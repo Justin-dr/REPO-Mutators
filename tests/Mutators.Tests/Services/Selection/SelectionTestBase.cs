@@ -75,7 +75,7 @@ namespace Mutators.Tests.Services.Selection
 
         protected void ConfigureMoonRange(int moonLevel, int minimumMutators, int maximumMutators, int generatedChance)
         {
-            byte moon = (byte)moonLevel;
+            int moon = moonLevel;
 
             ConfigEntry<int> minimum = _config.Bind($"Test Multi-Mutators - Moon {moon}", "Minimum Mutators", minimumMutators);
             ConfigEntry<int> maximum = _config.Bind($"Test Multi-Mutators - Moon {moon}", "Maximum Mutators", maximumMutators);
@@ -93,10 +93,11 @@ namespace Mutators.Tests.Services.Selection
                 BindingFlags.Instance | BindingFlags.NonPublic
             )!;
 
-            Dictionary<byte, ModSettings.MoonSetting> ranges =
-                (Dictionary<byte, ModSettings.MoonSetting>)moonRangesField.GetValue(RepoMutators.Settings.MoonMutatorSettings)!;
+            Dictionary<int, ModSettings.MoonSetting> ranges =
+                (Dictionary<int, ModSettings.MoonSetting>)moonRangesField.GetValue(RepoMutators.Settings.MoonMutatorSettings)!;
 
             ranges[moon] = moonSetting;
+            SetConfiguredMoonCount(Math.Max(GetConfiguredMoonCount(), moon));
         }
 
         protected void ConfigureRandomAmountRange(int minimumMutators, int maximumMutators)
@@ -181,12 +182,7 @@ namespace Mutators.Tests.Services.Selection
             return service;
         }
 
-        protected static TestMutator Mutator(
-            string name,
-            int weight,
-            bool eligible = true,
-            IReadOnlyList<Func<bool>>? conditions = null
-        )
+        protected static TestMutator Mutator(string name, int weight, bool eligible = true, IReadOnlyList<Func<bool>>? conditions = null)
         {
             return new TestMutator(name, weight, eligible, conditions: conditions);
         }
@@ -223,6 +219,26 @@ namespace Mutators.Tests.Services.Selection
             )!;
 
             loggerProperty.GetSetMethod(true)!.Invoke(null, [testLogger]);
+        }
+
+        private static int GetConfiguredMoonCount()
+        {
+            FieldInfo moonCountField = typeof(ModSettings.MoonSettings).GetField(
+                "_moonCount",
+                BindingFlags.Instance | BindingFlags.NonPublic
+            )!;
+
+            return (int)moonCountField.GetValue(RepoMutators.Settings.MoonMutatorSettings)!;
+        }
+
+        private static void SetConfiguredMoonCount(int moonCount)
+        {
+            FieldInfo moonCountField = typeof(ModSettings.MoonSettings).GetField(
+                "_moonCount",
+                BindingFlags.Instance | BindingFlags.NonPublic
+            )!;
+
+            moonCountField.SetValue(RepoMutators.Settings.MoonMutatorSettings, moonCount);
         }
     }
 

@@ -20,11 +20,11 @@ namespace Mutators.Patches
         
         [HarmonyPostfix]
         [HarmonyPatch(nameof(RunManager.Awake))]
-        static void RunManagerAwakePostfix()
+        static void RunManagerAwakePostfix(RunManager __instance)
         {
             if (!_isMoonConfigApplied)
             {
-                RepoMutators.Settings.LateBindMoonConfig(RepoMutators.Instance.Config);
+                RepoMutators.Settings.LateBindMoonConfig(RepoMutators.Instance.Config, __instance.moons.Count);
                 _isMoonConfigApplied = true;
             }
         }

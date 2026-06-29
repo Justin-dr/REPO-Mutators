@@ -175,9 +175,7 @@ public class RepoMutators : BaseUnityPlugin
         DI.Container.AddSingleton<IMutatorsLogger>(Logger)
             .AddSingleton<IRandomProvider, RandomProvider>()
             .AddSingleton<ISemiFuncProvider, SemiFuncProvider>()
-            .AddSingleton(
-                new GeneratedMultiMutatorSelectionRulesRegistry()
-             )
+            .AddSingleton(new GeneratedMultiMutatorSelectionRulesRegistry())
             .AddSingleton<SingleMutatorSelectionRulesRegistry>()
             .AddSingleton<IRepeatSelectionTracker, RepeatSelectionTracker>()
             .AddSingleton(Settings.MoonMutatorSettings)

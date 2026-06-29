@@ -35,12 +35,13 @@ namespace Mutators.Settings
 
         internal sealed class MoonSettings
         {
-            private readonly IDictionary<byte, MoonSetting> _multiMutatorMoonRanges = new Dictionary<byte, MoonSetting>();
+            private readonly IDictionary<int, MoonSetting> _multiMutatorMoonRanges = new Dictionary<int, MoonSetting>();
+            private int _moonCount;
 
-            internal void LateBindMoonConfig(ConfigFile config)
+            internal void LateBindMoonConfig(ConfigFile config, int moonCount)
             {
-                int moonCount = RunManager.instance.moons.Count;
-                for (byte i = 0; i <= moonCount; i++)
+                _moonCount = moonCount;
+                for (int i = 0; i <= _moonCount; i++)
                 {
                     ConfigEntry<int> generatedChance = config.Bind(
                         GetMoonSection(i),
@@ -57,8 +58,11 @@ namespace Mutators.Settings
                 RepoMutators.Logger.LogDebug($"Late-bound moon config with {moonCount} moons.");
             }
 
-            internal MoonSetting GetMultiMutatorMoonRange(int moon) => GetMultiMutatorMoonRange((byte)moon);
-            internal MoonSetting GetMultiMutatorMoonRange(byte moon) => _multiMutatorMoonRanges[moon];
+            internal MoonSetting GetMultiMutatorMoonRange(int moon)
+            {
+                int clampedMoon = Math.Clamp(moon, 0, _moonCount);
+                return _multiMutatorMoonRanges[clampedMoon];
+            }
         }
 
         internal sealed class RandomSettings
@@ -324,9 +328,9 @@ namespace Mutators.Settings
             config.SettingChanged += (_, _) => CacheKeys();
         }
 
-        internal void LateBindMoonConfig(ConfigFile config)
+        internal void LateBindMoonConfig(ConfigFile config, int moonCount)
         {
-            MoonMutatorSettings.LateBindMoonConfig(config);
+            MoonMutatorSettings.LateBindMoonConfig(config, moonCount);
         }
 
         internal void CacheKeys()
@@ -337,7 +341,7 @@ namespace Mutators.Settings
             MutatorScalingType = Enum.TryParse(typeof(MultiMutatorScalingType), _multiMutatorSelectionMode.Value, out object selectionMode) ? (MultiMutatorScalingType)selectionMode : MultiMutatorScalingType.None;
         }
 
-        private static ConfigEntry<int> CreateMoonRange(ConfigFile config, byte moon, bool min)
+        private static ConfigEntry<int> CreateMoonRange(ConfigFile config, int moon, bool min)
         {
             return config.Bind(
                 GetMoonSection(moon),
@@ -355,6 +359,6 @@ namespace Mutators.Settings
             return min ? Math.Max(moon, 1) : Math.Min(4, moon + 1);
         }
 
-        private static string GetMoonSection(byte moon) => "Multi-Mutators - " + (moon == 0 ? "No Moon" : $"Moon {moon}");
+        private static string GetMoonSection(int moon) => "Multi-Mutators - " + (moon == 0 ? "No Moon" : $"Moon {moon}");
     }
 }

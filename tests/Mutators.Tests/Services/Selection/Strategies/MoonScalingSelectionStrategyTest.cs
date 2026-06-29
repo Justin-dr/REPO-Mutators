@@ -29,6 +29,31 @@ namespace Mutators.Tests.Services.Selection.Strategies
         }
 
         [Test]
+        public void Execute_WhenMoonLevelExceedsConfiguredMoonCount_UsesHighestConfiguredMoonRange()
+        {
+            const int configuredMoonLevel = 4;
+            const int moonLevel = 7;
+            TestMutator regular = Mutator("Regular", 1_000);
+            SelectionTestMultiMutator expected = MultiMutator("Expected Multi", 10, 2);
+
+            ConfigureMoonRange(configuredMoonLevel, 2, 2, 20);
+            SemiFuncProvider.QueueMoonLevel(moonLevel);
+            SemiFuncProvider.QueueMoonLevel(moonLevel);
+            RandomProvider.QueueInt(2);
+            RandomProvider.QueueInt(21);
+            RandomProvider.QueueFloat(5f);
+
+            IMutator selected = CreateMoonStrategy().Execute([regular, expected]);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(selected, Is.SameAs(expected));
+                Assert.That(RandomProvider.RandomRangeIntCalls, Is.EqualTo(new[] { (2, 3), (1, 101) }));
+                Assert.That(RandomProvider.RangeCalls, Has.One.EqualTo((0f, 10f)));
+            });
+        }
+
+        [Test]
         public void Execute_WhenGenerationChanceFailsAndNoMatchingRegisteredMultiMutatorExists_BuildsGeneratedMultiMutator()
         {
             const int moonLevel = 4;
