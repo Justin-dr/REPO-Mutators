@@ -19,12 +19,12 @@ namespace Mutators.Tests.Services.Selection.Strategies
 
             IMutator selected = CreateRandomStrategy().Execute([regular, expected]);
 
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(selected, Is.SameAs(expected));
                 Assert.That(RandomProvider.RandomRangeIntCalls, Has.One.EqualTo((0, 10)));
                 Assert.That(RandomProvider.RangeCalls, Has.One.EqualTo((0f, 10f)));
-            });
+            }
         }
 
         [Test]
@@ -43,12 +43,12 @@ namespace Mutators.Tests.Services.Selection.Strategies
 
             IMutator selected = CreateRandomStrategy().Execute([regular, expected]);
 
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(selected, Is.SameAs(expected));
                 Assert.That(RandomProvider.RandomRangeIntCalls, Is.EqualTo(new[] { (0, 10), (1, 101) }));
                 Assert.That(RandomProvider.RangeCalls, Has.One.EqualTo((0f, 10f)));
-            });
+            }
         }
 
         [Test]
@@ -71,13 +71,13 @@ namespace Mutators.Tests.Services.Selection.Strategies
 
             Assert.That(selected, Is.AssignableTo<IMultiMutator>());
             IMultiMutator generated = (IMultiMutator)selected;
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(generated.Name, Is.EqualTo(string.Empty));
                 Assert.That(generated.SubMutators.Keys, Is.EquivalentTo(new[] { first, second }));
                 Assert.That(RandomProvider.RandomRangeIntCalls, Is.EqualTo(new[] { (0, 10), (1, 101) }));
                 Assert.That(RandomProvider.RangeCalls, Is.EqualTo(new[] { (0f, 2f), (0f, 1f) }));
-            });
+            }
         }
 
         [Test]
@@ -99,13 +99,13 @@ namespace Mutators.Tests.Services.Selection.Strategies
 
             Assert.That(selected, Is.AssignableTo<IMultiMutator>());
             IMultiMutator generated = (IMultiMutator)selected;
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(generated.Name, Is.EqualTo(string.Empty));
                 Assert.That(generated.SubMutators.Keys, Is.EquivalentTo(new[] { first, second }));
                 Assert.That(RandomProvider.RandomRangeIntCalls, Has.One.EqualTo((0, 10)));
                 Assert.That(RandomProvider.RangeCalls, Is.EqualTo(new[] { (0f, 2f), (0f, 1f) }));
-            });
+            }
         }
 
         [Test]
@@ -117,13 +117,13 @@ namespace Mutators.Tests.Services.Selection.Strategies
                 () => CreateRandomStrategy().Execute([Mutator("Regular", 1)])
             )!;
 
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(exception.ParamName, Is.EqualTo("minimumAmount"));
                 Assert.That(exception.Message, Does.Contain($"between 1 and {ModSettings.MaximumGeneratedActiveSubMutators}"));
                 Assert.That(RandomProvider.RandomRangeIntCalls, Is.Empty);
                 Assert.That(RandomProvider.RangeCalls, Is.Empty);
-            });
+            }
         }
 
         [Test]
@@ -135,13 +135,13 @@ namespace Mutators.Tests.Services.Selection.Strategies
                 () => CreateRandomStrategy().Execute([Mutator("Regular", 1)])
             )!;
 
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(exception.ParamName, Is.EqualTo("maximumAmount"));
                 Assert.That(exception.Message, Does.Contain($"between 1 and {ModSettings.MaximumGeneratedActiveSubMutators}"));
                 Assert.That(RandomProvider.RandomRangeIntCalls, Is.Empty);
                 Assert.That(RandomProvider.RangeCalls, Is.Empty);
-            });
+            }
         }
 
         [Test]
@@ -153,13 +153,13 @@ namespace Mutators.Tests.Services.Selection.Strategies
                 () => CreateRandomStrategy().Execute([Mutator("Regular", 1)])
             )!;
 
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(exception.ParamName, Is.EqualTo("minimumAmount"));
                 Assert.That(exception.Message, Does.Contain("should not be greater than maximum amount"));
                 Assert.That(RandomProvider.RandomRangeIntCalls, Is.Empty);
                 Assert.That(RandomProvider.RangeCalls, Is.Empty);
-            });
+            }
         }
     }
 }

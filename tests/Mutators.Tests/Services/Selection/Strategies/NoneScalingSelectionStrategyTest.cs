@@ -15,11 +15,11 @@ namespace Mutators.Tests.Services.Selection.Strategies
 
             IMutator selected = CreateNoneStrategy().Execute([ineligible, excludedMulti, expected]);
 
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(selected, Is.SameAs(expected));
                 Assert.That(RandomProvider.RangeCalls, Has.One.EqualTo((0f, 1f)));
-            });
+            }
         }
 
         [Test]
@@ -32,11 +32,11 @@ namespace Mutators.Tests.Services.Selection.Strategies
 
             IMutator selected = CreateNoneStrategy().Execute([conditionBlocked, expected]);
 
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(selected, Is.SameAs(expected));
                 Assert.That(RandomProvider.RangeCalls, Has.One.EqualTo((0f, 1f)));
-            });
+            }
         }
 
         [Test]
@@ -49,11 +49,11 @@ namespace Mutators.Tests.Services.Selection.Strategies
 
             IMutator selected = CreateNoneStrategy().Execute([regular, expected]);
 
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(selected, Is.SameAs(expected));
                 Assert.That(RandomProvider.RangeCalls, Has.One.EqualTo((0f, 10f)));
-            });
+            }
         }
 
         [Test]

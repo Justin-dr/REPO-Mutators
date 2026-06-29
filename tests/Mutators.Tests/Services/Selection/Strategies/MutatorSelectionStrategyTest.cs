@@ -31,12 +31,12 @@ namespace Mutators.Tests.Services.Selection.Strategies
 
             Assert.That(selected, Is.AssignableTo<IMultiMutator>());
             IMultiMutator generated = (IMultiMutator)selected;
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(generated.SubMutators.Keys, Is.EquivalentTo(new[] { first, alternative }));
                 Assert.That(generated.SubMutators.Keys, Does.Not.Contain(excluded));
                 Assert.That(RandomProvider.RangeCalls, Is.EqualTo(new[] { (0f, 1002f), (0f, 1f) }));
-            });
+            }
         }
 
         [Test]
@@ -51,11 +51,11 @@ namespace Mutators.Tests.Services.Selection.Strategies
 
             IMutator selected = strategy.PickUserDefined([ineligible, expected, wrongCount], 2);
 
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(selected, Is.SameAs(expected));
                 Assert.That(RandomProvider.RangeCalls, Has.One.EqualTo((0f, 10f)));
-            });
+            }
         }
 
         [Test]
@@ -74,13 +74,13 @@ namespace Mutators.Tests.Services.Selection.Strategies
 
             Assert.That(selected, Is.AssignableTo<IMultiMutator>());
             IMultiMutator generated = (IMultiMutator)selected;
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(generated.Name, Is.EqualTo(string.Empty));
                 Assert.That(generated.SubMutators.Keys, Is.EquivalentTo(new[] { first, second }));
                 Assert.That(RandomProvider.RangeCalls, Is.EqualTo(new[] { (0f, 2f), (0f, 1f) }));
                 Assert.That(Logger.WarningLogs, Is.Empty);
-            });
+            }
         }
 
         [Test]
@@ -92,12 +92,12 @@ namespace Mutators.Tests.Services.Selection.Strategies
 
             IMutator selected = strategy.PickUserDefined([ineligible, wrongCount], 2);
 
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(selected, Is.SameAs(NopMutator));
                 Assert.That(RandomProvider.RangeCalls, Is.Empty);
                 Assert.That(Logger.WarningLogs, Has.Exactly(2).EqualTo("Fell back to None mutator, invalid total weight: 0"));
-            });
+            }
         }
 
         [Test]
@@ -118,12 +118,12 @@ namespace Mutators.Tests.Services.Selection.Strategies
 
             bool shouldGenerate = strategy.ShouldGenerate(0);
 
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(shouldGenerate, Is.False);
                 Assert.That(RandomProvider.RandomRangeIntCalls, Is.Empty);
                 Assert.That(Logger.WarningLogs, Is.Empty);
-            });
+            }
         }
 
         [Test]
@@ -133,7 +133,7 @@ namespace Mutators.Tests.Services.Selection.Strategies
 
             bool shouldGenerate = strategy.ShouldGenerate(-1);
 
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(shouldGenerate, Is.False);
                 Assert.That(RandomProvider.RandomRangeIntCalls, Is.Empty);
@@ -142,7 +142,7 @@ namespace Mutators.Tests.Services.Selection.Strategies
                     "Generated multi-mutator chance is misconfigured: -1.",
                     "The minimum allowed value is 0."
                 }));
-            });
+            }
         }
 
         [Test]
@@ -152,7 +152,7 @@ namespace Mutators.Tests.Services.Selection.Strategies
 
             bool shouldGenerate = strategy.ShouldGenerate(101);
 
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(shouldGenerate, Is.True);
                 Assert.That(RandomProvider.RandomRangeIntCalls, Is.Empty);
@@ -161,7 +161,7 @@ namespace Mutators.Tests.Services.Selection.Strategies
                     "Generated multi-mutator chance is misconfigured: 101.",
                     "The maximum allowed value is 100."
                 }));
-            });
+            }
         }
 
         [Test]
@@ -171,12 +171,12 @@ namespace Mutators.Tests.Services.Selection.Strategies
 
             bool shouldGenerate = strategy.ShouldGenerate(100);
 
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(shouldGenerate, Is.True);
                 Assert.That(RandomProvider.RandomRangeIntCalls, Is.Empty);
                 Assert.That(Logger.WarningLogs, Is.Empty);
-            });
+            }
         }
 
         private sealed class ExposedStrategy : MutatorSelectionStrategy

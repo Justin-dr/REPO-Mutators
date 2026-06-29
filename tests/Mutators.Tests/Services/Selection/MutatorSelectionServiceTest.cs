@@ -26,13 +26,13 @@ namespace Mutators.Tests.Services.Selection
 
             IMutator selected = service.GetWeightedMutator([NopMutator, registered]);
 
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(selected, Is.SameAs(expected));
                 Assert.That(noneStrategy.ExecuteCount, Is.Zero);
                 Assert.That(randomStrategy.ExecuteCount, Is.EqualTo(1));
                 Assert.That(randomStrategy.CapturedMutators, Is.EquivalentTo(new[] { registered }));
-            });
+            }
         }
 
         [Test]
@@ -50,12 +50,12 @@ namespace Mutators.Tests.Services.Selection
 
             IMutator selected = service.GetWeightedMutator([registered]);
 
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(selected, Is.SameAs(NopMutator));
                 Assert.That(strategy.ExecuteCount, Is.Zero);
                 Assert.That(RandomProvider.RangeCalls, Is.Empty);
-            });
+            }
         }
 
         private sealed class CapturingStrategy : MutatorSelectionStrategy

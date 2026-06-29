@@ -20,11 +20,11 @@ namespace Mutators.Tests.Rules.Loaders
             JsonMutatorRule? rule = JsonConvert.DeserializeObject<JsonMutatorRule>(json);
 
             Assert.That(rule, Is.Not.Null);
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(rule.Type, Is.EqualTo(MultiMutatorRuleType.MutualExclusion));
                 Assert.That(rule.Mutators, Is.EqualTo(new[] { "test:single" }));
-            });
+            }
         }
 
         [Test]
@@ -41,11 +41,11 @@ namespace Mutators.Tests.Rules.Loaders
             JsonMutatorRule? rule = JsonConvert.DeserializeObject<JsonMutatorRule>(json);
 
             Assert.That(rule, Is.Not.Null);
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(rule.Type, Is.EqualTo(MultiMutatorRuleType.MutualExclusion));
                 Assert.That(rule.Mutators, Is.EqualTo(new[] { "test:first", "test:second" }));
-            });
+            }
         }
         
         [Test]
@@ -62,11 +62,11 @@ namespace Mutators.Tests.Rules.Loaders
             JsonMutatorRule? rule = JsonConvert.DeserializeObject<JsonMutatorRule>(json);
 
             Assert.That(rule, Is.Not.Null);
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(rule.Type, Is.EqualTo(SingleMutatorRuleType.Exclusion));
                 Assert.That(rule.Mutators, Is.EqualTo(new[] { "test:single" }));
-            });
+            }
         }
 
         [Test]
@@ -83,11 +83,11 @@ namespace Mutators.Tests.Rules.Loaders
             JsonMutatorRule? rule = JsonConvert.DeserializeObject<JsonMutatorRule>(json);
 
             Assert.That(rule, Is.Not.Null);
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(rule.Type, Is.EqualTo(SingleMutatorRuleType.Exclusion));
                 Assert.That(rule.Mutators, Is.EqualTo(new[] { "test:first", "test:second" }));
-            });
+            }
         }
     }
 }

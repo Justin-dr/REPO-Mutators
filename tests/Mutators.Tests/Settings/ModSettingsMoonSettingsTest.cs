@@ -24,12 +24,13 @@ namespace Mutators.Tests.Settings
 
             ModSettings.MoonSetting moonSetting = settings.MoonMutatorSettings.GetMultiMutatorMoonRange(7);
 
-            Assert.Multiple(() =>
+            Assert.That(moonSetting, Is.Not.Null);
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(moonSetting.MinimumMutators, Is.EqualTo(3));
                 Assert.That(moonSetting.MaximumMutators, Is.EqualTo(6));
                 Assert.That(moonSetting.GeneratedChance, Is.EqualTo(73));
-            });
+            }
         }
 
         private static ConfigFile CreateConfig()

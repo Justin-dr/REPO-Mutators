@@ -20,12 +20,12 @@ namespace Mutators.Tests.Services.Selection.Strategies
 
             IMutator selected = CreateMoonStrategy().Execute([regular, expected]);
 
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(selected, Is.SameAs(expected));
                 Assert.That(RandomProvider.RandomRangeIntCalls, Is.EqualTo(new[] { (2, 3), (1, 101) }));
                 Assert.That(RandomProvider.RangeCalls, Has.One.EqualTo((0f, 10f)));
-            });
+            }
         }
 
         [Test]
@@ -45,12 +45,12 @@ namespace Mutators.Tests.Services.Selection.Strategies
 
             IMutator selected = CreateMoonStrategy().Execute([regular, expected]);
 
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(selected, Is.SameAs(expected));
                 Assert.That(RandomProvider.RandomRangeIntCalls, Is.EqualTo(new[] { (2, 3), (1, 101) }));
                 Assert.That(RandomProvider.RangeCalls, Has.One.EqualTo((0f, 10f)));
-            });
+            }
         }
 
         [Test]
@@ -73,13 +73,13 @@ namespace Mutators.Tests.Services.Selection.Strategies
 
             Assert.That(selected, Is.AssignableTo<IMultiMutator>());
             IMultiMutator generated = (IMultiMutator)selected;
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(generated.Name, Is.EqualTo(string.Empty));
                 Assert.That(generated.SubMutators.Keys, Is.EquivalentTo(new[] { first, second }));
                 Assert.That(RandomProvider.RandomRangeIntCalls, Is.EqualTo(new[] { (2, 3), (1, 101) }));
                 Assert.That(RandomProvider.RangeCalls, Is.EqualTo(new[] { (0f, 2f), (0f, 1f) }));
-            });
+            }
         }
 
         [Test]
@@ -96,12 +96,12 @@ namespace Mutators.Tests.Services.Selection.Strategies
 
             IMutator selected = CreateMoonStrategy().Execute([regular, expected]);
 
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(selected, Is.SameAs(expected));
                 Assert.That(RandomProvider.RandomRangeIntCalls, Has.One.EqualTo((1, 2)));
                 Assert.That(RandomProvider.RangeCalls, Has.One.EqualTo((0f, 10f)));
-            });
+            }
         }
 
         [Test]
@@ -123,13 +123,13 @@ namespace Mutators.Tests.Services.Selection.Strategies
 
             Assert.That(selected, Is.AssignableTo<IMultiMutator>());
             IMultiMutator generated = (IMultiMutator)selected;
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(generated.Name, Is.EqualTo(string.Empty));
                 Assert.That(generated.SubMutators.Keys, Is.EquivalentTo(new[] { first, second }));
                 Assert.That(RandomProvider.RandomRangeIntCalls, Has.One.EqualTo((2, 3)));
                 Assert.That(RandomProvider.RangeCalls, Is.EqualTo(new[] { (0f, 2f), (0f, 1f) }));
-            });
+            }
         }
     }
 }

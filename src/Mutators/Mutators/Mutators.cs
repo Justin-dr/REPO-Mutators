@@ -24,6 +24,7 @@
         public const string AmalgamName = "Amalgam";
         public const string NullSignalName = "Null Signal";
         public const string SizeMattersName = "Size Matters";
+        public const string InsuranceFraudName = "Insurance Fraud";
 
         // Descriptions
         public const string NopMutatorDescription = "A normal run, no special effects";
@@ -47,5 +48,6 @@
         public const string AmalgamDescription = "You’ve been here before — just not all at once";
         public const string NullSignalDescription = "Active Mutator information is hidden";
         public const string SizeMattersDescription = "All players are shrunk";
+        public const string InsuranceFraudDescription = "Valuables split their value between nearby valuables when broken";
     }
 }

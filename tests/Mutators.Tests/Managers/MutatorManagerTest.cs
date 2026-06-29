@@ -110,12 +110,12 @@ namespace Mutators.Tests.Managers
 
                 mutatorManager.GetWeightedMutator();
 
-                Assert.Multiple(() =>
+                using (Assert.EnterMultipleScope())
                 {
                     Assert.That(expected.Active, Is.False);
                     Assert.That(expected.PatchCount, Is.Zero);
                     Assert.That(expected.UnpatchCount, Is.Zero);
-                });
+                }
             }
 
             [Test]
@@ -128,11 +128,11 @@ namespace Mutators.Tests.Managers
                 mutatorManager.RegisterMutator(expected);
                 IMutator selected = mutatorManager.GetWeightedMutator();
 
-                Assert.Multiple(() =>
+                using (Assert.EnterMultipleScope())
                 {
                     Assert.That(selected, Is.SameAs(expected));
                     Assert.That(mutatorManager.CurrentMutator, Is.SameAs(currentBeforeSelection));
-                });
+                }
             }
 
             [Test]
@@ -251,11 +251,11 @@ namespace Mutators.Tests.Managers
                     selectedNames.Add(manager.GetWeightedMutator().Name);
                 }
 
-                Assert.Multiple(() =>
+                using (Assert.EnterMultipleScope())
                 {
                     Assert.That(selectedNames, Does.Not.Contain("Excluded Multi"));
                     Assert.That(selectedNames, Has.All.EqualTo("Expected"));
-                });
+                }
             }
 
             [Test]
@@ -276,11 +276,11 @@ namespace Mutators.Tests.Managers
                     selectedNames.Add(manager.GetWeightedMutator().Name);
                 }
 
-                Assert.Multiple(() =>
+                using (Assert.EnterMultipleScope())
                 {
                     Assert.That(selectedNames, Does.Not.Contain("Zero"));
                     Assert.That(selectedNames, Has.All.EqualTo("Expected"));
-                });
+                }
             }
 
             [Test]
@@ -423,13 +423,13 @@ namespace Mutators.Tests.Managers
                 IMutator thirdPick = mutatorManager.GetWeightedMutator();
                 IMutator fourthPick = mutatorManager.GetWeightedMutator();
 
-                Assert.Multiple(() =>
+                using (Assert.EnterMultipleScope())
                 {
                     Assert.That(firstPick, Is.TypeOf<NopMutator>());
                     Assert.That(secondPick, Is.SameAs(firstPick));
                     Assert.That(thirdPick, Is.SameAs(firstPick));
                     Assert.That(fourthPick, Is.SameAs(expected));
-                });
+                }
                 Assert.That(randomProvider.RangeCalls, Is.EqualTo(new[] { (0f, 100f), (0f, 100f), (0f, 100f), (0f, 10f) }));
             }
         }
@@ -454,11 +454,11 @@ namespace Mutators.Tests.Managers
                 Register(expected, otherAmount);
 
                 Assert.That(mutatorManager.GetWeightedMutator(), Is.SameAs(expected));
-                Assert.Multiple(() =>
+                using (Assert.EnterMultipleScope())
                 {
                     Assert.That(randomProvider.RandomRangeIntCalls, Has.One.EqualTo((0, 40)));
                     Assert.That(randomProvider.RangeCalls, Has.One.EqualTo((0f, 7f)));
-                });
+                }
             }
 
             [Test]
@@ -475,11 +475,11 @@ namespace Mutators.Tests.Managers
                 Register(regular, expected);
 
                 Assert.That(mutatorManager.GetWeightedMutator(), Is.SameAs(expected));
-                Assert.Multiple(() =>
+                using (Assert.EnterMultipleScope())
                 {
                     Assert.That(randomProvider.RandomRangeIntCalls, Has.One.EqualTo((0, 10)));
                     Assert.That(randomProvider.RangeCalls, Has.One.EqualTo((0f, 10f)));
-                });
+                }
             }
 
             [Test]
@@ -498,11 +498,11 @@ namespace Mutators.Tests.Managers
                 Register(regular, wrongCount, expected);
 
                 Assert.That(mutatorManager.GetWeightedMutator(), Is.SameAs(expected));
-                Assert.Multiple(() =>
+                using (Assert.EnterMultipleScope())
                 {
                     Assert.That(randomProvider.RandomRangeIntCalls, Is.EqualTo(new[] { (0, 10), (1, 101) }));
                     Assert.That(randomProvider.RangeCalls, Has.One.EqualTo((0f, 10f)));
-                });
+                }
             }
 
             [Test]
@@ -524,13 +524,13 @@ namespace Mutators.Tests.Managers
 
                 Assert.That(selected, Is.AssignableTo<IMultiMutator>());
                 IMultiMutator generated = (IMultiMutator)selected;
-                Assert.Multiple(() =>
+                using (Assert.EnterMultipleScope())
                 {
                     Assert.That(generated.Name, Is.EqualTo(string.Empty));
                     Assert.That(generated.SubMutators.Keys, Is.EquivalentTo(new[] { first, second }));
                     Assert.That(randomProvider.RandomRangeIntCalls, Has.One.EqualTo((0, 10)));
                     Assert.That(randomProvider.RangeCalls, Is.EqualTo(new[] { (0f, 2f), (0f, 1f) }));
-                });
+                }
             }
 
             [Test]
@@ -552,14 +552,14 @@ namespace Mutators.Tests.Managers
 
                 Assert.That(selected, Is.AssignableTo<IMultiMutator>());
                 IMultiMutator generated = (IMultiMutator)selected;
-                Assert.Multiple(() =>
+                using (Assert.EnterMultipleScope())
                 {
                     Assert.That(generated.Name, Is.EqualTo(string.Empty));
                     Assert.That(generated.SubMutators.Keys, Is.EquivalentTo(new[] { first, second }));
                     Assert.That(randomProvider.RandomRangeIntCalls, Has.One.EqualTo((0, 10)));
                     Assert.That(randomProvider.RangeCalls, Is.EqualTo(new[] { (0f, 2f), (0f, 1f) }));
                     Assert.That(logger.WarningLogs, Is.Empty);
-                });
+                }
             }
 
             [Test]
@@ -575,11 +575,11 @@ namespace Mutators.Tests.Managers
                 Register(expected);
 
                 Assert.That(mutatorManager.GetWeightedMutator(), Is.SameAs(expected));
-                Assert.Multiple(() =>
+                using (Assert.EnterMultipleScope())
                 {
                     Assert.That(randomProvider.RandomRangeIntCalls, Has.One.EqualTo((2, 5)));
                     Assert.That(randomProvider.RangeCalls, Has.One.EqualTo((0f, 10f)));
-                });
+                }
             }
         }
 
@@ -599,11 +599,11 @@ namespace Mutators.Tests.Managers
                 mutatorManager.RegisterMutator(expected);
 
                 Assert.That(mutatorManager.GetWeightedMutator(), Is.SameAs(expected));
-                Assert.Multiple(() =>
+                using (Assert.EnterMultipleScope())
                 {
                     Assert.That(randomProvider.RandomRangeIntCalls, Has.One.EqualTo((1, 2)));
                     Assert.That(randomProvider.RangeCalls, Has.One.EqualTo((0f, 10f)));
-                });
+                }
             }
 
             [Test]
@@ -634,12 +634,12 @@ namespace Mutators.Tests.Managers
                 mutatorManager.RegisterMutator(expected);
 
                 Assert.That(mutatorManager.GetWeightedMutator(), Is.SameAs(expected));
-                Assert.Multiple(() =>
+                using (Assert.EnterMultipleScope())
                 {
                     Assert.That(randomProvider.RandomRangeIntCalls, Has.One.EqualTo((1, 2)));
                     Assert.That(randomProvider.RangeCalls, Has.One.EqualTo((0f, 10f)));
                     Assert.That(logger.WarningLogs, Is.Empty);
-                });
+                }
             }
 
             [Test]
@@ -656,11 +656,11 @@ namespace Mutators.Tests.Managers
                 Register(expected, regular);
 
                 Assert.That(mutatorManager.GetWeightedMutator(), Is.SameAs(expected));
-                Assert.Multiple(() =>
+                using (Assert.EnterMultipleScope())
                 {
                     Assert.That(randomProvider.RandomRangeIntCalls, Is.EqualTo(new[] { (2, 5), (1, 101) }));
                     Assert.That(randomProvider.RangeCalls, Is.EqualTo(new[] { (0f, 7f) }));
-                });
+                }
             }
 
             [Test]
@@ -677,11 +677,11 @@ namespace Mutators.Tests.Managers
                 Register(regular, wrongCount, expected);
 
                 Assert.That(mutatorManager.GetWeightedMutator(), Is.SameAs(expected));
-                Assert.Multiple(() =>
+                using (Assert.EnterMultipleScope())
                 {
                     Assert.That(randomProvider.RandomRangeIntCalls, Is.EqualTo(new[] { (2, 3), (1, 101) }));
                     Assert.That(randomProvider.RangeCalls, Is.EqualTo(new[] { (0f, 10f) }));
-                });
+                }
             }
 
             [Test]
@@ -702,13 +702,13 @@ namespace Mutators.Tests.Managers
 
                 Assert.That(selected, Is.AssignableTo<IMultiMutator>());
                 IMultiMutator generated = (IMultiMutator)selected;
-                Assert.Multiple(() =>
+                using (Assert.EnterMultipleScope())
                 {
                     Assert.That(generated.Name, Is.EqualTo(string.Empty));
                     Assert.That(generated.SubMutators.Keys, Is.EquivalentTo(new[] { first, second }));
                     Assert.That(randomProvider.RandomRangeIntCalls, Is.EqualTo(new[] { (2, 3), (1, 101) }));
                     Assert.That(randomProvider.RangeCalls, Is.EqualTo(new[] { (0f, 2f), (0f, 1f) }));
-                });
+                }
             }
 
             [Test]
@@ -728,14 +728,14 @@ namespace Mutators.Tests.Managers
 
                 Assert.That(selected, Is.AssignableTo<IMultiMutator>());
                 IMultiMutator generated = (IMultiMutator)selected;
-                Assert.Multiple(() =>
+                using (Assert.EnterMultipleScope())
                 {
                     Assert.That(generated.Name, Is.EqualTo(string.Empty));
                     Assert.That(generated.SubMutators.Keys, Is.EquivalentTo(new[] { first, second }));
                     Assert.That(randomProvider.RandomRangeIntCalls, Is.EqualTo(new[] { (2, 3), (1, 101) }));
                     Assert.That(randomProvider.RangeCalls, Is.EqualTo(new[] { (0f, 2f), (0f, 1f) }));
                     Assert.That(logger.WarningLogs, Is.Empty);
-                });
+                }
             }
 
             [Test]
@@ -763,13 +763,13 @@ namespace Mutators.Tests.Managers
 
                 Assert.That(selected, Is.AssignableTo<IMultiMutator>());
                 IMultiMutator generated = (IMultiMutator)selected;
-                Assert.Multiple(() =>
+                using (Assert.EnterMultipleScope())
                 {
                     Assert.That(generated.SubMutators.Keys, Is.EquivalentTo(new[] { lessIsMore, expectedAlternative }));
                     Assert.That(generated.SubMutators.Keys, Does.Not.Contain(volatileCargo));
                     Assert.That(randomProvider.RandomRangeIntCalls, Is.EqualTo(new[] { (2, 3), (1, 101) }));
                     Assert.That(randomProvider.RangeCalls, Is.EqualTo(new[] { (0f, 1002f), (0f, 1f) }));
-                });
+                }
             }
 
             [Test]
@@ -796,13 +796,13 @@ namespace Mutators.Tests.Managers
 
                 Assert.That(selected, Is.AssignableTo<IMultiMutator>());
                 IMultiMutator generated = (IMultiMutator)selected;
-                Assert.Multiple(() =>
+                using (Assert.EnterMultipleScope())
                 {
                     Assert.That(generated.SubMutators.Keys, Is.EquivalentTo(new[] { volatileCargo, expectedAlternative }));
                     Assert.That(generated.SubMutators.Keys, Does.Not.Contain(lessIsMore));
                     Assert.That(randomProvider.RandomRangeIntCalls, Is.EqualTo(new[] { (2, 3), (1, 101) }));
                     Assert.That(randomProvider.RangeCalls, Is.EqualTo(new[] { (0f, 1002f), (0f, 1f) }));
-                });
+                }
             }
 
             [Test]
@@ -823,14 +823,14 @@ namespace Mutators.Tests.Managers
 
                 Assert.That(selected, Is.AssignableTo<IMultiMutator>());
                 IMultiMutator generated = (IMultiMutator)selected;
-                Assert.Multiple(() =>
+                using (Assert.EnterMultipleScope())
                 {
                     Assert.That(generated, Is.Not.SameAs(registeredAlternative));
                     Assert.That(generated.Name, Is.EqualTo(string.Empty));
                     Assert.That(generated.SubMutators.Keys, Is.EquivalentTo(new[] { first, second }));
                     Assert.That(randomProvider.RandomRangeIntCalls, Is.EqualTo(new[] { (2, 3), (1, 101) }));
                     Assert.That(randomProvider.RangeCalls, Is.EqualTo(new[] { (0f, 10f), (0f, 9f) }));
-                });
+                }
             }
 
             [Test]
@@ -844,12 +844,12 @@ namespace Mutators.Tests.Managers
                 mutatorManager.RegisterMutator(registeredAlternative);
 
                 Assert.That(mutatorManager.GetWeightedMutator(), Is.TypeOf<NopMutator>());
-                Assert.Multiple(() =>
+                using (Assert.EnterMultipleScope())
                 {
                     Assert.That(randomProvider.RandomRangeIntCalls, Is.EqualTo(new[] { (2, 3), (1, 101) }));
                     Assert.That(randomProvider.RangeCalls, Is.Empty);
                     Assert.That(logger.WarningLogs, Has.Exactly(2).EqualTo("Fell back to None mutator, invalid total weight: 0"));
-                });
+                }
             }
 
             [Test]
@@ -864,12 +864,12 @@ namespace Mutators.Tests.Managers
                 mutatorManager.RegisterMutator(expected);
 
                 Assert.That(mutatorManager.GetWeightedMutator(), Is.SameAs(expected));
-                Assert.Multiple(() =>
+                using (Assert.EnterMultipleScope())
                 {
                     Assert.That(randomProvider.RandomRangeIntCalls, Is.EqualTo(new[] { (2, 3), (1, 101) }));
                     Assert.That(randomProvider.RangeCalls, Is.EqualTo(new[] { (0f, 10f) }));
                     Assert.That(logger.WarningLogs, Has.One.EqualTo("Fell back to None mutator, invalid total weight: 0"));
-                });
+                }
             }
 
             [Test]
@@ -883,12 +883,12 @@ namespace Mutators.Tests.Managers
                 mutatorManager.RegisterMutator(ineligible);
 
                 Assert.That(mutatorManager.GetWeightedMutator(), Is.TypeOf<NopMutator>());
-                Assert.Multiple(() =>
+                using (Assert.EnterMultipleScope())
                 {
                     Assert.That(randomProvider.RandomRangeIntCalls, Is.EqualTo(new[] { (2, 3), (1, 101) }));
                     Assert.That(randomProvider.RangeCalls, Is.Empty);
                     Assert.That(logger.WarningLogs, Has.Exactly(2).EqualTo("Fell back to None mutator, invalid total weight: 0"));
-                });
+                }
             }
         }
 
