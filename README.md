@@ -4,9 +4,13 @@ If you're a mod developer and want to add your own mutators, this guide shows yo
 
 ## Installation and References
 - Runtime requirements: Mutators and its dependencies must be installed.
-- Compile-time requirements: 'Xepos.Mutators' NuGet package or the mod DLL.
+- Compile-time requirements: ['Xepos.Mutators' NuGet](https://www.nuget.org/packages/Xepos.Mutators) package or the mod DLL.
   - Note that Unity and the R.E.P.O. Game libs are not listed as explicit dependencies. A R.E.P.O. modding project is expected to have these by default.
 
+You can reference Mutators' Nuget package as follows:
+```xml
+<PackageReference Include="Xepos.Mutators" Version="1.0.3" ExcludeAssets="runtime" PrivateAssets="all" />
+```
 ---
 
 ## Quick Start: Registering a mutator
