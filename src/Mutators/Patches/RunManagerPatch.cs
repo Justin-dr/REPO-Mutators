@@ -8,6 +8,7 @@ using Mutators.Managers;
 using Mutators.Mutators;
 using Mutators.Network;
 using Mutators.Settings;
+using Mutators.Utility;
 using REPOLib.Modules;
 using UnityEngine;
 
@@ -64,6 +65,28 @@ namespace Mutators.Patches
             RepoMutators.Logger.LogDebug("RunManagerPatch Client only");
 
             ApplyPatch();
+        }
+        
+        [HarmonyPostfix]
+        [HarmonyPatch(nameof(RunManager.Awake))]
+        static void RunManagerAwakePrefix(RunManager __instance)
+        {
+            RepoMutators.Logger.LogDebug(
+                $"Awake RunManager instance={__instance.GetInstanceID()} static={RunManager.instance?.GetInstanceID()}"
+            );
+        }
+        
+        [HarmonyPrefix]
+        [HarmonyPatch(nameof(RunManager.SetRunLevel))]
+        static void RunManagerSetRunLevelPrefix()
+        {
+            RunManager runManager = RunManager.instance;
+            bool isLobbyMenu = runManager.levelCurrent == runManager.levelLobbyMenu;
+            if (isLobbyMenu || runManager.levelCurrent == runManager.levelLobby)
+            {
+                LevelRemovalUtils.RemoveLevels(isLobbyMenu);
+            }
+            runManager.levels.ForEach(level => RepoMutators.Logger.LogDebug($"Level {level.name} is active"));
         }
 
         private static void ApplyPatch()

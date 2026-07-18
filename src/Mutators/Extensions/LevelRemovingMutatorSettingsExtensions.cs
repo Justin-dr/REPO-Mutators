@@ -11,7 +11,7 @@ internal static class LevelRemovingMutatorSettingsExtensions
     private const string TRUCK_LEVEL_NAME = "Level - Lobby";
     private static readonly ISet<string> vanillaLevelNames = new HashSet<string>()
     {
-        { "Level - Artic" },
+        { "Level - Arctic" },
         { "Level - Manor" },
         { "Level - Wizard" },
         { "Level - Museum" }

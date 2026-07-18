@@ -21,6 +21,7 @@ namespace Mutators.Managers
             foreach (Level level in removedLevels)
             {
                 RemovedLevels[level.name] = level;
+                RepoMutators.Logger.LogDebug($"Removed level {level.name}");
             }
 
             levels.RemoveAll(level => removeSet.Contains(level.name));
