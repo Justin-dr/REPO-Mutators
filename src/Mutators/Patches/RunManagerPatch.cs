@@ -67,15 +67,6 @@ namespace Mutators.Patches
             ApplyPatch();
         }
         
-        [HarmonyPostfix]
-        [HarmonyPatch(nameof(RunManager.Awake))]
-        static void RunManagerAwakePrefix(RunManager __instance)
-        {
-            RepoMutators.Logger.LogDebug(
-                $"Awake RunManager instance={__instance.GetInstanceID()} static={RunManager.instance?.GetInstanceID()}"
-            );
-        }
-        
         [HarmonyPrefix]
         [HarmonyPatch(nameof(RunManager.SetRunLevel))]
         static void RunManagerSetRunLevelPrefix()

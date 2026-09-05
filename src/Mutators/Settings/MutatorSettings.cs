@@ -56,7 +56,7 @@ namespace Mutators.Settings
         /// <summary>
         /// Settings for the <see cref="HuntingSeason"/> Mutator.
         /// </summary>
-        public static EnemyDisablingMutatorSettings HuntingSeason { get; private set; } = null!;
+        public static HuntingSeasonSettings HuntingSeason { get; private set; } = null!;
 
         /// <summary>
         /// Settings for the <see cref="ThereCanOnlyBeOne"/> Mutator.
@@ -124,7 +124,7 @@ namespace Mutators.Settings
             OneShotOneKill = new OneShotOneKillMutatorSettings(Mutators.Mutators.OneShotOneKillName, Mutators.Mutators.OneShotOneKillDescription, config);
             RustyServos = new GenericMutatorSettings(MyPluginInfo.PLUGIN_GUID, Mutators.Mutators.RustyServosName, Mutators.Mutators.RustyServosDescription, config);
             HandleWithCare = new HandleWithCareMutatorSettings(Mutators.Mutators.HandleWithCareName, Mutators.Mutators.HandleWithCareDescription, config);
-            HuntingSeason = new EnemyDisablingMutatorSettings(MyPluginInfo.PLUGIN_GUID, Mutators.Mutators.HuntingSeasonName, Mutators.Mutators.HuntingSeasonDescription, config, "Voodoo", "Weeping Angel");
+            HuntingSeason = new HuntingSeasonSettings(MyPluginInfo.PLUGIN_GUID, Mutators.Mutators.HuntingSeasonName, Mutators.Mutators.HuntingSeasonDescription, config, "Voodoo", "Weeping Angel");
             ThereCanOnlyBeOne = new ThereCanOnlyBeOneMutatorSettings(Mutators.Mutators.ThereCanOnlyBeOneName, Mutators.Mutators.ThereCanOnlyBeOneDescription, config);
             VolatileCargo = new GenericMutatorSettings(MyPluginInfo.PLUGIN_GUID, Mutators.Mutators.VolatileCargoName, Mutators.Mutators.VolatileCargoDescription, config);
             SealedAway = new SealedAwayMutatorSettings(Mutators.Mutators.SealedAwayName, Mutators.Mutators.SealedAwayDescription, config);

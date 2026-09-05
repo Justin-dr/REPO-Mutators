@@ -50,7 +50,6 @@ namespace Mutators.Mutators.Patches
                 RepoMutators.Logger.LogDebug($"[{MutatorSettings.DuckThis.MutatorName}] {setupToRemove.name} was removed in favor of {Ducky}");
                 enemyList.Add(duckSetup);
             }
-            RepoMutators.Logger.LogInfo($"Duck cooldown: {MutatorSettings.DuckThis.AggroCooldown}");
         }
 
         [HarmonyPrefix]

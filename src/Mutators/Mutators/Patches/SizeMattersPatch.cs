@@ -119,7 +119,6 @@ namespace Mutators.Mutators.Patches
         static void EnemyParentSpawnRPCPostfix(EnemyParent __instance)
         {
             if (!SemiFunc.IsMasterClientOrSingleplayer() || !MutatorSettings.SizeMatters.ScaleEnemies) return;
-            RepoMutators.Logger.LogInfo($"Applying scale to {__instance.enemyName}");
             ScaleManager.Apply(__instance.Enemy.Rigidbody.gameObject, scaleOptions);
         }
 

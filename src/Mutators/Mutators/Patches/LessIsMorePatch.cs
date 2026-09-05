@@ -1,8 +1,8 @@
-﻿using HarmonyLib;
+﻿using System.Collections.Generic;
+using HarmonyLib;
 using Mutators.Extensions;
 using Mutators.Mutators.Behaviours;
 using Mutators.Settings;
-using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -72,6 +72,16 @@ namespace Mutators.Mutators.Patches
             }
 
             valueLost = -valueLost * valueGainMultiplier;
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(WorldSpaceUIValueLost), nameof(WorldSpaceUIValueLost.Start))]
+        static void WorldSpaceUIValueLostStartPostfix(WorldSpaceUIValueLost __instance)
+        {
+            if (__instance.value >= 0) return;
+            
+            __instance.text.text = "+$" + SemiFunc.DollarGetString(-__instance.value);
+            __instance.textColor = WorldSpaceUIValue.instance.colorValue;
         }
 
         static void AfterUnpatchAll()

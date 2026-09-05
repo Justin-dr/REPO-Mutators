@@ -185,8 +185,6 @@ namespace Mutators.Mutators.Patches
             {
                 metadata.Add(ImmunePlayers, immunePlayers.Select(player => player.steamID).ToList());
                 
-                RepoMutators.Logger.LogInfo("Immune players: " + string.Join(", ", immunePlayers.Select(p => $"{p.playerName} ({p.steamID})")));
-
                 string extraDescription = $"{JoinWithAnd(immunePlayers.Select(p => p.playerName).ToList())} {(immunePlayers.Count == 1 ? "is" : "are")} immune to lava damage!";
                 metadata.Add(ExtraDescription, extraDescription);
 

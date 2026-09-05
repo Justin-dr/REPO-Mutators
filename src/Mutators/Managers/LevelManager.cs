@@ -41,16 +41,6 @@ namespace Mutators.Managers
 
             levels.AddRange(RemovedLevels.Values.Where(level => existingNames.Add(level.name)));
 
-            foreach (Level removedLevel in RemovedLevels.Values)
-            {
-                RepoMutators.Logger.LogInfo($"Restoring level {removedLevel.name}");
-            }
-
-            foreach (Level level in RunManager.instance.levels)
-            {
-                RepoMutators.Logger.LogInfo($"Level {level.name} is now active");
-            }
-
             RemovedLevels.Clear();
         }
     }

@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using System;
+using HarmonyLib;
 using Mutators.Managers;
 using Mutators.Mutators.Behaviours.UI;
 using TMPro;
@@ -114,12 +115,19 @@ namespace Mutators.Patches
             rectTransform.anchorMax = new Vector2(0.5f, 1);
             rectTransform.pivot = new Vector2(0.5f, 1);
 
+            float maxFontSize = RepoMutators.Settings.TargetDisplaySize;
+            
             rectTransform.anchoredPosition = new Vector2(0, 10);
             textMeshPro.alignment = TextAlignmentOptions.Midline;
+            textMeshPro.fontSize = maxFontSize;
+            textMeshPro.fontSizeMin = Math.Min(12f, maxFontSize);
+            textMeshPro.fontSizeMax = maxFontSize;
+            
+            textMeshPro.enableAutoSizing = true;
+            textMeshPro.enableWordWrapping = false;
 
             mutatorObject.AddComponent<TargetPlayerAnnouncingBehaviour>();
             textMeshPro.text = string.Empty;
-            textMeshPro.fontSize = RepoMutators.Settings.TargetDisplaySize;
             textMeshPro.enabled = true;
         }
 

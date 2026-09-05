@@ -30,7 +30,7 @@ using UnityEngine.SceneManagement;
 
 namespace Mutators;
 
-[BepInDependency("Vippy.ScalerCore", "1.0.2")]
+[BepInDependency("Vippy.ScalerCore", "1.0.5")]
 [BepInDependency(REPOLib.MyPluginInfo.PLUGIN_GUID, REPOLib.MyPluginInfo.PLUGIN_VERSION)]
 [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
 public class RepoMutators : BaseUnityPlugin
@@ -116,7 +116,7 @@ public class RepoMutators : BaseUnityPlugin
             NetworkPrefabs.SpawnNetworkPrefab(prefabRef, Vector3.zero, Quaternion.identity);
 
             MutatorManager mutatorManager = MutatorManager.Instance;
-            Logger.LogInfo($"{string.Join(", ", mutatorManager.RegisteredMutators.Select(x => $"{x.Key}: {x.Value.Settings.Weight}"))}");
+            Logger.LogDebug($"{string.Join(", ", mutatorManager.RegisteredMutators.Select(x => $"{x.Key}: {x.Value.Settings.Weight}"))}");
             IMutator mutator = mutatorManager.GetWeightedMutator();
             Logger.LogDebug($"Picked weighted mutator: {mutator.Name}");
 

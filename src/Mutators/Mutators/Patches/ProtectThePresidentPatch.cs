@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using HarmonyLib;
+using Mutators.Announcements;
 using Mutators.Extensions;
 using Mutators.Mutators.Behaviours.UI;
 using Mutators.Network;
@@ -14,7 +15,7 @@ namespace Mutators.Mutators.Patches
     {
         private const string PresidentId = "presidentId";
         private static bool _presidentAlive = true;
-        private static bool _failureMessageSent = false;
+        private static bool _failureMessageSent;
 
         private static string? _presidentId;
 
@@ -25,7 +26,8 @@ namespace Mutators.Mutators.Patches
             if (_presidentId != newPresidentId)
             {
                 _presidentId = newPresidentId;
-                UpdatePresidentHealth(_presidentId);
+                UpdatePresidentHealth(_presidentId!);
+                UpdateDescription(_presidentId!);
             }
         }
 
@@ -118,6 +120,22 @@ namespace Mutators.Mutators.Patches
             if (_presidentId != null && _presidentId != PlayerAvatar.instance.steamID)
             {
                 MutatorsNetworkManager.Instance.Run(InitializePresidentHealthEnumerator(_presidentId));
+            }
+        }
+
+        private static void UpdateDescription(string presidentId)
+        {
+            if (MutatorAnnouncingBag.Instance.TryGetAnnouncement(MutatorSettings.ProtectThePresident.NamespacedName, out MutatorAnnouncement? announcement))
+            {
+                string descriptionSegment = presidentId == PlayerAvatar.instance.steamID
+                    ? "\nYou are the president"
+                    : $"\n{SemiFunc.PlayerAvatarGetFromSteamID(presidentId)?.playerName ?? "Someone"} is the president";
+
+                announcement.AddOrUpdateSegment(new MutatorAnnouncementDescriptionSegment(
+                    "president",
+                    10,
+                    descriptionSegment
+                ));
             }
         }
 

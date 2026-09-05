@@ -2,10 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using HarmonyLib;
+using Mutators.Announcements;
+using Mutators.Enums;
 using Mutators.Extensions;
+using Mutators.Managers;
 using Mutators.Mutators.Behaviours;
 using Mutators.Network;
 using Mutators.Settings;
+using Mutators.Settings.Specific;
 using Mutators.Utility;
 using Photon.Pun;
 using REPOLib.Modules;
@@ -16,6 +20,42 @@ namespace Mutators.Mutators.Patches
 {
     internal class HuntingSeasonPatch
     {
+        static void BeforePatchAll()
+        {
+            if (!SemiFunc.IsMasterClientOrSingleplayer()) return;
+
+            // User-defined Multi-Mutator settings are static, if an override for respawnTime is defined,
+            // then the JSON config should be respected at all times. BepInEx config has no authority here.
+            if (!HasUserRespawnTimeOverride())
+            {
+                MutatorSettings.HuntingSeason.EnemyRespawnTimeChanged += SendRespawnTime;
+            }
+            SendRespawnTime(null!, EventArgs.Empty);
+        }
+
+        static void OnMetadataChanged(IDictionary<string, object> metadata)
+        {
+            int respawnTime = metadata.Get<int>(HuntingSeasonSettings.RespawnTime);
+            if (MutatorAnnouncingBag.Instance.TryGetAnnouncement(MutatorSettings.HuntingSeason.NamespacedName, out MutatorAnnouncement? announcement))
+            {
+                announcement.AddOrUpdateSegment(new MutatorAnnouncementDescriptionSegment(
+                    HuntingSeasonSettings.RespawnTime,
+                    10,
+                    $"\nEnemy respawn time capped at {respawnTime} second{(respawnTime == 1 ? string.Empty : "s")}"
+                ));
+            }
+        }
+
+        private static void SendRespawnTime(object _, EventArgs args)
+        {
+            IDictionary<string, object> metadata = new Dictionary<string, object>(1)
+            {
+                { HuntingSeasonSettings.RespawnTime, MutatorSettings.HuntingSeason.EnemyRespawnTime }
+            };
+
+            MutatorsNetworkManager.Instance.SendMetadata(MutatorSettings.HuntingSeason.NamespacedName, metadata);
+        }
+
         [HarmonyPostfix]
         [HarmonyPriority(Priority.LowerThanNormal)]
         [HarmonyPatch(typeof(EnemyDirector))]
@@ -129,13 +169,15 @@ namespace Mutators.Mutators.Patches
         }
 
         [HarmonyPostfix]
+        [HarmonyPriority(Priority.LowerThanNormal - 1)]
         [HarmonyPatch(typeof(EnemyParent))]
         [HarmonyPatch(nameof(EnemyParent.Despawn))]
         static void EnemyParentDespawnPostfix(EnemyParent __instance)
         {
-            if (__instance.Enemy.HasHealth && __instance.DespawnedTimer > 10)
+            
+            if (__instance.Enemy.HasHealth)
             {
-                __instance.DespawnedTimer = 10;
+                __instance.DespawnedTimer = Math.Min(__instance.DespawnedTimer, MutatorSettings.HuntingSeason.EnemyRespawnTime);
                 //Unlimited valuable spawns
                 __instance.Enemy.Health.spawnValuableCurrent = 0;
             }
@@ -180,6 +222,23 @@ namespace Mutators.Mutators.Patches
         private static Item[] GetPossibleItems()
         {
             return Items.AllItems.Where(i => !i.prefab.Prefab.GetComponent<ValuableObject>() && (i.itemType == SemiFunc.itemType.melee || i.itemType == SemiFunc.itemType.gun)).ToArray();
+        }
+
+        private static bool HasUserRespawnTimeOverride()
+        {
+            IMutator huntingSeason = MutatorManager.Instance.RegisteredMutators[
+                MutatorSettings.HuntingSeason.NamespacedName
+            ];
+
+            return MutatorManager.Instance.CurrentMutator is IMultiMutator { Source: MutatorSource.User } multiMutator
+                   && multiMutator.SubMutators.TryGetValue(huntingSeason, out IDictionary<string, object>? overrides)
+                   && overrides.ContainsKey(HuntingSeasonSettings.RespawnTime);
+        }
+
+        static void BeforeUnpatchAll()
+        {
+            if (!SemiFunc.IsMasterClientOrSingleplayer()) return;
+            MutatorSettings.HuntingSeason.EnemyRespawnTimeChanged -= SendRespawnTime;
         }
     }
 }
