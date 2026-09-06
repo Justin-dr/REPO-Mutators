@@ -30,7 +30,7 @@ using UnityEngine.SceneManagement;
 
 namespace Mutators;
 
-[BepInDependency("Vippy.ScalerCore", "1.0.5")]
+[BepInDependency("Vippy.ScalerCore", "1.0.6")]
 [BepInDependency(REPOLib.MyPluginInfo.PLUGIN_GUID, REPOLib.MyPluginInfo.PLUGIN_VERSION)]
 [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
 public class RepoMutators : BaseUnityPlugin
