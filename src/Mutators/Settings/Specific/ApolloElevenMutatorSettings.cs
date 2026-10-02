@@ -15,11 +15,17 @@ namespace Mutators.Settings.Specific
         public const string ApplyToEnemiesKey = "apply-to-enemies";
 
         /// <summary>
+        /// Metadata key for whether the Apollo-Eleven mutator should apply to carts themselves.
+        /// </summary>
+        public const string ApplyToCartsKey = "apply-to-carts";
+
+        /// <summary>
         /// Metadata key for whether the Apollo-Eleven mutator should apply in the cart.
         /// </summary>
         public const string ApplyInCartKey = "apply-in-cart";
 
         private readonly ConfigEntry<bool> _applyToEnemies;
+        private readonly ConfigEntry<bool> _applyToCarts;
         private readonly ConfigEntry<bool> _applyInCart;
         private readonly ConfigEntry<string> _downwardsKey;
         
@@ -27,6 +33,10 @@ namespace Mutators.Settings.Specific
         /// Whether the Apollo-Eleven mutator should apply to monsters.
         /// </summary>
         public bool ApplyToEnemies => GetRuntimeOverride(ApplyToEnemiesKey, _applyToEnemies.Value);
+        /// <summary>
+        /// Whether the Apollo-Eleven mutator should apply to carts themselves.
+        /// </summary>
+        public bool ApplyToCarts => GetRuntimeOverride(ApplyToCartsKey, _applyToCarts.Value);
         /// <summary>
         /// Whether the Apollo-Eleven mutator should apply to valuables in the cart and extraction points.
         /// </summary>
@@ -42,6 +52,13 @@ namespace Mutators.Settings.Specific
                 "Apply to monsters",
                 false,
                 $"If true, Zero-Gravity will also be applied to monsters while the {name} Mutator is active."
+            );
+
+            _applyToCarts = config.Bind(
+                GetSection(name),
+                "Apply to carts",
+                true,
+                $"If true, Zero-Gravity will also be applied to carts themselves while the {name} Mutator is active. Items inside carts are controlled separately by Apply in cart/extraction."
             );
 
             _applyInCart = config.Bind(

@@ -102,11 +102,11 @@ namespace Mutators.Mutators.Patches
 
         public static Dictionary<string, string> DerangeVoices(IDictionary<string, int> originalMap, out Dictionary<string, int> newAssignments)
         {
-            var userIds = new List<string>(originalMap.Keys);
-            var voices = new List<int>(originalMap.Values);
+            List<string> userIds = new List<string>(originalMap.Keys);
+            List<int> voices = new List<int>(originalMap.Values);
 
             int n = userIds.Count;
-            var deranged = new List<int>(voices);
+            List<int> deranged = new List<int>(voices);
 
             // Fisher–Yates Derangement
             for (int i = 0; i < n - 1; i++)
@@ -122,10 +122,10 @@ namespace Mutators.Mutators.Patches
             }
 
             newAssignments = new Dictionary<string, int>();
-            var whoHasWhoseVoice = new Dictionary<string, string>();
+            Dictionary<string, string> whoHasWhoseVoice = new Dictionary<string, string>();
 
             // Build originalVoiceOwner map: int voiceId → userId
-            var voiceToOriginalUser = new Dictionary<int, string>();
+            Dictionary<int, string> voiceToOriginalUser = new Dictionary<int, string>();
             for (int i = 0; i < n; i++)
             {
                 voiceToOriginalUser[voices[i]] = userIds[i];

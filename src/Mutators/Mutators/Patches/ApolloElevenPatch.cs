@@ -32,15 +32,17 @@ namespace Mutators.Mutators.Patches
         [HarmonyPatch(nameof(PhysGrabObjectImpactDetector.Update))]
         static void PhysGrabObjectImpactDetectorUpdatePostfix(PhysGrabObjectImpactDetector __instance)
         {
-            if (!SemiFunc.IsMasterClientOrSingleplayer() || MutatorSettings.ApolloEleven.ApplyInCart || __instance.isNotValuable) return;
+            if (!SemiFunc.IsMasterClientOrSingleplayer() || MutatorSettings.ApolloEleven.ApplyInCart) return;
+            if (__instance.inCart == __instance.inCartPrevious) return;
+            if (__instance.isNotValuable && !__instance.GetComponent<CosmeticWorldObject>()) return;
 
-            if (__instance.inCart && !__instance.inCartPrevious)
+            if (__instance is { inCart: true, inCartPrevious: false })
             {
                 __instance.physGrabObject.OverrideDrag(0.5f, 0.1f);
                 __instance.physGrabObject.OverrideAngularDrag(0.5f, 0.1f);
                 __instance.physGrabObject.OverrideZeroGravity(0.1f);
             }
-            else if (!__instance.inCart && __instance.inCartPrevious)
+            else if (__instance is { inCart: false, inCartPrevious: true })
             {
                 MakeObjectZeroGravity(__instance.physGrabObject);
             }
@@ -59,6 +61,8 @@ namespace Mutators.Mutators.Patches
         [HarmonyPatch(nameof(PhysGrabObject.OverrideDrag))]
         static bool PhysGrabObjectOverrideDragPrefix(PhysGrabObject __instance, float value, float time)
         {
+            if (IsCartExcluded(__instance)) return true;
+
             if (__instance.impactDetector.inCart && !MutatorSettings.ApolloEleven.ApplyInCart)
             {
                 return true;
@@ -72,6 +76,8 @@ namespace Mutators.Mutators.Patches
         [HarmonyPatch(nameof(PhysGrabObject.OverrideAngularDrag))]
         static bool PhysGrabObjectOverrideAngularDragPrefix(PhysGrabObject __instance, float value, float time)
         {
+            if (IsCartExcluded(__instance)) return true;
+
             if (__instance.impactDetector.inCart && !MutatorSettings.ApolloEleven.ApplyInCart)
             {
                 return true;
@@ -85,6 +91,8 @@ namespace Mutators.Mutators.Patches
         [HarmonyPatch(nameof(PhysGrabObject.OverrideZeroGravity))]
         static bool PhysGrabObjectOverrideZeroGravityPrefix(PhysGrabObject __instance, float time)
         {
+            if (IsCartExcluded(__instance)) return true;
+
             if (__instance.impactDetector.inCart && !MutatorSettings.ApolloEleven.ApplyInCart)
             {
                 return true;
@@ -120,8 +128,14 @@ namespace Mutators.Mutators.Patches
             }
         }
 
+        private static bool IsCartExcluded(PhysGrabObject physGrabObject)
+        {
+            return !MutatorSettings.ApolloEleven.ApplyToCarts && physGrabObject.GetComponent<PhysGrabCart>();
+        }
+
         private static void MakeObjectZeroGravity(PhysGrabObject physGrabObject)
         {
+            if (IsCartExcluded(physGrabObject)) return;
             if (!MutatorSettings.ApolloEleven.ApplyToEnemies && physGrabObject.GetComponent<EnemyRigidbody>()) return;
 
             physGrabObject.OverrideDrag(0.5f, float.MaxValue);
