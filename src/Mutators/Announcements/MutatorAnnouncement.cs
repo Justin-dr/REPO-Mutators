@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Mutators.Extensions;
 
 namespace Mutators.Announcements
@@ -49,6 +50,7 @@ namespace Mutators.Announcements
         /// The value returned by this method is cached and will not be rebuilt
         /// until any modifiers are added or removed.
         /// </remarks>
+        [MethodImpl(MethodImplOptions.NoInlining)]
         public string GetName() => _name;
 
         /// <summary>
