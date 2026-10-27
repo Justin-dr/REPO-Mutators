@@ -134,7 +134,23 @@ namespace Mutators.Mutators
         /// <param name="specialActionOverlay">Whether the mutator uses the built-in special-action overlay.</param>
         public Mutator(AbstractMutatorSettings settings, Type patch, MutatorDifficulty difficulty, IList<Func<bool>> conditions = null!, bool specialActionOverlay = false) : this(settings, [patch], difficulty, conditions, specialActionOverlay)
         {
-            
+
+        }
+
+        /// <summary>
+        /// Initializes a mutator from the current state of a <see cref="MutatorBuilder"/>.
+        /// </summary>
+        /// <remarks>
+        /// Hooks registered on the builder run after the hooks discovered on the patch types.
+        /// </remarks>
+        /// <param name="builder">The builder to copy the configuration from.</param>
+        internal Mutator(MutatorBuilder builder) : this(builder.Settings, builder.Patches.ToList(), builder.Difficulty, builder.Conditions.ToList(), builder.SpecialActionOverlay)
+        {
+            builder.BeforePatchAllHooks.ForEach(_beforePatchAllHooks.Add);
+            builder.AfterPatchAllHooks.ForEach(_afterPatchAllHooks.Add);
+            builder.BeforeUnpatchAllHooks.ForEach(_beforeUnpatchAllHooks.Add);
+            builder.AfterUnpatchAllHooks.ForEach(_afterUnpatchAllHooks.Add);
+            builder.OnMetadataChangedHooks.ForEach(_onMetadataChangedHooks.Add);
         }
         
         /// <summary>
