@@ -34,15 +34,7 @@ namespace Mutators.Settings
         /// <param name="defaultDisabledEnemies">The enemy names disabled by default.</param>
         public EnemyDisablingMutatorSettings(string @namespace, string name, string description, int weight, ConfigFile config, params string[] defaultDisabledEnemies) : base(@namespace, name, description, weight, config)
         {
-            _excludedEnemies = config.Bind(
-                GetSection(name),
-                "Excluded enemies",
-                string.Join(", ", defaultDisabledEnemies),
-                $"Enemies that cannot be spawned by the {name} Mutator. (Comma separated e.g. Apex Predator,Huntsman)"
-            );
-
-            _excludedEnemies.SettingChanged += (_, _) => CacheEnemies();
-            CacheEnemies();
+            _excludedEnemies = BindExcludedEnemies(config, name, defaultDisabledEnemies);
         }
 
         /// <summary>
@@ -58,10 +50,41 @@ namespace Mutators.Settings
 
         }
 
-        internal void CacheEnemies()
+        /// <summary>
+        /// Initializes settings for a mutator that disables specific enemy spawns using <see cref="MutatorSettingsConfigDefaults"/>.
+        /// </summary>
+        /// <param name="namespace">The namespace used to make the mutator's slug unique.</param>
+        /// <param name="name">The display name of the mutator.</param>
+        /// <param name="description">The base description shown for the mutator.</param>
+        /// <param name="config">The config file used to bind the mutator settings.</param>
+        /// <param name="configDefaults">The <see cref="MutatorSettingsConfigDefaults"/> used to populate the default weight, minimum level and maximum level.</param>
+        /// <param name="defaultDisabledEnemies">The enemy names disabled by default.</param>
+        public EnemyDisablingMutatorSettings(string @namespace, string name, string description, ConfigFile config, MutatorSettingsConfigDefaults configDefaults, params string[] defaultDisabledEnemies) : base(@namespace, name, description, config, configDefaults)
         {
-            _excludedEnemiesList = _excludedEnemies.Value.Split(",")
+            _excludedEnemies = BindExcludedEnemies(config, name, defaultDisabledEnemies);
+        }
+
+        internal void CacheEnemies() => CacheEnemies(_excludedEnemies);
+
+        private void CacheEnemies(ConfigEntry<string> excludedEnemies)
+        {
+            _excludedEnemiesList = excludedEnemies.Value.Split(",")
                 .Select(value => value.Trim()).ToList();
+        }
+
+        private ConfigEntry<string> BindExcludedEnemies(ConfigFile config, string name, string[] defaultDisabledEnemies)
+        {
+            ConfigEntry<string> excludedEnemies = config.Bind(
+                GetSection(name),
+                "Excluded enemies",
+                string.Join(", ", defaultDisabledEnemies),
+                $"Enemies that cannot be spawned by the {name} Mutator. (Comma separated e.g. Apex Predator,Huntsman)"
+            );
+
+            excludedEnemies.SettingChanged += (_, _) => CacheEnemies(excludedEnemies);
+            CacheEnemies(excludedEnemies);
+            
+            return excludedEnemies;
         }
     }
 }

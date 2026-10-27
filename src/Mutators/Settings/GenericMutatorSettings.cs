@@ -37,26 +37,9 @@ namespace Mutators.Settings
         /// <param name="config">The config file used to bind the mutator settings.</param>
         public GenericMutatorSettings(string @namespace, string name, string description, int weight, ConfigFile config) : base(@namespace, name, description)
         {
-            _weight = config.BindPositive(
-                GetSection(name),
-                WeightConfigKey,
-                weight,
-                $"Weighted chance for the {name} Mutator to be active."
-            );
-
-            _minimumLevel = config.BindPositive(
-                GetSection(name),
-                MinimumLevelConfigKey,
-                0,
-                $"The minimum level on which the {name} Mutator can show up"
-            );
-
-            _maximumLevel = config.BindPositive(
-                GetSection(name),
-                MaximumLevelConfigKey,
-                1000,
-                $"The maximum level on which the {name} mutator can show up (0 = no upper bound)"
-            );
+            _weight = BindWeight(config, name, weight);
+            _minimumLevel = BindMinimumLevel(config, name, MutatorSettingsConfigDefaults.MinimumLevelDefault);
+            _maximumLevel = BindMaximumLevel(config, name, MutatorSettingsConfigDefaults.MaximumLevelDefault);
         }
 
         /// <summary>
@@ -70,7 +53,22 @@ namespace Mutators.Settings
         {
             
         }
-        
+
+        /// <summary>
+        /// Initializes generic mutator settings using <see cref="MutatorSettingsConfigDefaults"/>.
+        /// </summary>
+        /// <param name="namespace">The namespace used to make the mutator's slug unique.</param>
+        /// <param name="name">The display name of the mutator.</param>
+        /// <param name="description">The base description shown for the mutator.</param>
+        /// <param name="config">The config file used to bind the mutator settings.</param>
+        /// <param name="configDefaults">The <see cref="MutatorSettingsConfigDefaults"/> used to populate the default weight, minimum level and maximum level.</param>
+        public GenericMutatorSettings(string @namespace, string name, string description, ConfigFile config, MutatorSettingsConfigDefaults configDefaults) : base(@namespace, name, description)
+        {
+            _weight = BindWeight(config, name, configDefaults.Weight);
+            _minimumLevel = BindMinimumLevel(config, name, configDefaults.MinimumLevel);
+            _maximumLevel = BindMaximumLevel(config, name, configDefaults.MaximumLevel);
+        }
+
         /// <summary>
         /// Clamped wrapper for <see cref="AbstractMutatorSettings.GetRuntimeOverride{T}(string, T)"/>
         /// </summary>
@@ -107,6 +105,36 @@ namespace Mutators.Settings
         protected static string GetSection(string name)
         {
             return $"{name} Mutator";
+        }
+        
+        private static ConfigEntry<int> BindWeight(ConfigFile config, string name, int weight)
+        {
+            return config.BindPositive(
+                GetSection(name),
+                WeightConfigKey,
+                weight,
+                $"Weighted chance for the {name} Mutator to be active."
+            );
+        }
+
+        private static ConfigEntry<int> BindMinimumLevel(ConfigFile config, string name, int minimumLevel)
+        {
+            return config.BindPositive(
+                GetSection(name),
+                MinimumLevelConfigKey,
+                minimumLevel,
+                $"The minimum level on which the {name} Mutator can show up"
+            );
+        }
+
+        private static ConfigEntry<int> BindMaximumLevel(ConfigFile config, string name, int maximumLevel)
+        {
+            return config.BindPositive(
+                GetSection(name),
+                MaximumLevelConfigKey,
+                maximumLevel,
+                $"The maximum level on which the {name} mutator can show up (0 = no upper bound)"
+            );
         }
     }
 }
