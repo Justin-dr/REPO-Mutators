@@ -186,7 +186,7 @@ namespace Mutators.Mutators.Patches
             {
                 foreach (PlayerAvatar player in SemiFunc.PlayerGetAll().Where(player => player.steamID != PlayerAvatar.instance.steamID))
                 {
-                    int? health = _clients.Get<IDictionary<string, object>>(player.steamID).Get<int>("originalHealth");
+                    int? health = _clients.Get<IDictionary<string, object>>(player.steamID)?.Get<int>("originalHealth");
 
                     if (health == null)
                     {

@@ -5,7 +5,7 @@ namespace Mutators.Mutators.Behaviours.UI
 {
     internal class MutatorDescriptionAnnouncingBehaviour : SemiUI
     {
-        public TextMeshProUGUI Text { get; private set; }
+        public TextMeshProUGUI Text { get; private set; } = null!;
         public static MutatorDescriptionAnnouncingBehaviour Instance { get; private set; } = null!;
         private float _showTimer = RepoMutators.Settings.MutatorDescriptionInitialDisplayTime;
 

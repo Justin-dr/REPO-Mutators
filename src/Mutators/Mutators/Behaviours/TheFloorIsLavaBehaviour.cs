@@ -6,8 +6,8 @@ namespace Mutators.Mutators.Behaviours
 {
     internal class TheFloorIsLavaBehaviour : MonoBehaviour
     {
-        private PlayerAvatar playerAvatar;
-        private Transform physObjectStander;
+        private PlayerAvatar playerAvatar = null!;
+        private Transform physObjectStander = null!;
         private LayerMask layerMask = ~LayerMask.GetMask("Player", "CollisionCheck");
 
         internal float immunityTimer = 0f;

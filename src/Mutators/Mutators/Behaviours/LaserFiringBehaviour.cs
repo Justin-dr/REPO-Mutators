@@ -8,10 +8,10 @@ namespace Mutators.Mutators.Behaviours
 {
     internal class LaserFiringBehaviour : MonoBehaviour, IPunInstantiateMagicCallback
     {
-        private PhotonView photonView;
-        private PlayerAvatar playerAvatar;
-        private SemiLaser semiLaser;
-        private Transform visionTransform;
+        private PhotonView photonView = null!;
+        private PlayerAvatar playerAvatar = null!;
+        private SemiLaser semiLaser = null!;
+        private Transform visionTransform = null!;
         private float laserTimer;
 
         internal float laserReviveLockout = 5f;

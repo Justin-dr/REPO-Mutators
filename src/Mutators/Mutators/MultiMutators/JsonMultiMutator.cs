@@ -4,7 +4,7 @@ namespace Mutators.Mutators.MultiMutators
 {
     internal class JsonMultiMutator
     {
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
         public string? Description { get; set; }
 
         public int Weight { get; set; }

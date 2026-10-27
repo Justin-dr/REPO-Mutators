@@ -6,8 +6,8 @@ namespace Mutators.Mutators.Behaviours.UI
 {
     internal class MutatorAnnouncingBehaviour : SemiUI
     {
-        private TextMeshProUGUI Text;
-        internal static MutatorAnnouncingBehaviour instance;
+        private TextMeshProUGUI Text = null!;
+        internal static MutatorAnnouncingBehaviour instance = null!;
         private bool _isVisible = true;
         private float _showTimer = IsToggleWithDescription() ? RepoMutators.Settings.MutatorDescriptionInitialDisplayTime : 0f;
 

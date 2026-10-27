@@ -10,12 +10,12 @@ namespace Mutators.Mutators.Behaviours.UI
         /// <summary>
         /// The TextMeshProUGUI that controls the current target UI element.
         /// </summary>
-        public TextMeshProUGUI Text { get; private set; }
+        public TextMeshProUGUI Text { get; private set; } = null!;
         
         /// <summary>
         /// The singleton instance of the <see cref="TargetPlayerAnnouncingBehaviour"/>.
         /// </summary>
-        public static TargetPlayerAnnouncingBehaviour Instance { get; private set; }
+        public static TargetPlayerAnnouncingBehaviour Instance { get; private set; } = null!;
 
         private void Awake()
         {

@@ -67,7 +67,7 @@ namespace Mutators.Managers
         /// <summary>
         /// Fired when the Mutators game state changes.
         /// </summary>
-        public event Action<MutatorsGameState> GameStateChanged;
+        public event Action<MutatorsGameState> GameStateChanged = null!;
 
         /// <summary>
         /// The current Mutators game state.
