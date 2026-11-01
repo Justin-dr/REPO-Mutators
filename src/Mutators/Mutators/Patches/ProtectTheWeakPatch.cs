@@ -165,7 +165,7 @@ namespace Mutators.Mutators.Patches
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(PunManager))]
-        [HarmonyPatch(nameof(PunManager.SyncAllDictionaries))]
+        [HarmonyPatch(nameof(PunManager.SyncAllDictionaries), typeof(bool))]
         static void PunManagerSyncAllDictionariesPrefix()
         {
             // It seems the game syncs all its internal dictionaries (including items) on every scene switch.
