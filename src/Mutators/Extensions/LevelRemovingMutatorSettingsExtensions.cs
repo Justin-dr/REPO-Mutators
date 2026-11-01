@@ -9,12 +9,13 @@ namespace Mutators.Extensions;
 internal static class LevelRemovingMutatorSettingsExtensions
 {
     private const string TRUCK_LEVEL_NAME = "Level - Lobby";
-    private static readonly ISet<string> vanillaLevelNames = new HashSet<string>()
+    private static readonly ISet<string> vanillaLevelNames = new HashSet<string>
     {
-        { "Level - Arctic" },
-        { "Level - Manor" },
-        { "Level - Wizard" },
-        { "Level - Museum" }
+        "Level - Arctic",
+        "Level - Manor",
+        "Level - Wizard",
+        "Level - Museum",
+        "Level - Desert"
     };
     
     internal static void RemoveLevels(this ILevelRemovingMutatorSettings settings, bool lobbyMenu = false)

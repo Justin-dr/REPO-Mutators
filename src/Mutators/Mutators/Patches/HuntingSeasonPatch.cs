@@ -56,6 +56,14 @@ namespace Mutators.Mutators.Patches
             MutatorsNetworkManager.Instance.SendMetadata(MutatorSettings.HuntingSeason.NamespacedName, metadata);
         }
 
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(ValuableDirector))]
+        [HarmonyPatch("SoftLockExtractionCheck")] // TODO: nameof, requires GameLibs update
+        static bool ValuableDirectorSoftLockExtractionCheckPrefix()
+        {
+            return false;
+        }
+
         [HarmonyPostfix]
         [HarmonyPriority(Priority.LowerThanNormal)]
         [HarmonyPatch(typeof(EnemyDirector))]
@@ -91,8 +99,8 @@ namespace Mutators.Mutators.Patches
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(LevelGenerator))]
-        [HarmonyPatch(nameof(LevelGenerator.GenerateDone))]
-        static void LevelGeneratorGenerateDonePostfix()
+        [HarmonyPatch("GenerateDoneApply")] // TODO: nameof, requires GameLibs update
+        static void LevelGeneratorGenerateDoneApplyPostfix()
         {
             if (SemiFunc.IsMasterClientOrSingleplayer() && SemiFunc.RunIsLevel())
             {
@@ -207,7 +215,7 @@ namespace Mutators.Mutators.Patches
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(PunManager))]
-        [HarmonyPatch(nameof(PunManager.SyncAllDictionaries))]
+        [HarmonyPatch(nameof(PunManager.SyncAllDictionaries), typeof(bool))]
         static void PunManagerSyncAllDictionariesPrefix()
         {
             // It seems the game syncs all its internal dictionaries (including items) on every scene switch.

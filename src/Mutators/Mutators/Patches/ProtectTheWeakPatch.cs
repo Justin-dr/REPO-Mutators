@@ -69,8 +69,8 @@ namespace Mutators.Mutators.Patches
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(LevelGenerator))]
-        [HarmonyPatch(nameof(LevelGenerator.GenerateDone))]
-        static void LevelGeneratorGenerateDonePostfix()
+        [HarmonyPatch("GenerateDoneApply")] // TODO: nameof, requires GameLibs update
+        static void LevelGeneratorGenerateDoneApplyPostfix()
         {
             StartupLogic();
         }
@@ -165,7 +165,7 @@ namespace Mutators.Mutators.Patches
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(PunManager))]
-        [HarmonyPatch(nameof(PunManager.SyncAllDictionaries))]
+        [HarmonyPatch(nameof(PunManager.SyncAllDictionaries), typeof(bool))]
         static void PunManagerSyncAllDictionariesPrefix()
         {
             // It seems the game syncs all its internal dictionaries (including items) on every scene switch.
