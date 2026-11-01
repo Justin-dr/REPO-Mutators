@@ -126,7 +126,7 @@ namespace Mutators.Managers
                 new Mutator(MutatorSettings.Voiceover, typeof(VoiceoverPatch), MutatorDifficulty.Normal, [SemiFunc.IsMultiplayer]),
                 new Mutator(MutatorSettings.TheFloorIsLava, typeof(TheFloorIsLavaPatch), MutatorDifficulty.Hard),
                 new Mutator(MutatorSettings.LessIsMore, typeof(LessIsMorePatch), MutatorDifficulty.Normal),
-                new Mutator(MutatorSettings.Amalgam, typeof(AmalgamPatch), MutatorDifficulty.Normal),
+                // new Mutator(MutatorSettings.Amalgam, typeof(AmalgamPatch), MutatorDifficulty.Normal), //TODO: Fix amalgam: currently breaks level loading
                 new Mutator(MutatorSettings.NullSignal, typeof(NullSignalPatch), MutatorDifficulty.Normal),
                 new Mutator(MutatorSettings.SizeMatters, typeof(SizeMattersPatch), MutatorDifficulty.Normal)
             ];
