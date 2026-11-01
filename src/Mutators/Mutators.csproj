@@ -99,7 +99,8 @@
   <ItemGroup Condition="'$(UseLocalGameLibs)' == 'true'">
     <Reference Include="$(GameManagedDir)*.dll"
                Exclude="$(GameManagedDir)mscorlib.dll;$(GameManagedDir)netstandard.dll;$(GameManagedDir)System*.dll;$(GameManagedDir)Mono.*.dll;$(GameManagedDir)Newtonsoft.Json.dll"
-               Private="false" Publicize="true" />
+               Private="false" />
+    <Reference Update="$(GameManagedDir)Assembly-CSharp.dll;$(GameManagedDir)UnityEngine.CoreModule.dll" Publicize="true" />
   </ItemGroup>
 
   <ItemGroup>
