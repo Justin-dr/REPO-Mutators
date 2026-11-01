@@ -18,8 +18,8 @@ namespace Mutators.Mutators.Patches
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(LevelGenerator))]
-        [HarmonyPatch(nameof(LevelGenerator.GenerateDone))]
-        static void LevelGeneratorGenerateDonePostfix()
+        [HarmonyPatch("GenerateDoneApply")] // TODO: nameof, requires GameLibs update
+        static void LevelGeneratorGenerateDoneApplyPostfix()
         {
             if (SemiFunc.IsMasterClientOrSingleplayer())
             {

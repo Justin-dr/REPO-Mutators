@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using Mutators.Enums;
 using Mutators.Managers;
 
 namespace Mutators.Patches
@@ -8,23 +9,23 @@ namespace Mutators.Patches
     {
         [HarmonyPrefix]
         [HarmonyPriority(Priority.First)]
-        [HarmonyPatch(nameof(LevelGenerator.GenerateDone))]
-        static void LevelGeneratorGenerateDonePrefix()
+        [HarmonyPatch("GenerateDoneApply")] // TODO: nameof, requires GameLibs update
+        static void LevelGeneratorGenerateDoneApplyPrefix()
         {
             if (SemiFunc.RunIsLevel())
             {
-                MutatorManager.Instance.GameState = Enums.MutatorsGameState.LevelReady;
+                MutatorManager.Instance.GameState = MutatorsGameState.LevelReady;
             }
         }
         
         [HarmonyPostfix]
         [HarmonyPriority(Priority.Last)]
-        [HarmonyPatch(nameof(LevelGenerator.GenerateDone))]
-        static void LevelGeneratorGenerateDonePostfix()
+        [HarmonyPatch("GenerateDoneApply")] // TODO: nameof, requires GameLibs update
+        static void LevelGeneratorGenerateDoneApplyPostfix()
         {
             if (SemiFunc.RunIsLevel())
             {
-                MutatorManager.Instance.GameState = Enums.MutatorsGameState.LevelGenerated;
+                MutatorManager.Instance.GameState = MutatorsGameState.LevelGenerated;
             }
         }
     }
