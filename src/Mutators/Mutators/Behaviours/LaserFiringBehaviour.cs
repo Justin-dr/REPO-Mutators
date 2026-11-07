@@ -144,10 +144,17 @@ namespace Mutators.Mutators.Behaviours
                 return;
             }
 
-            if (data[0] is string steamId)
+            if (data[0] is int viewId)
             {
-                PlayerAvatar playerAvatar = SemiFunc.PlayerAvatarGetFromSteamID(steamId);
-                transform.SetParent(playerAvatar.transform, false);
+                PlayerAvatar? player = PhotonView.Find(viewId)?.gameObject.GetComponent<PlayerAvatar>();
+                if (player)
+                {
+                    transform.SetParent(player.transform, false);
+                }
+                else
+                {
+                    RepoMutators.Logger.LogError("Failed to attach LaserFiringBehaviour to PlayerAvatar");
+                }
             }
             if (data[1] is int laserActionCooldown)
             {

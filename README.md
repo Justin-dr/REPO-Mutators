@@ -9,7 +9,7 @@ If you're a mod developer and want to add your own mutators, this guide shows yo
 
 You can reference Mutators' Nuget package as follows:
 ```xml
-<PackageReference Include="Xepos.Mutators" Version="1.0.7" ExcludeAssets="runtime" PrivateAssets="all" />
+<PackageReference Include="Xepos.Mutators" Version="1.1.0" ExcludeAssets="runtime" PrivateAssets="all" />
 ```
 ---
 

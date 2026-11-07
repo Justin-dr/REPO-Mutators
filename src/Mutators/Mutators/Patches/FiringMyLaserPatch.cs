@@ -60,7 +60,7 @@ namespace Mutators.Mutators.Patches
 
             GameObject? laser = NetworkPrefabs.SpawnNetworkPrefab(
                 prefabRef, Vector3.zero, Quaternion.identity,
-                data: [__instance.steamID, MutatorSettings.FiringMyLaser.LaserActionCooldown, MutatorSettings.FiringMyLaser.LaserActionEnemyDamage, MutatorSettings.FiringMyLaser.LaserActionEnabled]
+                data: [__instance.photonView.ViewID, MutatorSettings.FiringMyLaser.LaserActionCooldown, MutatorSettings.FiringMyLaser.LaserActionEnemyDamage, MutatorSettings.FiringMyLaser.LaserActionEnabled]
             );
 
             if (!laser || laser == null)
