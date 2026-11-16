@@ -9,7 +9,7 @@ namespace Mutators.Patches
     {
         [HarmonyPrefix]
         [HarmonyPriority(Priority.First)]
-        [HarmonyPatch("GenerateDoneApply")] // TODO: nameof, requires GameLibs update
+        [HarmonyPatch(nameof(LevelGenerator.GenerateDoneApply))]
         static void LevelGeneratorGenerateDoneApplyPrefix()
         {
             if (SemiFunc.RunIsLevel())
@@ -20,7 +20,7 @@ namespace Mutators.Patches
         
         [HarmonyPostfix]
         [HarmonyPriority(Priority.Last)]
-        [HarmonyPatch("GenerateDoneApply")] // TODO: nameof, requires GameLibs update
+        [HarmonyPatch(nameof(LevelGenerator.GenerateDoneApply))]
         static void LevelGeneratorGenerateDoneApplyPostfix()
         {
             if (SemiFunc.RunIsLevel())

@@ -58,7 +58,7 @@ namespace Mutators.Mutators.Patches
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(ValuableDirector))]
-        [HarmonyPatch("SoftLockExtractionCheck")] // TODO: nameof, requires GameLibs update
+        [HarmonyPatch(nameof(ValuableDirector.SoftLockExtractionCheck))]
         static bool ValuableDirectorSoftLockExtractionCheckPrefix()
         {
             return false;
@@ -99,7 +99,7 @@ namespace Mutators.Mutators.Patches
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(LevelGenerator))]
-        [HarmonyPatch("GenerateDoneApply")] // TODO: nameof, requires GameLibs update
+        [HarmonyPatch(nameof(LevelGenerator.GenerateDoneApply))]
         static void LevelGeneratorGenerateDoneApplyPostfix()
         {
             if (SemiFunc.IsMasterClientOrSingleplayer() && SemiFunc.RunIsLevel())

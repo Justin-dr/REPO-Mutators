@@ -1,20 +1,21 @@
-﻿using HarmonyLib;
-using Mutators.Settings;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using HarmonyLib;
 using Mutators.Enums;
 using Mutators.Managers;
 using Mutators.Network;
+using Mutators.Settings;
+using REPOLib.Modules;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Mutators.Mutators.Patches
 {
     internal class AmalgamPatch
     {
         private static bool initDone = false;
-        private static Level actualLevel = null!;
         
         static void BeforePatchAll()
         {
@@ -34,7 +35,7 @@ namespace Mutators.Mutators.Patches
         {
             yield return new WaitForSeconds(1);
 
-            foreach (DirtFinderMapDoor door in UnityEngine.Object.FindObjectsByType<DirtFinderMapDoor>(FindObjectsSortMode.None))
+            foreach (DirtFinderMapDoor door in Object.FindObjectsByType<DirtFinderMapDoor>(FindObjectsSortMode.None))
             {
                 if (!door) continue;
 
@@ -55,42 +56,52 @@ namespace Mutators.Mutators.Patches
             }
         }
 
+        // TODO: Fix this in a way that it doesn't load literally all valuables into memory
+        // [HarmonyPrefix]
+        // [HarmonyPatch(typeof(ValuableDirector))]
+        // [HarmonyPatch(nameof(ValuableDirector.SetupHost))]
+        static void ValuableDirectorSetupHostPrefix(ValuableDirector __instance)
+        {
+            if (!MutatorSettings.Amalgam.AllowMixedValuables) return;
+            
+            Level currentLevel = LevelGenerator.Instance.Level;
+            IEnumerable<LevelValuables> levelValuables = GetAllEligibleLevels(currentLevel)
+                .SelectMany(level => level.ValuablePresets)
+                .Where(valuablePreset => valuablePreset && !currentLevel.ValuablePresets.Contains(valuablePreset))
+                .Distinct();
+
+            foreach (LevelValuables levelValuablesPreset in levelValuables)
+            {
+                __instance.tinyValuables.AddRange(levelValuablesPreset.tiny);
+                __instance.smallValuables.AddRange(levelValuablesPreset.small);
+                __instance.mediumValuables.AddRange(levelValuablesPreset.medium);
+                __instance.bigValuables.AddRange(levelValuablesPreset.big);
+                __instance.wideValuables.AddRange(levelValuablesPreset.wide);
+                __instance.tallValuables.AddRange(levelValuablesPreset.tall);
+                __instance.veryTallValuables.AddRange(levelValuablesPreset.veryTall);
+            }
+        }
+
         [HarmonyPrefix]
         [HarmonyPatch(typeof(LevelGenerator))]
-        [HarmonyPatch(nameof(LevelGenerator.SpawnModule))]
-        static void LevelGeneratorSpawnModulePrefix(LevelGenerator __instance)
+        [HarmonyPatch(nameof(LevelGenerator.PlanModule))]
+        static void LevelGeneratorPlanModulePrefix(LevelGenerator __instance)
         {
             if (!SemiFunc.IsMasterClientOrSingleplayer()) return;
             if (!initDone)
             {
-                actualLevel = __instance.Level;
-                __instance.Level = new Level();
-                __instance.Level.BlockObject = actualLevel.BlockObject;
-                __instance.Level.MusicPreset = actualLevel.MusicPreset;
-                __instance.Level.ConstantMusicPreset = actualLevel.ConstantMusicPreset;
-
                 RepoMutators.Logger.LogInfo("[Amalgam] Building level from the following available levels:");
-                foreach (Level level in GetAllEligibleLevels())
+                foreach (Level level in GetAllEligibleLevels(__instance.Level))
                 {
                     RepoMutators.Logger.LogInfo($"[Amalgam] {level.name}");
                     AddNormalModules(__instance, level);
                     AddPassageModules(__instance, level);
                     AddDeadEndModules(__instance, level);
                     AddExtractionModules(__instance, level);
+                    AddMegaModules(__instance,  level);
                 }
 
                 initDone = true;
-            }
-        }
-
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(EnvironmentDirector))]
-        [HarmonyPatch(nameof(EnvironmentDirector.Setup))]
-        static void EnvironmentDirectorSetupPrefix()
-        {
-            if (SemiFunc.IsMasterClientOrSingleplayer() && actualLevel != null)
-            {
-                LevelGenerator.Instance.Level = actualLevel;
             }
         }
 
@@ -137,15 +148,26 @@ namespace Mutators.Mutators.Patches
             levelGenerator.ModulesExtractionShuffled_2.Shuffle();
             levelGenerator.ModulesExtractionShuffled_3.Shuffle();
         }
+        
+        private static void AddMegaModules(LevelGenerator levelGenerator, Level level)
+        {
+            levelGenerator.ModulesMegaShuffled_1.AddRange(level.ModulesMega1);
+            levelGenerator.ModulesMegaShuffled_2.AddRange(level.ModulesMega2);
+            levelGenerator.ModulesMegaShuffled_3.AddRange(level.ModulesMega3);
 
-        private static IList<Level> GetAllEligibleLevels()
+            levelGenerator.ModulesMegaShuffled_1.Shuffle();
+            levelGenerator.ModulesMegaShuffled_2.Shuffle();
+            levelGenerator.ModulesMegaShuffled_3.Shuffle();
+        }
+
+        private static IList<Level> GetAllEligibleLevels(Level currentLevel)
         {
             ISet<string> excludedSet = new HashSet<string>(
                 MutatorSettings.Amalgam.ExcludedLevels.Select(level =>level.StartsWith("level - ", StringComparison.OrdinalIgnoreCase)? level.ToLowerInvariant(): ("level - " + level).ToLowerInvariant())
             );
 
-            return REPOLib.Modules.Levels.AllLevels
-                .Where(level => !level.name.Equals(actualLevel.name, StringComparison.OrdinalIgnoreCase))
+            return Levels.AllLevels
+                .Where(level => !level.name.Equals(currentLevel.name, StringComparison.OrdinalIgnoreCase))
                 .Where(level => !excludedSet.Contains(level.name.ToLowerInvariant()))
                 .ToList();
         }
@@ -158,7 +180,6 @@ namespace Mutators.Mutators.Patches
             }
             
             initDone = false;
-            actualLevel = null!;
         }
     }
 }
