@@ -6,6 +6,7 @@ using HarmonyLib;
 using Mutators.Enums;
 using Mutators.Managers;
 using Mutators.Network;
+using Mutators.Providers.Random;
 using Mutators.Settings;
 using REPOLib.Modules;
 using UnityEngine;
@@ -15,7 +16,8 @@ namespace Mutators.Mutators.Patches
 {
     internal class AmalgamPatch
     {
-        private static bool initDone = false;
+        private static bool modulesInitDone;
+        private static bool valuablesInitDone;
         
         static void BeforePatchAll()
         {
@@ -55,40 +57,14 @@ namespace Mutators.Mutators.Patches
                 }
             }
         }
-
-        // TODO: Fix this in a way that it doesn't load literally all valuables into memory
-        // [HarmonyPrefix]
-        // [HarmonyPatch(typeof(ValuableDirector))]
-        // [HarmonyPatch(nameof(ValuableDirector.SetupHost))]
-        static void ValuableDirectorSetupHostPrefix(ValuableDirector __instance)
-        {
-            if (!MutatorSettings.Amalgam.AllowMixedValuables) return;
-            
-            Level currentLevel = LevelGenerator.Instance.Level;
-            IEnumerable<LevelValuables> levelValuables = GetAllEligibleLevels(currentLevel)
-                .SelectMany(level => level.ValuablePresets)
-                .Where(valuablePreset => valuablePreset && !currentLevel.ValuablePresets.Contains(valuablePreset))
-                .Distinct();
-
-            foreach (LevelValuables levelValuablesPreset in levelValuables)
-            {
-                __instance.tinyValuables.AddRange(levelValuablesPreset.tiny);
-                __instance.smallValuables.AddRange(levelValuablesPreset.small);
-                __instance.mediumValuables.AddRange(levelValuablesPreset.medium);
-                __instance.bigValuables.AddRange(levelValuablesPreset.big);
-                __instance.wideValuables.AddRange(levelValuablesPreset.wide);
-                __instance.tallValuables.AddRange(levelValuablesPreset.tall);
-                __instance.veryTallValuables.AddRange(levelValuablesPreset.veryTall);
-            }
-        }
-
+        
         [HarmonyPrefix]
         [HarmonyPatch(typeof(LevelGenerator))]
         [HarmonyPatch(nameof(LevelGenerator.PlanModule))]
         static void LevelGeneratorPlanModulePrefix(LevelGenerator __instance)
         {
             if (!SemiFunc.IsMasterClientOrSingleplayer()) return;
-            if (!initDone)
+            if (!modulesInitDone)
             {
                 RepoMutators.Logger.LogInfo("[Amalgam] Building level from the following available levels:");
                 foreach (Level level in GetAllEligibleLevels(__instance.Level))
@@ -101,8 +77,58 @@ namespace Mutators.Mutators.Patches
                     AddMegaModules(__instance,  level);
                 }
 
-                initDone = true;
+                modulesInitDone = true;
             }
+        }
+        
+        // Patching the enumerator, otherwise this patch doesn't get triggered.
+        // Likely caused by the method getting inlined.
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(ValuableDirector))]
+        [HarmonyPatch(nameof(ValuableDirector.SetupHost), MethodType.Enumerator)]
+        static void ValuableDirectorSetupHostPrefix()
+        {
+            if (valuablesInitDone) return;
+            valuablesInitDone = true;
+
+            if (!MutatorSettings.Amalgam.AllowMixedValuables) return;
+
+            ValuableDirector valuableDirector = ValuableDirector.instance;
+            Level currentLevel = LevelGenerator.Instance.Level;
+            List<LevelValuables> levelValuables = GetAllEligibleLevels(currentLevel)
+                .SelectMany(level => level.ValuablePresets)
+                .Where(valuablePreset => valuablePreset && !currentLevel.ValuablePresets.Contains(valuablePreset))
+                .Distinct()
+                .ToList();
+
+            if (levelValuables.Count == 0) return;
+
+            List<PrefabRef> tiny = levelValuables.SelectMany(v => v.tiny).ToList();
+            List<PrefabRef> small = levelValuables.SelectMany(v => v.small).ToList();
+            List<PrefabRef> medium = levelValuables.SelectMany(v => v.medium).ToList();
+            List<PrefabRef> big = levelValuables.SelectMany(v => v.big).ToList();
+            List<PrefabRef> wide = levelValuables.SelectMany(v => v.wide).ToList();
+            List<PrefabRef> tall = levelValuables.SelectMany(v => v.tall).ToList();
+            List<PrefabRef> veryTall = levelValuables.SelectMany(v => v.veryTall).ToList();
+            
+            // These will all round down, which is probably fine.
+            int averageTiny = tiny.Count / levelValuables.Count;
+            int averageSmall = small.Count / levelValuables.Count;
+            int averageMedium = medium.Count / levelValuables.Count;
+            int averageBig = big.Count / levelValuables.Count;
+            int averageWide = wide.Count / levelValuables.Count;
+            int averageTall = tall.Count / levelValuables.Count;
+            int averageVeryTall = veryTall.Count / levelValuables.Count;
+            
+            RepoMutators.Logger.LogDebug($"[Amalgam] Adding valuables from {levelValuables.Count} other valuable presets: {string.Join(", ", levelValuables.Select(v => v.name))}");
+
+            AddRandomValuables(nameof(valuableDirector.tinyValuables), valuableDirector.tinyValuables, tiny, averageTiny);
+            AddRandomValuables(nameof(valuableDirector.smallValuables), valuableDirector.smallValuables, small, averageSmall);
+            AddRandomValuables(nameof(valuableDirector.mediumValuables), valuableDirector.mediumValuables, medium, averageMedium);
+            AddRandomValuables(nameof(valuableDirector.bigValuables), valuableDirector.bigValuables, big, averageBig);
+            AddRandomValuables(nameof(valuableDirector.wideValuables), valuableDirector.wideValuables, wide, averageWide);
+            AddRandomValuables(nameof(valuableDirector.tallValuables), valuableDirector.tallValuables, tall, averageTall);
+            AddRandomValuables(nameof(valuableDirector.veryTallValuables), valuableDirector.veryTallValuables, veryTall, averageVeryTall);
         }
 
         private static void AddNormalModules(LevelGenerator levelGenerator, Level level)
@@ -148,7 +174,7 @@ namespace Mutators.Mutators.Patches
             levelGenerator.ModulesExtractionShuffled_2.Shuffle();
             levelGenerator.ModulesExtractionShuffled_3.Shuffle();
         }
-        
+
         private static void AddMegaModules(LevelGenerator levelGenerator, Level level)
         {
             levelGenerator.ModulesMegaShuffled_1.AddRange(level.ModulesMega1);
@@ -172,14 +198,39 @@ namespace Mutators.Mutators.Patches
                 .ToList();
         }
 
+        private static void AddRandomValuables(string category, List<PrefabRef> target, List<PrefabRef> pool, int amount)
+        {
+            List<PrefabRef> picked = TakeRandomFromPool(pool, amount);
+            target.AddRange(picked);
+
+            string pickedValuableNames = picked.Count > 0 ? string.Join(", ", picked.Select(p => p.PrefabName)) : "none";
+            RepoMutators.Logger.LogDebug($"[Amalgam] Added {picked.Count}/{pool.Count} {category}: {pickedValuableNames}");
+        }
+
+        private static List<PrefabRef> TakeRandomFromPool(List<PrefabRef> pool, int amount)
+        {
+            IRandomProvider random = DI.Container.Resolve<IRandomProvider>();
+            int amountToTake = Math.Min(amount, pool.Count);
+            
+            List<PrefabRef> picked = new List<PrefabRef>(amountToTake);
+            for (int i = 0; i < amountToTake; i++)
+            {
+                int index = random.RandomRangeInt(0, pool.Count);
+                picked.Add(pool[index]);
+                pool.RemoveAt(index);
+            }
+            return picked;
+        }
+        
         static void AfterUnpatchAll()
         {
             if (SemiFunc.IsMasterClientOrSingleplayer())
             {
                 MutatorManager.Instance.GameStateChanged -= RemoveBrokenDoors;
             }
-            
-            initDone = false;
+
+            modulesInitDone = false;
+            valuablesInitDone = false;
         }
     }
 }

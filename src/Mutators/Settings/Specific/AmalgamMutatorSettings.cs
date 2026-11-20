@@ -16,7 +16,7 @@ namespace Mutators.Settings.Specific
         public const string ExcludedLevelsKey = "excluded-levels";
 
         private readonly ConfigEntry<string> _excludedLevels;
-        //private readonly ConfigEntry<bool> _allowMixedValuables;
+        private readonly ConfigEntry<bool> _allowMixedValuables;
         private IList<string> _excludedLevelsList;
 
         /// <summary>
@@ -27,7 +27,7 @@ namespace Mutators.Settings.Specific
         /// <summary>
         /// Whether valuables from levels other than the base level should be allowed to spawn.
         /// </summary>
-        public bool AllowMixedValuables => false;
+        public bool AllowMixedValuables => _allowMixedValuables.Value;
 
         /// <summary>
         /// List of level names that should be excluded from the Amalgam mutator.
@@ -48,12 +48,12 @@ namespace Mutators.Settings.Specific
                 $"Levels that should be excluded from the {name} Mutator. These can neither be picked as a base, nor will their rooms be used in the level generation"
             );
             
-            // _allowMixedValuables = config.Bind(
-            //     GetSection(name),
-            //     "Allow all valuables",
-            //     true,
-            //     $"Whether valuables from levels other than the base level should be allowed to spawn during the {name} Mutator."
-            // );
+            _allowMixedValuables = config.Bind(
+                GetSection(name),
+                "Allow all valuables",
+                true,
+                $"Whether valuables from levels other than the base level should be allowed to spawn during the {name} Mutator."
+            );
 
             _excludedLevelsList = ExcludedLevelsAsList();
             _excludedLevels.SettingChanged += SettingChanged;
