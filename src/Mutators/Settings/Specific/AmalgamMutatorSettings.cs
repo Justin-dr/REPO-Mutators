@@ -14,6 +14,10 @@ namespace Mutators.Settings.Specific
         /// Metadata key for the levels excluded from the Amalgam mutator.
         /// </summary>
         public const string ExcludedLevelsKey = "excluded-levels";
+        /// <summary>
+        /// Metadata key for allowing valuables from other levels during the Amalgam mutator.
+        /// </summary>
+        public const string AllowMixedValuablesKey = "allow-all-valuables";
 
         private readonly ConfigEntry<string> _excludedLevels;
         private readonly ConfigEntry<bool> _allowMixedValuables;
@@ -27,7 +31,7 @@ namespace Mutators.Settings.Specific
         /// <summary>
         /// Whether valuables from levels other than the base level should be allowed to spawn.
         /// </summary>
-        public bool AllowMixedValuables => _allowMixedValuables.Value;
+        public bool AllowMixedValuables => GetRuntimeOverride(AllowMixedValuablesKey, _allowMixedValuables.Value);
 
         /// <summary>
         /// List of level names that should be excluded from the Amalgam mutator.
